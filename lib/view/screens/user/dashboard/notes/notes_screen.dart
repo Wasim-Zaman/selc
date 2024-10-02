@@ -21,25 +21,20 @@ class NotesScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notes'),
-        backgroundColor: Colors.blueAccent,
-        centerTitle: true,
-        elevation: 2,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  return CategoryCard(category: categories[index]);
-                },
-              ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: categories.length,
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              itemBuilder: (context, index) {
+                return CategoryCard(category: categories[index]);
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
