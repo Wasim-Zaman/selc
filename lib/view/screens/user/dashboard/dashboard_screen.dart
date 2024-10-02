@@ -230,7 +230,6 @@ class _ServiceTileState extends State<ServiceTile>
   void _onTapUp(TapUpDetails details) {
     _controller.reverse();
     // Handle on tap
-    print('${widget.title} clicked!');
     if (widget.screen != null) {
       Navigations.push(context, widget.screen!);
     }
