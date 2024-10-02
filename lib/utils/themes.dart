@@ -10,6 +10,7 @@ class AppThemes {
       backgroundColor: Colors.blue,
       foregroundColor: Colors.white,
       elevation: 0,
+      scrolledUnderElevation: 0,
     ),
     buttonTheme: const ButtonThemeData(
       buttonColor: Colors.blue, // Primary color of buttons

@@ -12,6 +12,7 @@ class LoginScreen extends StatelessWidget {
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32.0),
         child: Column(
@@ -26,14 +27,12 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 40),
 
             // Welcome Text
-            Text(
+            const Text(
               'Welcome Back!',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color:
-                    isDarkMode ? Colors.white : Colors.black, // Adapt to theme
               ),
             ),
             const SizedBox(height: 16),
