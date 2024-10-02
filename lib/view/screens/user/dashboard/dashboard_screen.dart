@@ -22,7 +22,7 @@ class DashboardScreen extends StatelessWidget {
       ),
     },
     {
-      'title': 'Courses & Outlines',
+      'title': 'Courses & \nOutlines',
       'gradient': const LinearGradient(
         colors: [Colors.green, Colors.teal],
         begin: Alignment.topLeft,
