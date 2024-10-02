@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
-import 'package:selc/view/screens/dashboard/dashboard_screen.dart'; // Assume AppIcons is defined here
+import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart'; // Assume AppIcons is defined here
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
