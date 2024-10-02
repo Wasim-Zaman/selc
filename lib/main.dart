@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:selc/utils/themes.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
