@@ -53,7 +53,7 @@ class LoginScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // TODO: Add Google sign-in logic here
-                Navigations.push(context, DashboardScreen());
+                Navigations.pushReplacement(context, DashboardScreen());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: isDarkMode ? Colors.grey[800] : Colors.white,
