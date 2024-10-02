@@ -1,7 +1,20 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: library_private_types_in_public_api, avoid_print
 
-class DashboardScreen extends StatelessWidget {
-  DashboardScreen({super.key});
+import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  _DashboardScreenState createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  // Track the current page index for the carousel
+  int _currentIndex = 0;
 
   // Services data with icons and gradients
   final List<Map<String, dynamic>> services = [
@@ -61,29 +74,108 @@ class DashboardScreen extends StatelessWidget {
     },
   ];
 
+  // Image URLs for carousel
+  final List<String> imageUrls = [
+    'https://via.placeholder.com/600x400',
+    'https://via.placeholder.com/600x400?text=Image+2',
+    'https://via.placeholder.com/600x400?text=Image+3',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          itemCount: services.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // 2 items per row
-            crossAxisSpacing: 16.0, // Spacing between columns
-            mainAxisSpacing: 16.0, // Spacing between rows
-            childAspectRatio: 1.0, // Square items
-          ),
-          itemBuilder: (context, index) {
-            return ServiceTile(
-              title: services[index]['title'],
-              icon: services[index]['icon'],
-              gradient: services[index]['gradient'],
-            );
-          },
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Carousel slider at the top
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  CarouselSlider(
+                    options: CarouselOptions(
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      viewportFraction: 0.9,
+                      aspectRatio: 16 / 9,
+                      initialPage: 0,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                    ),
+                    items: imageUrls.map((url) {
+                      return Builder(
+                        builder: (BuildContext context) {
+                          return CachedNetworkImage(
+                            imageUrl: url,
+                            imageBuilder: (context, imageProvider) => Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 5.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            placeholder: (context, url) => const Center(
+                                child: CircularProgressIndicator()),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  Positioned(
+                    bottom: 16,
+                    child: AnimatedSmoothIndicator(
+                      activeIndex: _currentIndex,
+                      count: imageUrls.length,
+                      effect: const ExpandingDotsEffect(
+                        dotHeight: 10,
+                        dotWidth: 10,
+                        dotColor: Colors.white,
+                        activeDotColor: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // GridView with services
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: services.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                  childAspectRatio: 1.3,
+                ),
+                itemBuilder: (context, index) {
+                  return ServiceTile(
+                    title: services[index]['title'],
+                    icon: services[index]['icon'],
+                    gradient: services[index]['gradient'],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -151,13 +243,13 @@ class _ServiceTileState extends State<ServiceTile>
         scale: _scaleAnimation,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(12.0),
             gradient: widget.gradient,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
-                blurRadius: 8.0,
-                offset: const Offset(0, 4),
+                blurRadius: 4.0,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -166,15 +258,15 @@ class _ServiceTileState extends State<ServiceTile>
             children: <Widget>[
               Icon(
                 widget.icon,
-                size: 48,
+                size: 32,
                 color: Colors.white,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               Text(
                 widget.title,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
