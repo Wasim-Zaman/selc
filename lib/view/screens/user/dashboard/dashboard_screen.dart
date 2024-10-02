@@ -1,15 +1,15 @@
-// ignore_for_file: library_private_types_in_public_api, avoid_print
-
-import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/material.dart';
+import 'package:selc/utils/navigation.dart';
+import 'package:selc/view/screens/user/dashboard/notes/notes_screen.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  _DashboardScreenState createState() => _DashboardScreenState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
@@ -26,6 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
+      'screen': NotesScreen(),
     },
     {
       'title': 'Playlists',
@@ -141,8 +142,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       activeIndex: _currentIndex,
                       count: imageUrls.length,
                       effect: const ExpandingDotsEffect(
-                        dotHeight: 10,
-                        dotWidth: 10,
+                        dotHeight: 6,
+                        dotWidth: 6,
                         dotColor: Colors.white,
                         activeDotColor: Colors.blue,
                       ),
@@ -171,6 +172,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     title: services[index]['title'],
                     icon: services[index]['icon'],
                     gradient: services[index]['gradient'],
+                    screen: services[index]['screen'],
                   );
                 },
               ),
@@ -187,16 +189,18 @@ class ServiceTile extends StatefulWidget {
   final String title;
   final IconData icon;
   final Gradient gradient;
+  final Widget? screen;
 
   const ServiceTile({
     super.key,
     required this.title,
     required this.icon,
     required this.gradient,
+    this.screen,
   });
 
   @override
-  _ServiceTileState createState() => _ServiceTileState();
+  State<ServiceTile> createState() => _ServiceTileState();
 }
 
 class _ServiceTileState extends State<ServiceTile>
@@ -227,6 +231,9 @@ class _ServiceTileState extends State<ServiceTile>
     _controller.reverse();
     // Handle on tap
     print('${widget.title} clicked!');
+    if (widget.screen != null) {
+      Navigations.push(context, widget.screen!);
+    }
   }
 
   void _onTapCancel() {
