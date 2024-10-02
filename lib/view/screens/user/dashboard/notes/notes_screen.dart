@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:selc/utils/constants.dart'; // Import AppColors
 
 class NotesScreen extends StatelessWidget {
   // List of note categories
@@ -46,8 +47,8 @@ class CategoryCard extends StatelessWidget {
   LinearGradient _singleColorGradient() {
     final random = Random();
     final colors = [
-      Colors.red,
-      Colors.blue,
+      AppColors.lightPrimary,
+      AppColors.lightAccent,
       Colors.green,
       Colors.orange,
       Colors.purple,

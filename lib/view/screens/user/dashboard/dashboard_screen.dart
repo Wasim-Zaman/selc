@@ -1,8 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:selc/services/auth/auth_service.dart';
+import 'package:selc/utils/constants.dart'; // Import AppColors
 import 'package:selc/utils/navigation.dart';
+import 'package:selc/view/screens/user/auth/login_screen.dart';
+import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
 import 'package:selc/view/screens/user/dashboard/notes/notes_screen.dart';
+import 'package:selc/view/widgets/grid_item.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -72,6 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
+      'screen': const AboutMeScreen(),
     },
   ];
 
@@ -87,7 +93,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        centerTitle: true,
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              accountName:
+                  Text(AuthService().getCurrentUser()?.displayName ?? 'Guest'),
+              accountEmail: Text(AuthService().getCurrentUser()?.email ?? ''),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(
+                  AuthService().getCurrentUser()?.photoURL ??
+                      'https://via.placeholder.com/150',
+                ),
+              ),
+              decoration: const BoxDecoration(
+                color: AppColors.darkAccent, // Use your app's primary color
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Sign Out'),
+              onTap: () async {
+                await AuthService().signOut();
+                Navigations.pushAndRemoveUntil(context, const LoginScreen());
+              },
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -145,7 +178,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         dotHeight: 6,
                         dotWidth: 6,
                         dotColor: Colors.white,
-                        activeDotColor: Colors.blue,
+                        activeDotColor: AppColors.lightPrimary, // Updated color
                       ),
                     ),
                   ),
@@ -168,7 +201,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   childAspectRatio: 1.3,
                 ),
                 itemBuilder: (context, index) {
-                  return ServiceTile(
+                  return GridItem(
                     title: services[index]['title'],
                     icon: services[index]['icon'],
                     gradient: services[index]['gradient'],
@@ -181,112 +214,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-  }
-}
-
-// Service Tile Widget
-class ServiceTile extends StatefulWidget {
-  final String title;
-  final IconData icon;
-  final Gradient gradient;
-  final Widget? screen;
-
-  const ServiceTile({
-    super.key,
-    required this.title,
-    required this.icon,
-    required this.gradient,
-    this.screen,
-  });
-
-  @override
-  State<ServiceTile> createState() => _ServiceTileState();
-}
-
-class _ServiceTileState extends State<ServiceTile>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-
-    _scaleAnimation =
-        Tween<double>(begin: 1.0, end: 0.95).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-  }
-
-  void _onTapDown(TapDownDetails details) {
-    _controller.forward();
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    _controller.reverse();
-    // Handle on tap
-    if (widget.screen != null) {
-      Navigations.push(context, widget.screen!);
-    }
-  }
-
-  void _onTapCancel() {
-    _controller.reverse();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12.0),
-            gradient: widget.gradient,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4.0,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(
-                widget.icon,
-                size: 32,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }

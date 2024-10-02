@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
-import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart'; // Assume AppIcons is defined here
+import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -10,7 +12,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get current theme information
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
+    final AuthService _authService = AuthService();
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -42,26 +44,36 @@ class LoginScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 color: isDarkMode
-                    ? Colors.white70
-                    : Colors.black54, // Adapt to theme
+                    ? AppColors.darkBodyTextSecondary
+                    : AppColors.lightBodyTextSecondary, // Adapt to theme
               ),
             ),
             const SizedBox(height: 50),
 
             // Google Sign-In Button
             ElevatedButton(
-              onPressed: () {
-                // TODO: Add Google sign-in logic here
-                Navigations.pushReplacement(context, const DashboardScreen());
+              onPressed: () async {
+                User? user = await _authService.signInWithGoogle();
+                if (user != null) {
+                  print('User signed in: ${user.displayName}');
+                  // Navigate to home or perform other actions
+                  Navigations.pushReplacement(context, const DashboardScreen());
+                } else {
+                  print('Sign in failed or was canceled.');
+                }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: isDarkMode ? Colors.grey[800] : Colors.white,
-                foregroundColor: isDarkMode ? Colors.white : Colors.black,
+                backgroundColor:
+                    isDarkMode ? AppColors.darkButton : AppColors.lightButton,
+                foregroundColor:
+                    isDarkMode ? AppColors.darkIcon : AppColors.lightIcon,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   side: BorderSide(
-                      color: isDarkMode ? Colors.white70 : Colors.grey),
+                      color: isDarkMode
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder),
                 ),
                 elevation: 3,
               ),
@@ -82,8 +94,8 @@ class LoginScreen extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: isDarkMode
-                          ? Colors.white
-                          : Colors.black, // Adapt text to theme
+                          ? AppColors.darkBodyText
+                          : AppColors.lightBodyText, // Adapt text to theme
                     ),
                   ),
                 ],
@@ -98,8 +110,8 @@ class LoginScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 color: isDarkMode
-                    ? Colors.white70
-                    : Colors.black45, // Adapt to theme
+                    ? AppColors.darkBodyTextSecondary
+                    : AppColors.lightBodyTextSecondary,
               ),
             ),
           ],

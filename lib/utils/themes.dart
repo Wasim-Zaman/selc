@@ -5,13 +5,14 @@ class AppThemes {
   // Light Theme
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    // primarySwatch: AppColors.lightPrimary,
+    primaryColor: AppColors.lightPrimary,
     scaffoldBackgroundColor: AppColors.lightScaffoldBackground,
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.lightAppBarBackground,
-      foregroundColor: AppColors.lightAppBarForeground,
+      backgroundColor: AppColors.lightScaffoldBackground,
+      foregroundColor: AppColors.lightBodyText,
       elevation: 0,
       scrolledUnderElevation: 0,
+      centerTitle: true,
     ),
     buttonTheme: const ButtonThemeData(
       buttonColor: AppColors.lightButton, // Primary color of buttons
@@ -27,12 +28,14 @@ class AppThemes {
   // Dark Theme
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    // primarySwatch: AppColors.darkPrimary,
+    primaryColor: AppColors.darkPrimary,
     scaffoldBackgroundColor: AppColors.darkScaffoldBackground,
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.darkAppBarBackground,
+      backgroundColor: AppColors.darkScaffoldBackground,
       foregroundColor: AppColors.darkAppBarForeground,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: true,
     ),
     buttonTheme: const ButtonThemeData(
       buttonColor: AppColors.darkButton,
