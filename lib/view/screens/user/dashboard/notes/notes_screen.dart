@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class NotesScreen extends StatelessWidget {
@@ -22,19 +24,14 @@ class NotesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Notes'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: categories.length,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              itemBuilder: (context, index) {
-                return CategoryCard(category: categories[index]);
-              },
-            ),
-          ),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView.builder(
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            return CategoryCard(category: categories[index]);
+          },
+        ),
       ),
     );
   }
@@ -45,6 +42,34 @@ class CategoryCard extends StatelessWidget {
 
   const CategoryCard({super.key, required this.category});
 
+  // Function to generate a gradient with different shades of the same color
+  LinearGradient _singleColorGradient() {
+    final random = Random();
+    final colors = [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.pink,
+      Colors.teal,
+      Colors.cyan,
+      Colors.deepOrange,
+      Colors.deepPurple,
+      Colors.brown,
+    ];
+    final baseColor = colors[random.nextInt(colors.length)];
+    return LinearGradient(
+      colors: [
+        baseColor.withOpacity(0.7),
+        baseColor.withOpacity(0.9),
+        baseColor,
+      ],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -53,22 +78,31 @@ class CategoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
       ),
       elevation: 3,
-      child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        title: Text(
-          category,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          gradient: _singleColorGradient(),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: () {
+            // Handle category tap
+            // You can navigate to a detailed notes screen for each category
+          },
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                category,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
         ),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.blueAccent),
-        onTap: () {
-          // Handle category tap
-          // You can navigate to a detailed notes screen for each category
-        },
       ),
     );
   }
