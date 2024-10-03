@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:selc/services/auth/auth_service.dart';
-import 'package:selc/utils/constants.dart'; // Import AppColors
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
@@ -90,9 +89,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Text('Dashboard', style: theme.textTheme.headlineSmall),
       ),
       drawer: Drawer(
         child: Column(
@@ -107,13 +107,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       'https://via.placeholder.com/150',
                 ),
               ),
-              decoration: const BoxDecoration(
-                color: AppColors.darkAccent, // Use your app's primary color
+              decoration: BoxDecoration(
+                color: theme.primaryColor,
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Sign Out'),
+              leading: Icon(Icons.logout, color: theme.iconTheme.color),
+              title: Text('Sign Out', style: theme.textTheme.bodyLarge),
               onTap: () async {
                 await AuthService().signOut();
                 Navigations.pushAndRemoveUntil(context, const LoginScreen());
@@ -125,7 +125,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Carousel slider at the top
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Stack(
@@ -174,19 +173,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: AnimatedSmoothIndicator(
                       activeIndex: _currentIndex,
                       count: imageUrls.length,
-                      effect: const ExpandingDotsEffect(
+                      effect: ExpandingDotsEffect(
                         dotHeight: 6,
                         dotWidth: 6,
-                        dotColor: Colors.white,
-                        activeDotColor: AppColors.lightPrimary, // Updated color
+                        dotColor: theme.colorScheme.secondary,
+                        activeDotColor: theme.primaryColor,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-
-            // GridView with services
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),

@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:selc/utils/constants.dart'; // Import AppColors
 
 class NotesScreen extends StatelessWidget {
   // List of note categories
@@ -21,9 +20,10 @@ class NotesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notes'),
+        title: Text('Notes', style: theme.textTheme.headlineSmall),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -47,8 +47,6 @@ class CategoryCard extends StatelessWidget {
   LinearGradient _singleColorGradient() {
     final random = Random();
     final colors = [
-      AppColors.lightPrimary,
-      AppColors.lightAccent,
       Colors.green,
       Colors.orange,
       Colors.purple,

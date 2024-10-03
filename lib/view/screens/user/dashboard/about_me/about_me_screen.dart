@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:selc/utils/constants.dart';
 import 'package:selc/view/widgets/grid_item.dart'; // Import the GridItem widget
 
 class AboutMeScreen extends StatelessWidget {
@@ -7,9 +6,10 @@ class AboutMeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About Me'),
+        title: Text('About Me', style: theme.textTheme.headlineSmall),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -17,48 +17,46 @@ class AboutMeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header Section with personal details
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12.0),
-                  gradient: const LinearGradient(
-                    colors: [AppColors.lightPrimary, AppColors.lightAccent],
+                  gradient: LinearGradient(
+                    colors: [theme.primaryColor, theme.colorScheme.secondary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 50,
                       backgroundImage: NetworkImage(
                         'https://via.placeholder.com/150',
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       'John Doe',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       'Software Developer',
-                      style: TextStyle(fontSize: 16),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onPrimary,
+                      ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
-
-              // GridView for additional information or features
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: gridItems.length, // Number of items in the grid
+                itemCount: gridItems.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 16.0,
@@ -69,8 +67,8 @@ class AboutMeScreen extends StatelessWidget {
                   return GridItem(
                     title: gridItems[index]['title'],
                     icon: gridItems[index]['icon'],
-                    gradient: const LinearGradient(
-                      colors: [AppColors.lightPrimary, AppColors.lightAccent],
+                    gradient: LinearGradient(
+                      colors: [theme.primaryColor, theme.colorScheme.secondary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -78,32 +76,24 @@ class AboutMeScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Placeholder for Google Map
               Container(
                 height: 200,
-                color: AppColors.darkAppBarBackground,
-                child: const Center(
+                color: theme.cardColor,
+                child: Center(
                   child: Text(
                     'Google Map Placeholder',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
+                    style: theme.textTheme.titleLarge,
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Placeholder for PDF Resume
               Container(
                 height: 200,
-                color: AppColors.darkAppBarBackground,
-                child: const Center(
+                color: theme.cardColor,
+                child: Center(
                   child: Text(
                     'PDF Resume Placeholder',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
+                    style: theme.textTheme.titleLarge,
                   ),
                 ),
               ),

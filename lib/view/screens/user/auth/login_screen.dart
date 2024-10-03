@@ -10,8 +10,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get current theme information
-    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
     final AuthService _authService = AuthService();
     return Scaffold(
       appBar: AppBar(),
@@ -21,59 +20,39 @@ class LoginScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // Logo (Optional)
             const SizedBox(height: 80),
-            const FlutterLogo(
-              size: 100,
-            ),
+            const FlutterLogo(size: 100),
             const SizedBox(height: 40),
-
-            // Welcome Text
-            const Text(
+            Text(
               'Welcome Back!',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.displayMedium,
             ),
             const SizedBox(height: 16),
             Text(
               'Sign in to continue with your account',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: isDarkMode
-                    ? AppColors.darkBodyTextSecondary
-                    : AppColors.lightBodyTextSecondary, // Adapt to theme
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
             const SizedBox(height: 50),
-
-            // Google Sign-In Button
             ElevatedButton(
               onPressed: () async {
                 User? user = await _authService.signInWithGoogle();
                 if (user != null) {
                   print('User signed in: ${user.displayName}');
-                  // Navigate to home or perform other actions
                   Navigations.pushReplacement(context, const DashboardScreen());
                 } else {
                   print('Sign in failed or was canceled.');
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isDarkMode ? AppColors.darkButton : AppColors.lightButton,
-                foregroundColor:
-                    isDarkMode ? AppColors.darkIcon : AppColors.lightIcon,
+                backgroundColor: theme.primaryColor,
+                foregroundColor: theme.colorScheme.onPrimary,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  side: BorderSide(
-                      color: isDarkMode
-                          ? AppColors.darkBorder
-                          : AppColors.lightBorder),
                 ),
                 elevation: 3,
               ),
@@ -81,38 +60,28 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Image.asset(
-                    isDarkMode
-                        ? AppIcons.signinDark // Use dark theme image
-                        : AppIcons.siginLight, // Use light theme image
+                    theme.brightness == Brightness.dark
+                        ? AppIcons.signinDark
+                        : AppIcons.siginLight,
                     height: 24.0,
                     width: 24.0,
                   ),
                   const SizedBox(width: 12),
                   Text(
                     'Sign in with Google',
-                    style: TextStyle(
-                      fontSize: 16,
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: isDarkMode
-                          ? AppColors.darkBodyText
-                          : AppColors.lightBodyText, // Adapt text to theme
+                      color: theme.colorScheme.onPrimary,
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 30),
-
-            // Footer Text
             Text(
               'By continuing, you agree to our Terms of Service and Privacy Policy.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDarkMode
-                    ? AppColors.darkBodyTextSecondary
-                    : AppColors.lightBodyTextSecondary,
-              ),
+              style: theme.textTheme.bodySmall,
             ),
           ],
         ),
