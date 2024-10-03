@@ -1,20 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:selc/services/notes/notes_service.dart';
 
 class NotesScreen extends StatelessWidget {
-  // List of note categories
-  final List<String> categories = [
-    'Parts of Speech',
-    'Grammar',
-    'Active Passive',
-    'Tenses',
-    'Direct & Indirect Speech',
-    'Punctuation',
-    'Vocabulary',
-    'Writing Skills',
-    'Reading Comprehension',
-  ];
+  final NotesService _notesService = NotesService();
 
   NotesScreen({super.key});
 
@@ -25,14 +15,28 @@ class NotesScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Notes', style: theme.textTheme.headlineSmall),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: categories.length,
-          itemBuilder: (context, index) {
-            return CategoryCard(category: categories[index]);
-          },
-        ),
+      body: StreamBuilder<List<String>>(
+        stream: _notesService.getCategoriesStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No categories found'));
+          }
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return CategoryCard(category: snapshot.data![index]);
+              },
+            ),
+          );
+        },
       ),
     );
   }
