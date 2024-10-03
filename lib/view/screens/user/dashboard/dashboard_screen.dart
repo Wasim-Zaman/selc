@@ -82,9 +82,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // Image URLs for carousel
   final List<String> imageUrls = [
-    'https://via.placeholder.com/600x400',
-    'https://via.placeholder.com/600x400?text=Image+2',
-    'https://via.placeholder.com/600x400?text=Image+3',
+    'https://khazar.org/uploads/files/eng_depart/eng.jpg',
+    'https://yeapenglish.com/images/blog/4629725007-Ads%C4%B1z.png',
+    'https://www.krmangalamgurgaon.com/wp-content/uploads/2023/12/25-G2-1024x576-1920x1080.webp',
   ];
 
   @override
