@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:selc/utils/constants.dart';
 
 class AdmissionsScreen extends StatelessWidget {
   const AdmissionsScreen({super.key});
@@ -41,19 +43,11 @@ class AdmissionsScreen extends StatelessWidget {
 class AnnouncementCard extends StatelessWidget {
   final AdmissionAnnouncement announcement;
 
-  const AnnouncementCard({Key? key, required this.announcement})
-      : super(key: key);
+  const AnnouncementCard({super.key, required this.announcement});
 
   LinearGradient _singleColorGradient() {
     final random = Random();
-    final colors = [
-      Colors.blue,
-      Colors.green,
-      Colors.purple,
-      Colors.orange,
-      Colors.teal,
-      Colors.indigo,
-    ];
+    const colors = AppColors.randomColors;
     final baseColor = colors[random.nextInt(colors.length)];
     return LinearGradient(
       colors: [
@@ -86,7 +80,6 @@ class AnnouncementCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 8),
@@ -95,7 +88,6 @@ class AnnouncementCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white.withOpacity(0.9),
                 ),
               ),
               const SizedBox(height: 4),
@@ -103,7 +95,6 @@ class AnnouncementCard extends StatelessWidget {
                 '${_formatDate(announcement.startDate)} - ${_formatDate(announcement.endDate)}',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.white.withOpacity(0.9),
                 ),
               ),
               const SizedBox(height: 8),
@@ -111,7 +102,6 @@ class AnnouncementCard extends StatelessWidget {
                 announcement.details,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.8),
                 ),
               ),
               const SizedBox(height: 16),
@@ -119,10 +109,6 @@ class AnnouncementCard extends StatelessWidget {
                 onPressed: () {
                   // Add action for "Apply Now" button
                 },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black87,
-                  backgroundColor: Colors.white,
-                ),
                 child: const Text('Apply Now'),
               ),
             ],
