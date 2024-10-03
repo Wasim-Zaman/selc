@@ -56,3 +56,11 @@ class AppColors {
   static const Color highlightYellow =
       Color(0xFFFFF59D); // Light yellow for text highlighting
 }
+
+class AppConstants {
+  static const double defaultPadding = 16.0;
+  static const double defaultRadius = 12.0;
+  static const double defaultBorderWidth = 1.0;
+  static const double defaultIconSize = 24.0;
+  static const double defaultElevation = 4.0;
+}
