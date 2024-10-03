@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/navigation.dart';
+import 'package:selc/view/screens/admin/auth/admin_login_screen.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
 import 'package:selc/view/screens/user/dashboard/notes/notes_screen.dart';
@@ -110,6 +111,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               decoration: BoxDecoration(
                 color: theme.primaryColor,
               ),
+            ),
+            ListTile(
+              leading: Icon(Icons.person, color: theme.iconTheme.color),
+              title: Text('Admin', style: theme.textTheme.bodyLarge),
+              onTap: () {
+                Navigations.pushAndRemoveUntil(
+                  context,
+                  const AdminLoginScreen(),
+                );
+              },
             ),
             ListTile(
               leading: Icon(Icons.logout, color: theme.iconTheme.color),
