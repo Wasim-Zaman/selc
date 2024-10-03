@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:selc/providers/theme_provider.dart';
 import 'package:selc/services/auth/auth_admin_service.dart';
+import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
+import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -95,13 +97,22 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
             ),
             ListTile(
-              title: Text('Dark Mode'),
+              title: const Text('Dark Mode'),
               trailing: Switch(
                 value: themeProvider.themeMode == ThemeMode.dark,
                 onChanged: (value) {
                   themeProvider.toggleTheme();
                 },
               ),
+            ),
+            ListTile(
+              title: const Text('User App'),
+              onTap: () {
+                Navigations.pushAndRemoveUntil(
+                  context,
+                  const DashboardScreen(),
+                );
+              },
             ),
             // ... other drawer items
           ],
