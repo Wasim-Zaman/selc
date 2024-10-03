@@ -15,6 +15,10 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
 
     try {
+      if (phoneController.text.isEmpty || passwordController.text.isEmpty) {
+        emit(AuthFailure('Please enter your phone number and password.'));
+        return;
+      }
       bool success = await _authService.signInAdmin(
         phoneController.text.trim(),
         passwordController.text,

@@ -1,29 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:selc/services/notes/notes_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/cubits/admin/admin_cubit.dart';
+import 'package:selc/utils/navigation.dart';
+import 'package:selc/utils/snackbars.dart';
+import 'package:selc/view/screens/admin/dashboard/notes/add_notes_screen.dart';
+import 'package:selc/view/widgets/text_field_widget.dart';
 
-class AdminNotesCategoriesScreen extends StatefulWidget {
-  const AdminNotesCategoriesScreen({super.key});
+class AdminNotesCategoriesScreen extends StatelessWidget {
+  AdminNotesCategoriesScreen({super.key});
 
-  @override
-  State<AdminNotesCategoriesScreen> createState() =>
-      _AdminNotesCategoriesScreenState();
-}
-
-class _AdminNotesCategoriesScreenState
-    extends State<AdminNotesCategoriesScreen> {
   final TextEditingController _categoryController = TextEditingController();
-  final NotesService _notesService = NotesService();
-
-  void _addCategory() async {
-    if (_categoryController.text.isNotEmpty) {
-      await _notesService.addCategory(_categoryController.text);
-      _categoryController.clear();
-    }
-  }
-
-  void _deleteCategory(String category) async {
-    await _notesService.deleteCategory(category);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,23 +24,30 @@ class _AdminNotesCategoriesScreenState
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: TextFieldWidget(
                     controller: _categoryController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter new category',
-                    ),
+                    labelText: 'Enter new category',
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.add),
-                  onPressed: _addCategory,
+                  onPressed: () {
+                    if (_categoryController.text.isNotEmpty) {
+                      context
+                          .read<AdminCubit>()
+                          .addCategory(_categoryController.text);
+                      _categoryController.clear();
+                    } else {
+                      TopSnackbar.info(context, 'Please enter a category name');
+                    }
+                  },
                 ),
               ],
             ),
           ),
           Expanded(
             child: StreamBuilder<List<String>>(
-              stream: _notesService.getCategoriesStream(),
+              stream: context.read<AdminCubit>().getCategoriesStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -72,7 +65,13 @@ class _AdminNotesCategoriesScreenState
                       title: Text(snapshot.data![index]),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
-                        onPressed: () => _deleteCategory(snapshot.data![index]),
+                        onPressed: () => context
+                            .read<AdminCubit>()
+                            .deleteCategory(snapshot.data![index]),
+                      ),
+                      onTap: () => Navigations.push(
+                        context,
+                        AddNotesScreen(category: snapshot.data![index]),
                       ),
                     );
                   },
@@ -83,11 +82,5 @@ class _AdminNotesCategoriesScreenState
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _categoryController.dispose();
-    super.dispose();
   }
 }

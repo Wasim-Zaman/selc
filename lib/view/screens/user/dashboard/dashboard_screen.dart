@@ -143,7 +143,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onTap: () {
                 Navigations.pushAndRemoveUntil(
                   context,
-                  AdminLoginScreen(),
+                  const AdminLoginScreen(),
                 );
               },
             ),

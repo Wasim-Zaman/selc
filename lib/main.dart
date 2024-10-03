@@ -3,12 +3,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
+import 'package:selc/cubits/admin/admin_cubit.dart';
+import 'package:selc/providers/theme_provider.dart';
 import 'package:selc/services/auth/auth_service.dart';
+import 'package:selc/services/notes/notes_service.dart';
+import 'package:selc/services/storage/storage_service.dart';
 import 'package:selc/utils/themes.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:selc/providers/theme_provider.dart';
 import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 
 import 'firebase_options.dart';
@@ -30,9 +34,12 @@ void main() async {
       user != null ? const DashboardScreen() : const LoginScreen();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: MyApp(initialScreen: initialScreen),
+    BlocProvider(
+      create: (context) => AdminCubit(NotesService(), StorageService()),
+      child: ChangeNotifierProvider(
+        create: (_) => ThemeProvider(),
+        child: MyApp(initialScreen: initialScreen),
+      ),
     ),
   );
 }

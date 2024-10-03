@@ -40,4 +40,12 @@ class NotesService {
       return snapshot.docs.map((doc) => doc.id).toList();
     });
   }
+
+  Future<void> addNote(String category, String title, String url) async {
+    await _firestore.collection('notes').doc(category).collection('files').add({
+      'title': title,
+      'url': url,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
 }
