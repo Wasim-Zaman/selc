@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:selc/services/notes/notes_service.dart';
+import 'package:selc/utils/constants.dart';
 
 class NotesScreen extends StatelessWidget {
   final NotesService _notesService = NotesService();
@@ -50,17 +51,7 @@ class CategoryCard extends StatelessWidget {
   // Function to generate a gradient with different shades of the same color
   LinearGradient _singleColorGradient() {
     final random = Random();
-    final colors = [
-      Colors.green,
-      Colors.orange,
-      Colors.purple,
-      Colors.pink,
-      Colors.teal,
-      Colors.cyan,
-      Colors.deepOrange,
-      Colors.deepPurple,
-      Colors.brown,
-    ];
+    const colors = AppColors.randomColors;
     final baseColor = colors[random.nextInt(colors.length)];
     return LinearGradient(
       colors: [

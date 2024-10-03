@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:selc/utils/constants.dart';
 
 class CoursesOutlinesScreen extends StatelessWidget {
   const CoursesOutlinesScreen({super.key});
@@ -59,13 +61,7 @@ class CoursesOutlinesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Courses & Outlines',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
+        title: const Text('Courses & Outlines'),
       ),
       body: ListView.builder(
         itemCount: _courses.length,
@@ -84,17 +80,7 @@ class CourseExpansionPanel extends StatelessWidget {
 
   LinearGradient _singleColorGradient() {
     final random = Random();
-    final colors = [
-      Colors.green,
-      Colors.orange,
-      Colors.purple,
-      Colors.pink,
-      Colors.teal,
-      Colors.cyan,
-      Colors.deepOrange,
-      Colors.deepPurple,
-      Colors.brown,
-    ];
+    const colors = AppColors.randomColors;
     final baseColor = colors[random.nextInt(colors.length)];
     return LinearGradient(
       colors: [
@@ -110,27 +96,30 @@ class CourseExpansionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(10),
+      margin: const EdgeInsets.all(AppConstants.defaultPadding),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(AppConstants.defaultRadius),
       ),
-      elevation: 3,
+      elevation: AppConstants.defaultElevation,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(AppConstants.defaultRadius),
           gradient: _singleColorGradient(),
         ),
-        child: ExpansionTile(
-          title: Text(
-            course.title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            title: Text(
+              course.title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
+            children: course.weeks.map((week) {
+              return WeekExpansionPanel(week: week);
+            }).toList(),
           ),
-          children: course.weeks.map((week) {
-            return WeekExpansionPanel(week: week);
-          }).toList(),
         ),
       ),
     );
@@ -140,24 +129,27 @@ class CourseExpansionPanel extends StatelessWidget {
 class WeekExpansionPanel extends StatelessWidget {
   final Week week;
 
-  const WeekExpansionPanel({Key? key, required this.week}) : super(key: key);
+  const WeekExpansionPanel({super.key, required this.week});
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text(
-        week.title,
-        style: const TextStyle(color: Colors.white),
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        title: Text(
+          week.title,
+          style: const TextStyle(color: Colors.white),
+        ),
+        children: week.topics.map((topic) {
+          return ListTile(
+            title: Text(
+              topic,
+              style: const TextStyle(color: Colors.white),
+            ),
+            leading: const Icon(Icons.circle, size: 10, color: Colors.white),
+          );
+        }).toList(),
       ),
-      children: week.topics.map((topic) {
-        return ListTile(
-          title: Text(
-            topic,
-            style: const TextStyle(color: Colors.white),
-          ),
-          leading: const Icon(Icons.circle, size: 10, color: Colors.white),
-        );
-      }).toList(),
     );
   }
 }

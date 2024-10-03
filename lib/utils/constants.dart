@@ -55,6 +55,20 @@ class AppColors {
   static const Color darkNeutral = Color(0xFF2C2C2C); // Dark grey
   static const Color highlightYellow =
       Color(0xFFFFF59D); // Light yellow for text highlighting
+
+  // Random Colors
+  static const List<Color> randomColors = [
+    Color(0xFF1E88E5), // Deep blue
+    Color(0xFF26A69A), // Teal
+    Color(0xFFF57C00), // Dark orange
+    Color(0xFF7B1FA2), // Purple
+    Color(0xFF388E3C), // Green
+    Color(0xFF0277BD), // Light blue
+    Color(0xFFD32F2F), // Red
+    Color(0xFF5D4037), // Brown
+    Color(0xFF455A64), // Blue grey
+    Color(0xFF00796B), // Dark teal
+  ];
 }
 
 class AppConstants {
