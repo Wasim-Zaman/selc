@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:selc/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart'; // Import the GridItem widget
 
 class AboutMeScreen extends StatelessWidget {
@@ -67,6 +68,7 @@ class AboutMeScreen extends StatelessWidget {
                   return GridItem(
                     title: gridItems[index]['title'],
                     icon: gridItems[index]['icon'],
+                    screen: gridItems[index]['screen'],
                     gradient: LinearGradient(
                       colors: [theme.primaryColor, theme.colorScheme.secondary],
                       begin: Alignment.topLeft,
@@ -114,5 +116,6 @@ final List<Map<String, dynamic>> gridItems = [
   {
     'title': 'YouTube Channel',
     'icon': Icons.video_library,
+    'screen': const YouTubeChannelScreen(),
   },
 ];
