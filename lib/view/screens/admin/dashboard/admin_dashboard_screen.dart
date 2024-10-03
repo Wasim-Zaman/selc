@@ -1,4 +1,8 @@
+// ignore_for_file: unused_local_variable, no_leading_underscores_for_local_identifiers
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:selc/providers/theme_provider.dart';
 import 'package:selc/services/auth/auth_admin_service.dart';
 import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
@@ -10,6 +14,7 @@ class AdminDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final AdminAuthService _authService = AdminAuthService();
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     // Admin services data with icons and gradients
     final List<Map<String, dynamic>> adminServices = [
@@ -89,6 +94,16 @@ class AdminDashboardScreen extends StatelessWidget {
                 ),
               ),
             ),
+            ListTile(
+              title: Text('Dark Mode'),
+              trailing: Switch(
+                value: themeProvider.themeMode == ThemeMode.dark,
+                onChanged: (value) {
+                  themeProvider.toggleTheme();
+                },
+              ),
+            ),
+            // ... other drawer items
           ],
         ),
       ),

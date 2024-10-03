@@ -1,11 +1,17 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:selc/providers/theme_provider.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/auth/admin_login_screen.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
+import 'package:selc/view/screens/user/dashboard/admissions/admissions_screen.dart';
+import 'package:selc/view/screens/user/dashboard/courses_outlines/courses_outlines_screen.dart';
 import 'package:selc/view/screens/user/dashboard/notes/notes_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -50,6 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
+      'screen': const CoursesOutlinesScreen(),
     },
     {
       'title': 'Updates',
@@ -68,6 +75,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
+      'screen': const AdmissionsScreen(),
     },
     {
       'title': 'About Me',
@@ -91,9 +99,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Dashboard', style: theme.textTheme.headlineSmall),
+        actions: [
+          IconButton(
+            icon: Icon(
+              themeProvider.themeMode == ThemeMode.light
+                  ? Icons.dark_mode
+                  : Icons.light_mode,
+            ),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: Column(
