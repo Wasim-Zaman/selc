@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:selc/models/note.dart';
 
 class NotesService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -46,6 +47,19 @@ class NotesService {
       'title': title,
       'url': url,
       'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Stream<List<Note>> getNotesStream(String category) {
+    return _firestore
+        .collection('notes')
+        .doc(category)
+        .collection('files')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => Note.fromMap(doc.id, doc.data()))
+          .toList();
     });
   }
 }

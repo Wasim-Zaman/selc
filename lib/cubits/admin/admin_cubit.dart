@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/models/note.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
 
@@ -47,5 +48,9 @@ class AdminCubit extends Cubit<AdminState> {
 
   Stream<List<String>> getCategoriesStream() {
     return _notesService.getCategoriesStream();
+  }
+
+  Stream<List<Note>> getNotesStream(String category) {
+    return _notesService.getNotesStream(category);
   }
 }

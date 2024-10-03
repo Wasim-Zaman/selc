@@ -12,7 +12,7 @@ import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
 import 'package:selc/view/screens/user/dashboard/admissions/admissions_screen.dart';
 import 'package:selc/view/screens/user/dashboard/courses_outlines/courses_outlines_screen.dart';
-import 'package:selc/view/screens/user/dashboard/notes/notes_screen.dart';
+import 'package:selc/view/screens/user/dashboard/notes/notes_categories_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -37,7 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      'screen': NotesScreen(),
+      'screen': NotesCategoriesScreen(),
     },
     {
       'title': 'Playlists',
