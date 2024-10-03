@@ -28,7 +28,7 @@ class AppColors {
   static const Color lightBodyText = Color(0xFF212121); // Very dark grey
   static const Color lightBodyTextSecondary = Color(0xFF757575); // Medium grey
   static const Color lightCard = Color(0xFFFFFFFF); // White
-  static const Color lightIcon = Color(0xFFFFFFFF); // Dark grey
+  static const Color lightIcon = Color.fromARGB(255, 0, 0, 0); // Dark grey
   static const Color lightBorder = Color(0xFFBDBDBD); // Light grey
   static const Color lightDivider = Color(0xFFE0E0E0); // Very light grey
 
