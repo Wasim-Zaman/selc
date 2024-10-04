@@ -26,8 +26,14 @@ class AdminCubit extends Cubit<AdminState> {
   Future<void> deleteCategory(String category) async {
     emit(AdminLoading());
     try {
+      // Delete the category and all associated notes from Firestore
       await _notesService.deleteCategory(category);
-      emit(AdminSuccess('Category deleted successfully'));
+
+      // Delete the entire folder for the category from Firebase Storage
+      await _storageService.deleteFolder('notes/$category');
+
+      emit(AdminSuccess(
+          'Category and all associated notes deleted successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
     }
@@ -52,5 +58,17 @@ class AdminCubit extends Cubit<AdminState> {
 
   Stream<List<Note>> getNotesStream(String category) {
     return _notesService.getNotesStream(category);
+  }
+
+  Future<void> deleteNote(
+      String category, String noteId, String fileUrl) async {
+    emit(AdminLoading());
+    try {
+      await _notesService.deleteNote(category, noteId);
+      await _storageService.deleteFile(fileUrl);
+      emit(AdminSuccess('Note deleted successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
   }
 }

@@ -25,11 +25,35 @@ class NotesService {
     }
   }
 
-  Future<void> deleteCategory(String category) async {
+  Future<List<String>> deleteCategory(String category) async {
     try {
+      // Get all notes in the category
+      final notesSnapshot = await _firestore
+          .collection('notes')
+          .doc(category)
+          .collection('files')
+          .get();
+
+      // Delete all notes in the category from Firestore
+      final batch = _firestore.batch();
+      for (var doc in notesSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+
+      // Delete the category document
       await _firestore.collection(_categoriesCollection).doc(category).delete();
+
+      // Delete the notes collection for the category
+      await _firestore.collection('notes').doc(category).delete();
+
+      // Return the list of file paths to be deleted from storage
+      return notesSnapshot.docs
+          .map((doc) => 'notes/$category/${doc.id}.pdf')
+          .toList();
     } catch (e) {
       print('Error deleting category: $e');
+      rethrow;
     }
   }
 
@@ -48,6 +72,15 @@ class NotesService {
       'url': url,
       'timestamp': FieldValue.serverTimestamp(),
     });
+  }
+
+  Future<void> deleteNote(String category, String noteId) async {
+    await _firestore
+        .collection('notes')
+        .doc(category)
+        .collection('files')
+        .doc(noteId)
+        .delete();
   }
 
   Stream<List<Note>> getNotesStream(String category) {

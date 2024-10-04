@@ -4,8 +4,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
+import 'package:selc/models/note.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/snackbars.dart';
+import 'package:selc/view/widgets/note_card.dart';
+import 'package:selc/view/widgets/placeholder_widget.dart';
 import 'package:selc/view/widgets/text_field_widget.dart';
 
 class AddNotesScreen extends StatelessWidget {
@@ -51,6 +54,43 @@ class AddNotesScreen extends StatelessWidget {
                     padding: EdgeInsets.only(top: AppConstants.defaultPadding),
                     child: Center(child: CircularProgressIndicator()),
                   ),
+                const SizedBox(height: AppConstants.defaultPadding),
+                Expanded(
+                  child: StreamBuilder<List<Note>>(
+                    stream: context.read<AdminCubit>().getNotesStream(category),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return PlaceholderWidgets.listPlaceholder();
+                      }
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(child: Text('No notes found'));
+                      }
+                      return ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          return Dismissible(
+                            key: Key(snapshot.data![index].id),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              color: Colors.red,
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 16),
+                              child:
+                                  const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            onDismissed: (direction) {
+                              _deleteNote(context, snapshot.data![index]);
+                            },
+                            child: NoteCard(note: snapshot.data![index]),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
               ],
             );
           },
@@ -73,5 +113,9 @@ class AddNotesScreen extends StatelessWidget {
             file,
           );
     }
+  }
+
+  void _deleteNote(BuildContext context, Note note) {
+    context.read<AdminCubit>().deleteNote(category, note.id, note.url);
   }
 }

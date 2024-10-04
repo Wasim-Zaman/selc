@@ -11,4 +11,23 @@ class StorageService {
     TaskSnapshot taskSnapshot = await uploadTask;
     return await taskSnapshot.ref.getDownloadURL();
   }
+
+  Future<void> deleteFolder(String folderPath) async {
+    final ref = _storage.ref(folderPath);
+    final result = await ref.listAll();
+
+    await Future.wait(result.items.map((item) => item.delete()));
+    await Future.wait(
+        result.prefixes.map((prefix) => deleteFolder(prefix.fullPath)));
+  }
+
+  Future<void> deleteFile(String fileUrl) async {
+    try {
+      Reference ref = _storage.refFromURL(fileUrl);
+      await ref.delete();
+    } catch (e) {
+      print('Error deleting file: $e');
+      rethrow;
+    }
+  }
 }
