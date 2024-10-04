@@ -102,10 +102,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Dashboard',
-          style: theme.textTheme.headlineSmall,
-        ),
+        title: const Text('Dashboard'),
         actions: [
           BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, state) {

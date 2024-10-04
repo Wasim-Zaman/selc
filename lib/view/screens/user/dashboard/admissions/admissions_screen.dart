@@ -83,7 +83,7 @@ class AnnouncementCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
+              const Text(
                 'Application Period:',
                 style: TextStyle(
                   fontSize: 16,
@@ -93,14 +93,14 @@ class AnnouncementCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '${_formatDate(announcement.startDate)} - ${_formatDate(announcement.endDate)}',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 announcement.details,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                 ),
               ),

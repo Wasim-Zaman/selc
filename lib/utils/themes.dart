@@ -56,7 +56,6 @@ class AppThemes {
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       surface: AppColors.lightCard,
-      background: AppColors.lightScaffoldBackground,
       error: AppColors.error,
     ),
   );
@@ -115,7 +114,6 @@ class AppThemes {
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       surface: AppColors.darkCard,
-      background: AppColors.darkScaffoldBackground,
       error: AppColors.error,
     ),
   );

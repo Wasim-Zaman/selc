@@ -14,10 +14,10 @@ class NotesCategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notes', style: theme.textTheme.headlineSmall),
+        title: const Text('Notes'),
       ),
       body: StreamBuilder<List<String>>(
         stream: _notesService.getCategoriesStream(),
