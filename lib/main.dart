@@ -1,14 +1,10 @@
-// ignore_for_file: unused_local_variable
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/providers/theme_provider.dart';
-import 'package:selc/services/auth/auth_service.dart';
+import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
 import 'package:selc/utils/themes.dart';
@@ -26,20 +22,21 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  final authService = AuthService();
-  // await authService.initializeAuth();
-
   User? user = FirebaseAuth.instance.currentUser;
   Widget initialScreen =
       user != null ? const DashboardScreen() : const LoginScreen();
 
   runApp(
-    BlocProvider(
-      create: (context) => AdminCubit(NotesService(), StorageService()),
-      child: ChangeNotifierProvider(
-        create: (_) => ThemeProvider(),
-        child: MyApp(initialScreen: initialScreen),
-      ),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AdminCubit(NotesService(), StorageService()),
+        ),
+        BlocProvider(
+          create: (context) => ThemeCubit(),
+        ),
+      ],
+      child: MyApp(initialScreen: initialScreen),
     ),
   );
 }
@@ -50,14 +47,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, state) {
         return MaterialApp(
           title: 'SELC',
           debugShowCheckedModeBanner: false,
           theme: AppThemes.lightTheme,
           darkTheme: AppThemes.darkTheme,
-          themeMode: themeProvider.themeMode,
+          themeMode: state.themeMode,
           home: initialScreen,
         );
       },

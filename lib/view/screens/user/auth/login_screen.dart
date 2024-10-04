@@ -1,12 +1,13 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:selc/providers/theme_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
+import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -15,20 +16,23 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final AuthService _authService = AuthService();
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final AuthService authService = AuthService();
 
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-            icon: Icon(
-              themeProvider.themeMode == ThemeMode.light
-                  ? Icons.dark_mode
-                  : Icons.light_mode,
-            ),
-            onPressed: () {
-              themeProvider.toggleTheme();
+          BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, state) {
+              return IconButton(
+                icon: Icon(
+                  state.themeMode == ThemeMode.light
+                      ? Icons.dark_mode
+                      : Icons.light_mode,
+                ),
+                onPressed: () {
+                  context.read<ThemeCubit>().toggleTheme();
+                },
+              );
             },
           ),
         ],
@@ -58,12 +62,14 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 50),
             ElevatedButton(
               onPressed: () async {
-                User? user = await _authService.signInWithGoogle();
+                User? user = await authService.signInWithGoogle();
                 if (user != null) {
-                  print('User signed in: ${user.displayName}');
-                  Navigations.pushReplacement(context, const DashboardScreen());
+                  Navigations.pushAndRemoveUntil(
+                    context,
+                    const DashboardScreen(),
+                  );
                 } else {
-                  print('Sign in failed or was canceled.');
+                  TopSnackbar.error(context, 'Sign in failed or was canceled.');
                 }
               },
               style: ElevatedButton.styleFrom(

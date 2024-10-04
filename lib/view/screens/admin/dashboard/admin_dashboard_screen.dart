@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:selc/providers/theme_provider.dart';
-import 'package:selc/services/auth/auth_admin_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
 import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
@@ -13,8 +12,6 @@ class AdminDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final AdminAuthService _authService = AdminAuthService();
-    final themeProvider = Provider.of<ThemeProvider>(context);
 
     // Admin services data with icons and gradients
     final List<Map<String, dynamic>> adminServices = [
@@ -94,14 +91,18 @@ class AdminDashboardScreen extends StatelessWidget {
                 ),
               ),
             ),
-            ListTile(
-              title: const Text('Dark Mode'),
-              trailing: Switch(
-                value: themeProvider.themeMode == ThemeMode.dark,
-                onChanged: (value) {
-                  themeProvider.toggleTheme();
-                },
-              ),
+            BlocBuilder<ThemeCubit, ThemeState>(
+              builder: (context, state) {
+                return ListTile(
+                  title: const Text('Dark Mode'),
+                  trailing: Switch(
+                    value: state.themeMode == ThemeMode.dark,
+                    onChanged: (value) {
+                      context.read<ThemeCubit>().toggleTheme();
+                    },
+                  ),
+                );
+              },
             ),
             ListTile(
               title: const Text('User App'),

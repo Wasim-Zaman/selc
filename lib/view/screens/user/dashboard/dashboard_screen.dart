@@ -3,8 +3,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:selc/providers/theme_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/auth/admin_login_screen.dart';
@@ -99,7 +99,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -108,14 +107,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           style: theme.textTheme.headlineSmall,
         ),
         actions: [
-          IconButton(
-            icon: Icon(
-              themeProvider.themeMode == ThemeMode.light
-                  ? Icons.dark_mode
-                  : Icons.light_mode,
-            ),
-            onPressed: () {
-              themeProvider.toggleTheme();
+          BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, state) {
+              return IconButton(
+                icon: Icon(
+                  state.themeMode == ThemeMode.light
+                      ? Icons.dark_mode
+                      : Icons.light_mode,
+                ),
+                onPressed: () {
+                  context.read<ThemeCubit>().toggleTheme();
+                },
+              );
             },
           ),
         ],

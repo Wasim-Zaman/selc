@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:selc/models/course_outline.dart';
 import 'package:selc/utils/constants.dart';
 
 class CoursesOutlinesScreen extends StatelessWidget {
@@ -8,8 +9,101 @@ class CoursesOutlinesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Course> _courses = [
-      // Keep the existing course data
+    final List<Course> courses = [
+      Course(
+        title: 'Introduction to English Grammar',
+        weeks: [
+          Week(
+            title: 'Week 1: Parts of Speech',
+            topics: [
+              'Nouns',
+              'Pronouns',
+              'Verbs',
+              'Adjectives',
+              'Adverbs',
+            ],
+          ),
+          Week(
+            title: 'Week 2: Sentence Structure',
+            topics: [
+              'Subject and Predicate',
+              'Simple Sentences',
+              'Compound Sentences',
+              'Complex Sentences',
+            ],
+          ),
+          Week(
+            title: 'Week 3: Tenses',
+            topics: [
+              'Present Tense',
+              'Past Tense',
+              'Future Tense',
+              'Perfect Tenses',
+            ],
+          ),
+        ],
+      ),
+      Course(
+        title: 'Advanced English Composition',
+        weeks: [
+          Week(
+            title: 'Week 1: Essay Structure',
+            topics: [
+              'Introduction',
+              'Body Paragraphs',
+              'Conclusion',
+              'Thesis Statements',
+            ],
+          ),
+          Week(
+            title: 'Week 2: Rhetorical Strategies',
+            topics: [
+              'Ethos, Pathos, Logos',
+              'Persuasive Writing',
+              'Descriptive Writing',
+              'Narrative Writing',
+            ],
+          ),
+          Week(
+            title: 'Week 3: Research and Citation',
+            topics: [
+              'Finding Credible Sources',
+              'MLA Citation',
+              'APA Citation',
+              'Avoiding Plagiarism',
+            ],
+          ),
+        ],
+      ),
+      Course(
+        title: 'English Literature Survey',
+        weeks: [
+          Week(
+            title: 'Week 1: Medieval Literature',
+            topics: [
+              'Beowulf',
+              'The Canterbury Tales',
+              'Sir Gawain and the Green Knight',
+            ],
+          ),
+          Week(
+            title: 'Week 2: Renaissance Literature',
+            topics: [
+              'Shakespeare\'s Sonnets',
+              'Hamlet',
+              'Paradise Lost',
+            ],
+          ),
+          Week(
+            title: 'Week 3: Romantic Poetry',
+            topics: [
+              'William Wordsworth',
+              'Samuel Taylor Coleridge',
+              'John Keats',
+            ],
+          ),
+        ],
+      ),
     ];
 
     return Scaffold(
@@ -20,9 +114,9 @@ class CoursesOutlinesScreen extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        itemCount: _courses.length,
+        itemCount: courses.length,
         itemBuilder: (context, index) {
-          return CourseExpansionPanel(course: _courses[index]);
+          return CourseExpansionPanel(course: courses[index]);
         },
       ),
     );
@@ -68,7 +162,6 @@ class CourseExpansionPanel extends StatelessWidget {
               course.title,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                color: AppColors.lightAppBarForeground,
                 fontSize: 18,
               ),
             ),
@@ -119,18 +212,4 @@ class WeekExpansionPanel extends StatelessWidget {
       ),
     );
   }
-}
-
-class Course {
-  final String title;
-  final List<Week> weeks;
-
-  Course({required this.title, required this.weeks});
-}
-
-class Week {
-  final String title;
-  final List<String> topics;
-
-  Week({required this.title, required this.topics});
 }

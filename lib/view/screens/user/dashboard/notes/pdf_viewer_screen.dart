@@ -45,8 +45,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
           ? PDFView(
               filePath: localPath,
               enableSwipe: true,
-              swipeHorizontal: true,
-              autoSpacing: false,
+              swipeHorizontal: false,
+              autoSpacing: true,
               pageFling: false,
             )
           : const Center(child: CircularProgressIndicator()),
