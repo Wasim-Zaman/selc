@@ -4,6 +4,7 @@ import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/note.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/view/widgets/note_card.dart';
+import 'package:selc/view/widgets/placeholder_widget.dart';
 
 class NotesScreen extends StatelessWidget {
   final String category;
@@ -20,7 +21,7 @@ class NotesScreen extends StatelessWidget {
         stream: context.read<AdminCubit>().getNotesStream(category),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return PlaceholderWidgets.listPlaceholder();
           }
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));

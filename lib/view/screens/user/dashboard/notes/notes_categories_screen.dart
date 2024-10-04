@@ -5,6 +5,7 @@ import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/user/dashboard/notes/notes_screen.dart';
+import 'package:selc/view/widgets/placeholder_widget.dart';
 
 class NotesCategoriesScreen extends StatelessWidget {
   final NotesService _notesService = NotesService();
@@ -22,7 +23,7 @@ class NotesCategoriesScreen extends StatelessWidget {
         stream: _notesService.getCategoriesStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return PlaceholderWidgets.listPlaceholder();
           }
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
