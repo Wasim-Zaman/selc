@@ -1,8 +1,9 @@
 class Course {
+  final String? id;
   final String title;
   final List<Week> weeks;
 
-  Course({required this.title, required this.weeks});
+  Course({this.id = '', required this.title, required this.weeks});
 }
 
 class Week {

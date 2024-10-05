@@ -1,122 +1,42 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/course_outline.dart';
 import 'package:selc/utils/constants.dart';
+import 'package:selc/view/widgets/placeholder_widget.dart';
 
 class CoursesOutlinesScreen extends StatelessWidget {
   const CoursesOutlinesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Course> courses = [
-      Course(
-        title: 'Introduction to English Grammar',
-        weeks: [
-          Week(
-            title: 'Week 1: Parts of Speech',
-            topics: [
-              'Nouns',
-              'Pronouns',
-              'Verbs',
-              'Adjectives',
-              'Adverbs',
-            ],
-          ),
-          Week(
-            title: 'Week 2: Sentence Structure',
-            topics: [
-              'Subject and Predicate',
-              'Simple Sentences',
-              'Compound Sentences',
-              'Complex Sentences',
-            ],
-          ),
-          Week(
-            title: 'Week 3: Tenses',
-            topics: [
-              'Present Tense',
-              'Past Tense',
-              'Future Tense',
-              'Perfect Tenses',
-            ],
-          ),
-        ],
-      ),
-      Course(
-        title: 'Advanced English Composition',
-        weeks: [
-          Week(
-            title: 'Week 1: Essay Structure',
-            topics: [
-              'Introduction',
-              'Body Paragraphs',
-              'Conclusion',
-              'Thesis Statements',
-            ],
-          ),
-          Week(
-            title: 'Week 2: Rhetorical Strategies',
-            topics: [
-              'Ethos, Pathos, Logos',
-              'Persuasive Writing',
-              'Descriptive Writing',
-              'Narrative Writing',
-            ],
-          ),
-          Week(
-            title: 'Week 3: Research and Citation',
-            topics: [
-              'Finding Credible Sources',
-              'MLA Citation',
-              'APA Citation',
-              'Avoiding Plagiarism',
-            ],
-          ),
-        ],
-      ),
-      Course(
-        title: 'English Literature Survey',
-        weeks: [
-          Week(
-            title: 'Week 1: Medieval Literature',
-            topics: [
-              'Beowulf',
-              'The Canterbury Tales',
-              'Sir Gawain and the Green Knight',
-            ],
-          ),
-          Week(
-            title: 'Week 2: Renaissance Literature',
-            topics: [
-              'Shakespeare\'s Sonnets',
-              'Hamlet',
-              'Paradise Lost',
-            ],
-          ),
-          Week(
-            title: 'Week 3: Romantic Poetry',
-            topics: [
-              'William Wordsworth',
-              'Samuel Taylor Coleridge',
-              'John Keats',
-            ],
-          ),
-        ],
-      ),
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Courses & Outlines',
             style: Theme.of(context).textTheme.headlineSmall),
         elevation: 0,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        itemCount: courses.length,
-        itemBuilder: (context, index) {
-          return CourseExpansionPanel(course: courses[index]);
+      body: StreamBuilder<List<Course>>(
+        stream: context.read<AdminCubit>().getCoursesStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return PlaceholderWidgets.listPlaceholder();
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No courses found'));
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              return CourseExpansionPanel(course: snapshot.data![index]);
+            },
+          );
         },
       ),
     );
@@ -195,18 +115,16 @@ class WeekExpansionPanel extends StatelessWidget {
         title: Text(
           week.title,
           style: const TextStyle(
-            color: AppColors.lightAppBarForeground,
             fontWeight: FontWeight.w600,
           ),
         ),
         children: week.topics.map((topic) {
           return ListTile(
-            title: Text(
-              topic,
-              style: const TextStyle(color: AppColors.lightBodyText),
+            title: Text(topic),
+            leading: const Icon(
+              Icons.check_circle_outline,
+              size: AppConstants.defaultIconSize,
             ),
-            leading: const Icon(Icons.check_circle_outline,
-                size: AppConstants.defaultIconSize, color: AppColors.lightIcon),
           );
         }).toList(),
       ),

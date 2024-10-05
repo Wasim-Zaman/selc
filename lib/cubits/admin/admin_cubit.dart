@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/models/course_outline.dart';
 import 'package:selc/models/note.dart';
+import 'package:selc/services/courses_outline/courses_outline_service.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
 
@@ -10,8 +12,11 @@ part 'admin_states.dart';
 class AdminCubit extends Cubit<AdminState> {
   final NotesService _notesService;
   final StorageService _storageService;
+  final CoursesOutlineService _coursesOutlineService;
 
-  AdminCubit(this._notesService, this._storageService) : super(AdminInitial());
+  AdminCubit(
+      this._notesService, this._storageService, this._coursesOutlineService)
+      : super(AdminInitial());
 
   Future<void> addCategory(String category) async {
     emit(AdminLoading());
@@ -67,6 +72,41 @@ class AdminCubit extends Cubit<AdminState> {
       await _notesService.deleteNote(category, noteId);
       await _storageService.deleteFile(fileUrl);
       emit(AdminSuccess('Note deleted successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  // Courses Outlines
+  Stream<List<Course>> getCoursesStream() {
+    return _coursesOutlineService.getCoursesStream();
+  }
+
+  Future<void> addCourse(Course course) async {
+    emit(AdminLoading());
+    try {
+      await _coursesOutlineService.addCourse(course);
+      emit(AdminSuccess('Course added successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> updateCourse(String courseId, Course course) async {
+    emit(AdminLoading());
+    try {
+      await _coursesOutlineService.updateCourse(courseId, course);
+      emit(AdminSuccess('Course updated successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> deleteCourse(String courseId) async {
+    emit(AdminLoading());
+    try {
+      await _coursesOutlineService.deleteCourse(courseId);
+      emit(AdminSuccess('Course deleted successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
     }

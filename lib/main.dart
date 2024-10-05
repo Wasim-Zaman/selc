@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
+import 'package:selc/services/courses_outline/courses_outline_service.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
 import 'package:selc/utils/themes.dart';
@@ -30,7 +31,11 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => AdminCubit(NotesService(), StorageService()),
+          create: (context) => AdminCubit(
+            NotesService(),
+            StorageService(),
+            CoursesOutlineService(),
+          ),
         ),
         BlocProvider(
           create: (context) => ThemeCubit(),

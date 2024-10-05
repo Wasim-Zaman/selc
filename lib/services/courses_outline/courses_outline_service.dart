@@ -17,6 +17,7 @@ class CoursesOutlineService {
         }).toList();
 
         return Course(
+          id: doc.id,
           title: data['title'],
           weeks: weeks,
         );
