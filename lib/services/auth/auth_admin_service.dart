@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminAuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _adminCollection = 'admins';
   final String _adminDocId = 'admin';
+
+  static const String _isAdminLoggedInKey = 'isAdminLoggedIn';
 
   Future<bool> signInAdmin(String phoneNumber, String password) async {
     try {
@@ -35,5 +38,15 @@ class AdminAuthService {
       print('Error signing in admin: $e');
       return false;
     }
+  }
+
+  Future<bool> isAdminLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isAdminLoggedInKey) ?? false;
+  }
+
+  Future<void> setAdminLoggedIn(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_isAdminLoggedInKey, value);
   }
 }

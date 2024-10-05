@@ -25,6 +25,7 @@ class AuthCubit extends Cubit<AuthState> {
       );
 
       if (success) {
+        await _authService.setAdminLoggedIn(true);
         emit(AuthSuccess());
       } else {
         emit(AuthFailure('Invalid credentials. Please try again.'));
@@ -32,6 +33,20 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       emit(AuthFailure('An error occurred. Please try again later.'));
     }
+  }
+
+  Future<void> logout() async {
+    emit(AuthLoading());
+    try {
+      await _authService.setAdminLoggedIn(false);
+      emit(AuthSuccess());
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
+    }
+  }
+
+  Future<bool> isAdminLoggedIn() async {
+    return await _authService.isAdminLoggedIn();
   }
 
   @override

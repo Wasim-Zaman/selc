@@ -4,10 +4,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/auth/admin_login_screen.dart';
+import 'package:selc/view/screens/admin/dashboard/admin_dashboard_screen.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
 import 'package:selc/view/screens/user/dashboard/admissions/admissions_screen.dart';
@@ -26,6 +28,17 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   // Track the current page index for the carousel
   int _currentIndex = 0;
+  bool _isAdminLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<AuthCubit>().isAdminLoggedIn().then((value) {
+      setState(() {
+        _isAdminLoggedIn = value;
+      });
+    });
+  }
 
   // Services data with icons and gradients
   final List<Map<String, dynamic>> services = [
@@ -143,7 +156,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onTap: () {
                 Navigations.pushAndRemoveUntil(
                   context,
-                  const AdminLoginScreen(),
+                  _isAdminLoggedIn
+                      ? const AdminDashboardScreen()
+                      : const AdminLoginScreen(),
                 );
               },
             ),
