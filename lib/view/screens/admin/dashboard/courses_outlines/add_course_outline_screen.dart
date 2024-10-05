@@ -7,7 +7,8 @@ import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/widgets/text_field_widget.dart';
 
 class AddCourseOutlineScreen extends StatefulWidget {
-  const AddCourseOutlineScreen({super.key});
+  final Course? courseToEdit;
+  const AddCourseOutlineScreen({super.key, this.courseToEdit});
 
   @override
   State<AddCourseOutlineScreen> createState() => _AddCourseOutlineScreenState();
@@ -17,6 +18,15 @@ class _AddCourseOutlineScreenState extends State<AddCourseOutlineScreen> {
   final _formKey = GlobalKey<FormState>();
   final _courseTitle = TextEditingController();
   final List<Week> _weeks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.courseToEdit != null) {
+      _courseTitle.text = widget.courseToEdit!.title;
+      _weeks.addAll(widget.courseToEdit!.weeks);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,18 +145,19 @@ class _AddCourseOutlineScreenState extends State<AddCourseOutlineScreen> {
   void _submitCourse(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       final course = Course(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: widget.courseToEdit?.id ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
         title: _courseTitle.text,
         weeks: _weeks,
       );
 
-      context.read<AdminCubit>().addCourse(course);
+      if (widget.courseToEdit != null) {
+        context.read<AdminCubit>().updateCourse(course.id!, course);
+      } else {
+        context.read<AdminCubit>().addCourse(course);
+      }
 
-      // Clear the form
-      setState(() {
-        _courseTitle.clear();
-        _weeks.clear();
-      });
+      Navigator.pop(context);
     }
   }
 

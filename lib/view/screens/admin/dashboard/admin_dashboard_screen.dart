@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/utils/navigation.dart';
-import 'package:selc/view/screens/admin/dashboard/courses_outlines/add_course_outline_screen.dart';
+import 'package:selc/view/screens/admin/dashboard/courses_outlines/manage_courses_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
 import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
@@ -43,7 +43,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': const AddCourseOutlineScreen(),
+        'screen': const ManageCoursesScreen(),
       },
       {
         'title': 'Manage Updates',
