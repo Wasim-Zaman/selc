@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:selc/utils/constants.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:selc/utils/constants.dart';
 
 class PlaceholderWidgets {
   static Widget rectanglePlaceholder({
@@ -90,6 +90,79 @@ class PlaceholderWidgets {
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         return rectanglePlaceholder(height: 120);
+      },
+    );
+  }
+
+  // Admissions placeholder
+  static Widget cardPlaceholder() {
+    return ListView.builder(
+      itemCount: 2, // Show 3 placeholder items
+      itemBuilder: (context, index) {
+        return Builder(
+          builder: (context) {
+            final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+            return Shimmer.fromColors(
+              baseColor:
+                  isDarkMode ? AppColors.darkNeutral : AppColors.lightNeutral,
+              highlightColor:
+                  isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              child: Card(
+                margin: const EdgeInsets.all(16),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                child: Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color:
+                        isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 200,
+                          height: 24,
+                          color: isDarkMode
+                              ? AppColors.darkNeutral
+                              : AppColors.lightNeutral,
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          width: 150,
+                          height: 16,
+                          color: isDarkMode
+                              ? AppColors.darkNeutral
+                              : AppColors.lightNeutral,
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: 100,
+                          height: 16,
+                          color: isDarkMode
+                              ? AppColors.darkNeutral
+                              : AppColors.lightNeutral,
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          width: double.infinity,
+                          height: 40,
+                          color: isDarkMode
+                              ? AppColors.darkNeutral
+                              : AppColors.lightNeutral,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }

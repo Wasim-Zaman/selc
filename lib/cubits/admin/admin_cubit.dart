@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/models/admission_announcement.dart';
 import 'package:selc/models/course_outline.dart';
 import 'package:selc/models/note.dart';
+import 'package:selc/services/admissions/admissions_services.dart';
 import 'package:selc/services/courses_outline/courses_outline_service.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
@@ -13,9 +15,10 @@ class AdminCubit extends Cubit<AdminState> {
   final NotesService _notesService;
   final StorageService _storageService;
   final CoursesOutlineService _coursesOutlineService;
+  final AdmissionsService _admissionsService;
 
-  AdminCubit(
-      this._notesService, this._storageService, this._coursesOutlineService)
+  AdminCubit(this._notesService, this._storageService,
+      this._coursesOutlineService, this._admissionsService)
       : super(AdminInitial());
 
   Future<void> addCategory(String category) async {
@@ -107,6 +110,43 @@ class AdminCubit extends Cubit<AdminState> {
     try {
       await _coursesOutlineService.deleteCourse(courseId);
       emit(AdminSuccess('Course deleted successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  // Admissions
+  Stream<List<AdmissionAnnouncement>> getAdmissionAnnouncementsStream() {
+    return _admissionsService.getAnnouncementsStream();
+  }
+
+  Future<void> addAdmissionAnnouncement(
+      AdmissionAnnouncement announcement) async {
+    emit(AdminLoading());
+    try {
+      await _admissionsService.addAnnouncement(announcement);
+      emit(AdminSuccess('Announcement added successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> updateAdmissionAnnouncement(
+      AdmissionAnnouncement announcement) async {
+    emit(AdminLoading());
+    try {
+      await _admissionsService.updateAnnouncement(announcement);
+      emit(AdminSuccess('Announcement updated successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> deleteAdmissionAnnouncement(String id) async {
+    emit(AdminLoading());
+    try {
+      await _admissionsService.deleteAnnouncement(id);
+      emit(AdminSuccess('Announcement deleted successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
     }

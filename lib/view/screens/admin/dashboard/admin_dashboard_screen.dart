@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/utils/navigation.dart';
+import 'package:selc/view/screens/admin/dashboard/admissions/admin_admissions.dart';
 import 'package:selc/view/screens/admin/dashboard/courses_outlines/manage_courses_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
@@ -64,6 +65,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        'screen': const AdminAdmissionsScreen(),
       },
       {
         'title': 'Analytics',

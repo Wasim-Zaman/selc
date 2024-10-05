@@ -1,7 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/cubits/admin/admin_cubit.dart';
+import 'package:selc/models/admission_announcement.dart';
+import 'package:selc/utils/constants.dart';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-import 'package:selc/utils/constants.dart';
+import 'package:selc/view/widgets/placeholder_widget.dart';
 
 class AdmissionsScreen extends StatelessWidget {
   const AdmissionsScreen({super.key});
@@ -9,32 +13,81 @@ class AdmissionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    // Sample admission announcements
-    final List<AdmissionAnnouncement> announcements = [
-      AdmissionAnnouncement(
-        title: 'Fall 2023 Admissions',
-        startDate: DateTime(2023, 8, 1),
-        endDate: DateTime(2023, 9, 15),
-        details: 'Applications are open for all undergraduate programs.',
-      ),
-      AdmissionAnnouncement(
-        title: 'Spring 2024 Admissions',
-        startDate: DateTime(2023, 12, 1),
-        endDate: DateTime(2024, 1, 15),
-        details: 'Limited seats available for graduate programs.',
-      ),
-    ];
+    final adminCubit = context.read<AdminCubit>();
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Admissions', style: theme.textTheme.headlineSmall),
       ),
-      body: ListView.builder(
-        itemCount: announcements.length,
-        itemBuilder: (context, index) {
-          return AnnouncementCard(announcement: announcements[index]);
+      body: StreamBuilder<List<AdmissionAnnouncement>>(
+        stream: adminCubit.getAdmissionAnnouncementsStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // placeholder
+            return PlaceholderWidgets.cardPlaceholder();
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No announcements available'));
+          }
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              return AnnouncementCard(announcement: snapshot.data![index]);
+            },
+          );
         },
+      ),
+    );
+  }
+}
+
+class AnnouncementCardPlaceholder extends StatelessWidget {
+  const AnnouncementCardPlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(16),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        height: 200, // Adjust the height as needed
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.grey[300],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 200,
+                height: 24,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: 150,
+                height: 16,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: 100,
+                height: 16,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                height: 40,
+                color: Colors.grey[400],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -121,18 +174,4 @@ class AnnouncementCard extends StatelessWidget {
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
-}
-
-class AdmissionAnnouncement {
-  final String title;
-  final DateTime startDate;
-  final DateTime endDate;
-  final String details;
-
-  AdmissionAnnouncement({
-    required this.title,
-    required this.startDate,
-    required this.endDate,
-    required this.details,
-  });
 }
