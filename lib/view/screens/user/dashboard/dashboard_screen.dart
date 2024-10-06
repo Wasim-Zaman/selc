@@ -70,7 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'lottieUrl':
           'https://assets3.lottiefiles.com/packages/lf20_swnrn2oy.json',
       'gradient': const LinearGradient(
-        colors: [Colors.green, Colors.teal],
+        colors: [Colors.blue, Colors.lightBlueAccent],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -81,7 +81,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'lottieUrl':
           'https://assets5.lottiefiles.com/packages/lf20_qjosmr4w.json',
       'gradient': const LinearGradient(
-        colors: [Colors.blue, Colors.lightBlueAccent],
+        colors: [Colors.green, Colors.teal],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),

@@ -9,13 +9,13 @@ class GridItem extends StatelessWidget {
   final Function(BuildContext)? onTap;
 
   const GridItem({
-    Key? key,
+    super.key,
     required this.title,
     required this.lottieUrl,
     required this.gradient,
     this.screen,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,6 @@ class GridItem extends StatelessWidget {
                 title,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
