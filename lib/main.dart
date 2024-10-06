@@ -10,6 +10,7 @@ import 'package:selc/services/admissions/admissions_services.dart';
 import 'package:selc/services/auth/auth_admin_service.dart';
 import 'package:selc/services/courses_outline/courses_outline_service.dart';
 import 'package:selc/services/notes/notes_service.dart';
+import 'package:selc/services/playlists/playlist_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
 import 'package:selc/utils/themes.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
@@ -42,6 +43,7 @@ void main() async {
             StorageService(),
             CoursesOutlineService(),
             AdmissionsService(),
+            PlaylistService(),
           ),
         ),
         BlocProvider(

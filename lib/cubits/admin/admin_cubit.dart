@@ -4,10 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/models/admission_announcement.dart';
 import 'package:selc/models/course_outline.dart';
 import 'package:selc/models/note.dart';
+import 'package:selc/models/playlist_model.dart';
 import 'package:selc/services/admissions/admissions_services.dart';
 import 'package:selc/services/courses_outline/courses_outline_service.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
+import 'package:selc/services/playlists/playlist_service.dart';
 
 part 'admin_states.dart';
 
@@ -16,10 +18,15 @@ class AdminCubit extends Cubit<AdminState> {
   final StorageService _storageService;
   final CoursesOutlineService _coursesOutlineService;
   final AdmissionsService _admissionsService;
+  final PlaylistService _playlistService;
 
-  AdminCubit(this._notesService, this._storageService,
-      this._coursesOutlineService, this._admissionsService)
-      : super(AdminInitial());
+  AdminCubit(
+    this._notesService,
+    this._storageService,
+    this._coursesOutlineService,
+    this._admissionsService,
+    this._playlistService,
+  ) : super(AdminInitial());
 
   Future<void> addCategory(String category) async {
     emit(AdminLoading());
@@ -147,6 +154,62 @@ class AdminCubit extends Cubit<AdminState> {
     try {
       await _admissionsService.deleteAnnouncement(id);
       emit(AdminSuccess('Announcement deleted successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  // Playlists
+  Stream<List<PlaylistModel>> getPlaylistsStream() {
+    return _playlistService.getPlaylistsStream();
+  }
+
+  Future<void> addPlaylist(PlaylistModel playlist) async {
+    emit(AdminLoading());
+    try {
+      await _playlistService.addPlaylist(playlist);
+      emit(AdminSuccess('Playlist added successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> updatePlaylist(String playlistId, PlaylistModel playlist) async {
+    emit(AdminLoading());
+    try {
+      await _playlistService.updatePlaylist(playlistId, playlist);
+      emit(AdminSuccess('Playlist updated successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> deletePlaylist(String playlistId) async {
+    emit(AdminLoading());
+    try {
+      await _playlistService.deletePlaylist(playlistId);
+      emit(AdminSuccess('Playlist deleted successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> addVideoToPlaylist(String playlistId, VideoModel video) async {
+    emit(AdminLoading());
+    try {
+      await _playlistService.addVideoToPlaylist(playlistId, video);
+      emit(AdminSuccess('Video added to playlist successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> removeVideoFromPlaylist(
+      String playlistId, String videoId) async {
+    emit(AdminLoading());
+    try {
+      await _playlistService.removeVideoFromPlaylist(playlistId, videoId);
+      emit(AdminSuccess('Video removed from playlist successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
     }

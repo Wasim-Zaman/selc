@@ -12,6 +12,7 @@ class ManageCoursesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Manage Courses',
@@ -39,24 +40,39 @@ class ManageCoursesScreen extends StatelessWidget {
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(child: Text('No courses found'));
               }
-              return ListView.builder(
+              return ListView.separated(
                 padding: const EdgeInsets.all(AppConstants.defaultPadding),
                 itemCount: snapshot.data!.length,
+                separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
                   final course = snapshot.data![index];
                   return Card(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: AppConstants.defaultPadding,
+                    ),
                     child: ListTile(
-                      title: Text(course.title),
-                      subtitle: Text('${course.weeks.length} weeks'),
+                      title: Text(
+                        course.title,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${course.weeks.length} weeks',
+                        style: theme.textTheme.bodySmall,
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.edit),
+                            icon: Icon(Icons.edit,
+                                color: theme.colorScheme.primary),
                             onPressed: () => _editCourse(context, course),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete),
+                            icon: Icon(Icons.delete,
+                                color: theme.colorScheme.error),
                             onPressed: () => _deleteCourse(context, course),
                           ),
                         ],

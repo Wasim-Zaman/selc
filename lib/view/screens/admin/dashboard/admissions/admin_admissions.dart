@@ -1,9 +1,8 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/admission_announcement.dart';
+import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/snackbars.dart';
 
 class AdminAdmissionsScreen extends StatelessWidget {
@@ -46,8 +45,10 @@ class AdminAdmissionsScreen extends StatelessWidget {
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(child: Text('No announcements available'));
               }
-              return ListView.builder(
+              return ListView.separated(
+                padding: const EdgeInsets.all(AppConstants.defaultPadding),
                 itemCount: snapshot.data!.length,
+                separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
                   return AnnouncementCard(
                     announcement: snapshot.data![index],
@@ -122,21 +123,32 @@ class AnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(
+        vertical: 4,
+        horizontal: AppConstants.defaultPadding,
+      ),
       child: ListTile(
-        title: Text(announcement.title),
+        title: Text(
+          announcement.title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         subtitle: Text(
-            '${_formatDate(announcement.startDate)} - ${_formatDate(announcement.endDate)}'),
+          '${_formatDate(announcement.startDate)} - ${_formatDate(announcement.endDate)}',
+          style: theme.textTheme.bodySmall,
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.edit),
+              icon: Icon(Icons.edit, color: theme.colorScheme.primary),
               onPressed: onEdit,
             ),
             IconButton(
-              icon: const Icon(Icons.delete),
+              icon: Icon(Icons.delete, color: theme.colorScheme.error),
               onPressed: onDelete,
             ),
           ],
