@@ -93,10 +93,35 @@ class AnnouncementCardPlaceholder extends StatelessWidget {
   }
 }
 
-class AnnouncementCard extends StatelessWidget {
+class AnnouncementCard extends StatefulWidget {
   final AdmissionAnnouncement announcement;
 
   const AnnouncementCard({super.key, required this.announcement});
+
+  @override
+  _AnnouncementCardState createState() => _AnnouncementCardState();
+}
+
+class _AnnouncementCardState extends State<AnnouncementCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    )..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0.5, end: 1.0).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   LinearGradient _singleColorGradient() {
     final random = Random();
@@ -112,6 +137,12 @@ class AnnouncementCard extends StatelessWidget {
     );
   }
 
+  bool _isNew() {
+    final now = DateTime.now();
+    final difference = now.difference(widget.announcement.startDate);
+    return difference.inDays <= 7;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -123,49 +154,74 @@ class AnnouncementCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           gradient: _singleColorGradient(),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                announcement.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.announcement.title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Application Period:',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${_formatDate(widget.announcement.startDate)} - ${_formatDate(widget.announcement.endDate)}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.announcement.details,
+                    style: const TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+            if (_isNew())
+              Positioned(
+                top: 0,
+                right: 0,
+                child: FadeTransition(
+                  opacity: _animation,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'NEW',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Application Period:',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${_formatDate(announcement.startDate)} - ${_formatDate(announcement.endDate)}',
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                announcement.details,
-                style: const TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Add action for "Apply Now" button
-                },
-                child: const Text('Apply Now'),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );

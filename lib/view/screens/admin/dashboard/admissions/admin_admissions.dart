@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/admission_announcement.dart';
+import 'package:selc/utils/snackbars.dart';
 
 class AdminAdmissionsScreen extends StatelessWidget {
   const AdminAdmissionsScreen({super.key});
@@ -26,13 +27,9 @@ class AdminAdmissionsScreen extends StatelessWidget {
       body: BlocConsumer<AdminCubit, AdminState>(
         listener: (context, state) {
           if (state is AdminSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            TopSnackbar.success(context, state.message);
           } else if (state is AdminFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error), backgroundColor: Colors.red),
-            );
+            TopSnackbar.error(context, state.error);
           }
         },
         builder: (context, state) {
