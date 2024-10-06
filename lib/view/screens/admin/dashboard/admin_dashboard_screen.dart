@@ -18,11 +18,12 @@ class AdminDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Admin services data with icons and gradients
+    // Admin services data with Lottie URLs and gradients
     final List<Map<String, dynamic>> adminServices = [
       {
         'title': 'Manage Notes',
-        'icon': Icons.note,
+        'lottieUrl':
+            'https://assets10.lottiefiles.com/packages/lf20_w51pcehl.json',
         'gradient': const LinearGradient(
           colors: [Colors.purple, Colors.blue],
           begin: Alignment.topLeft,
@@ -32,7 +33,8 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Playlists',
-        'icon': Icons.playlist_play,
+        'lottieUrl':
+            'https://assets9.lottiefiles.com/private_files/lf30_WdTEui.json',
         'gradient': const LinearGradient(
           colors: [Colors.orange, Colors.red],
           begin: Alignment.topLeft,
@@ -42,7 +44,8 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Courses',
-        'icon': Icons.school,
+        'lottieUrl':
+            'https://assets3.lottiefiles.com/packages/lf20_swnrn2oy.json',
         'gradient': const LinearGradient(
           colors: [Colors.green, Colors.teal],
           begin: Alignment.topLeft,
@@ -52,7 +55,8 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Updates',
-        'icon': Icons.update,
+        'lottieUrl':
+            'https://assets5.lottiefiles.com/packages/lf20_qjosmr4w.json',
         'gradient': const LinearGradient(
           colors: [Colors.blue, Colors.lightBlueAccent],
           begin: Alignment.topLeft,
@@ -61,7 +65,8 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Admissions',
-        'icon': Icons.person_add,
+        'lottieUrl':
+            'https://assets3.lottiefiles.com/packages/lf20_DMgKk1.json',
         'gradient': const LinearGradient(
           colors: [Colors.pink, Colors.deepOrangeAccent],
           begin: Alignment.topLeft,
@@ -71,7 +76,8 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Analytics',
-        'icon': Icons.analytics,
+        'lottieUrl':
+            'https://assets5.lottiefiles.com/packages/lf20_v1yudlrx.json',
         'gradient': const LinearGradient(
           colors: [Colors.indigo, Colors.cyan],
           begin: Alignment.topLeft,
@@ -161,9 +167,9 @@ class AdminDashboardScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return GridItem(
                     title: adminServices[index]['title'],
-                    icon: adminServices[index]['icon'],
                     gradient: adminServices[index]['gradient'],
                     screen: adminServices[index]['screen'],
+                    lottieUrl: adminServices[index]['lottieUrl'],
                   );
                 },
               ),

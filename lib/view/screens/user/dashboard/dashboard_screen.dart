@@ -45,7 +45,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<Map<String, dynamic>> services = [
     {
       'title': 'Notes',
-      'icon': Icons.note,
+      'lottieUrl':
+          'https://assets10.lottiefiles.com/packages/lf20_w51pcehl.json',
       'gradient': const LinearGradient(
         colors: [Colors.purple, Colors.blue],
         begin: Alignment.topLeft,
@@ -55,7 +56,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Playlists',
-      'icon': Icons.music_note,
+      'lottieUrl':
+          'https://assets9.lottiefiles.com/private_files/lf30_WdTEui.json',
       'gradient': const LinearGradient(
         colors: [Colors.orange, Colors.red],
         begin: Alignment.topLeft,
@@ -65,7 +67,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Courses & \nOutlines',
-      'icon': Icons.book,
+      'lottieUrl':
+          'https://assets3.lottiefiles.com/packages/lf20_swnrn2oy.json',
       'gradient': const LinearGradient(
         colors: [Colors.green, Colors.teal],
         begin: Alignment.topLeft,
@@ -75,7 +78,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Updates',
-      'icon': Icons.update,
+      'lottieUrl':
+          'https://assets5.lottiefiles.com/packages/lf20_qjosmr4w.json',
       'gradient': const LinearGradient(
         colors: [Colors.blue, Colors.lightBlueAccent],
         begin: Alignment.topLeft,
@@ -84,7 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Admissions',
-      'icon': Icons.school,
+      'lottieUrl': 'https://assets3.lottiefiles.com/packages/lf20_DMgKk1.json',
       'gradient': const LinearGradient(
         colors: [Colors.pink, Colors.deepOrangeAccent],
         begin: Alignment.topLeft,
@@ -94,7 +98,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'About Me',
-      'icon': Icons.person,
+      'lottieUrl':
+          'https://assets5.lottiefiles.com/packages/lf20_v1yudlrx.json',
       'gradient': const LinearGradient(
         colors: [Colors.indigo, Colors.cyan],
         begin: Alignment.topLeft,
@@ -253,7 +258,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 itemBuilder: (context, index) {
                   return GridItem(
                     title: services[index]['title'],
-                    icon: services[index]['icon'],
+                    lottieUrl: services[index]['lottieUrl'],
                     gradient: services[index]['gradient'],
                     screen: services[index]['screen'],
                   );

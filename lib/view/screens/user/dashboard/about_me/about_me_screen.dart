@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart'; // Import the GridItem widget
 
 class AboutMeScreen extends StatelessWidget {
   const AboutMeScreen({super.key});
+
+  Future<void> _launchMaps() async {
+    // Replace these with your institute's coordinates
+    const double latitude = 37.4220;
+    const double longitude = -122.0841;
+    final Uri url = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,13 +79,14 @@ class AboutMeScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return GridItem(
                     title: gridItems[index]['title'],
-                    icon: gridItems[index]['icon'],
                     screen: gridItems[index]['screen'],
                     gradient: LinearGradient(
                       colors: [theme.primaryColor, theme.colorScheme.secondary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
+                    lottieUrl: gridItems[index]['lottieUrl'],
+                    onTap: gridItems[index]['onTap'],
                   );
                 },
               ),
@@ -107,15 +120,30 @@ class AboutMeScreen extends StatelessWidget {
   }
 }
 
-// Grid items data
+// Updated grid items data with Lottie URLs and onTap functions
 final List<Map<String, dynamic>> gridItems = [
   {
     'title': 'Institute Location',
-    'icon': Icons.location_on,
+    'lottieUrl': 'https://assets3.lottiefiles.com/packages/lf20_UJNc2t.json',
+    'onTap': (BuildContext context) async {
+      const double latitude = 37.4220; // Replace with your institute's latitude
+      const double longitude =
+          -122.0841; // Replace with your institute's longitude
+      final Uri url = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open the map')),
+        );
+      }
+    },
   },
   {
     'title': 'YouTube Channel',
-    'icon': Icons.video_library,
+    'lottieUrl':
+        'https://assets4.lottiefiles.com/private_files/lf30_bb9bkg1h.json',
     'screen': const YouTubeChannelScreen(),
   },
 ];

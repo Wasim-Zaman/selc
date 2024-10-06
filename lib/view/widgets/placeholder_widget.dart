@@ -166,4 +166,72 @@ class PlaceholderWidgets {
       },
     );
   }
+
+  static Widget admissionAnnouncementPlaceholder({int itemCount = 3}) {
+    return ListView.separated(
+      itemCount: itemCount,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      padding: const EdgeInsets.all(AppConstants.defaultPadding),
+      itemBuilder: (context, index) {
+        return Builder(
+          builder: (context) {
+            final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+            return Shimmer.fromColors(
+              baseColor:
+                  isDarkMode ? AppColors.darkNeutral : AppColors.lightNeutral,
+              highlightColor:
+                  isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              child: Card(
+                margin: const EdgeInsets.symmetric(
+                  vertical: 4,
+                  horizontal: AppConstants.defaultPadding,
+                ),
+                child: ListTile(
+                  title: Container(
+                    width: double.infinity,
+                    height: 16,
+                    color:
+                        isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                  ),
+                  subtitle: Container(
+                    width: 200,
+                    height: 14,
+                    margin: const EdgeInsets.only(top: 8),
+                    color:
+                        isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? AppColors.darkCard
+                              : AppColors.lightCard,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? AppColors.darkCard
+                              : AppColors.lightCard,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }
