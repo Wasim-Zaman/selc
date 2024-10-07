@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:selc/utils/navigation.dart';
 
 class GridItem extends StatelessWidget {
   final String title;
@@ -24,10 +25,7 @@ class GridItem extends StatelessWidget {
         if (onTap != null) {
           onTap!(context);
         } else if (screen != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => screen!),
-          );
+          Navigations.push(context, screen!);
         }
       },
       child: Container(
@@ -42,6 +40,9 @@ class GridItem extends StatelessWidget {
               child: Lottie.network(
                 lottieUrl,
                 fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildFallbackIcon(title);
+                },
               ),
             ),
             Padding(
@@ -58,5 +59,33 @@ class GridItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildFallbackIcon(String title) {
+    IconData iconData;
+    switch (title.toLowerCase()) {
+      case 'notes':
+        iconData = Icons.note;
+        break;
+      case 'playlists':
+        iconData = Icons.playlist_play;
+        break;
+      case 'courses & \noutlines':
+        iconData = Icons.book;
+        break;
+      case 'updates':
+        iconData = Icons.update;
+        break;
+      case 'admissions':
+        iconData = Icons.school;
+        break;
+      case 'about me':
+        iconData = Icons.person;
+        break;
+      default:
+        iconData = Icons.error;
+    }
+
+    return Icon(iconData, size: 48);
   }
 }
