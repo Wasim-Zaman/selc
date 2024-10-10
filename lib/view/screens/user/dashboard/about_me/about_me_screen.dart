@@ -37,8 +37,12 @@ class AboutMeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12.0),
-                  gradient: LinearGradient(
-                    colors: [theme.primaryColor, theme.colorScheme.secondary],
+                  gradient: const LinearGradient(
+                    colors: [
+                      Colors.deepOrange,
+                      Colors.orange,
+                      Colors.amber,
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -54,16 +58,12 @@ class AboutMeScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       'John Doe',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        color: theme.colorScheme.onPrimary,
-                      ),
+                      style: theme.textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Software Developer',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.onPrimary,
-                      ),
+                      style: theme.textTheme.titleMedium,
                     ),
                   ],
                 ),
@@ -83,8 +83,12 @@ class AboutMeScreen extends StatelessWidget {
                   return GridItem(
                     title: gridItems[index]['title'],
                     screen: gridItems[index]['screen'],
-                    gradient: LinearGradient(
-                      colors: [theme.primaryColor, theme.colorScheme.secondary],
+                    gradient: const LinearGradient(
+                      colors: [
+                        Colors.deepPurple,
+                        Colors.purple,
+                        Colors.pink,
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),

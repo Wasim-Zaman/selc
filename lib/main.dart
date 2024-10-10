@@ -36,9 +36,6 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => AuthCubit(AdminAuthService()),
-        ),
-        BlocProvider(
           create: (context) => AdminCubit(
             NotesService(),
             StorageService(),
@@ -48,9 +45,8 @@ void main() async {
             BannerService(),
           ),
         ),
-        BlocProvider(
-          create: (context) => ThemeCubit(),
-        ),
+        BlocProvider(create: (context) => AuthCubit(AdminAuthService())),
+        BlocProvider(create: (context) => ThemeCubit()),
       ],
       child: MyApp(initialScreen: initialScreen),
     ),
