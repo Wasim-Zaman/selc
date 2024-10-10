@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
@@ -76,7 +78,7 @@ class AdminDashboardScreen extends StatelessWidget {
         'screen': const AdminAdmissionsScreen(),
       },
       {
-        'title': 'Analytics',
+        'title': 'Manage About Me',
         'lottieUrl':
             'https://assets5.lottiefiles.com/packages/lf20_v1yudlrx.json',
         'gradient': const LinearGradient(
@@ -99,7 +101,7 @@ class AdminDashboardScreen extends StatelessWidget {
       {
         'title': 'Manage Enrollment',
         'lottieUrl':
-            'https://assets2.lottiefiles.com/packages/lf20_q5pk6p1k.json',
+            'https://assets3.lottiefiles.com/packages/lf20_5tl1xxnz.json',
         'gradient': const LinearGradient(
           colors: [Colors.teal, Colors.cyan],
           begin: Alignment.topLeft,
@@ -120,7 +122,7 @@ class AdminDashboardScreen extends StatelessWidget {
           return Icons.update;
         case 'Manage Admissions':
           return Icons.person_add;
-        case 'Analytics':
+        case 'Manage About Me':
           return Icons.analytics;
         case 'Manage Banner':
           return Icons.image;
@@ -134,6 +136,22 @@ class AdminDashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Admin Dashboard', style: theme.textTheme.headlineSmall),
+        actions: [
+          BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, state) {
+              return IconButton(
+                icon: Icon(
+                  state.themeMode == ThemeMode.light
+                      ? Icons.dark_mode
+                      : Icons.light_mode,
+                ),
+                onPressed: () {
+                  context.read<ThemeCubit>().toggleTheme();
+                },
+              );
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -149,19 +167,6 @@ class AdminDashboardScreen extends StatelessWidget {
                   color: theme.colorScheme.onPrimary,
                 ),
               ),
-            ),
-            BlocBuilder<ThemeCubit, ThemeState>(
-              builder: (context, state) {
-                return ListTile(
-                  title: const Text('Dark Mode'),
-                  trailing: Switch(
-                    value: state.themeMode == ThemeMode.dark,
-                    onChanged: (value) {
-                      context.read<ThemeCubit>().toggleTheme();
-                    },
-                  ),
-                );
-              },
             ),
             ListTile(
               title: const Text('User App'),
@@ -179,7 +184,6 @@ class AdminDashboardScreen extends StatelessWidget {
                 Navigations.pushAndRemoveUntil(context, const LoginScreen());
               },
             ),
-            // ... other drawer items
           ],
         ),
       ),
