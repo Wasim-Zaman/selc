@@ -16,6 +16,7 @@ import 'package:selc/view/screens/user/dashboard/admissions/admissions_screen.da
 import 'package:selc/view/screens/user/dashboard/courses_outlines/courses_outlines_screen.dart';
 import 'package:selc/view/screens/user/dashboard/notes/notes_categories_screen.dart';
 import 'package:selc/view/screens/user/dashboard/playlists/playlists_screen.dart';
+import 'package:selc/view/screens/user/dashboard/terms_and_conditions_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -167,6 +168,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ? const AdminDashboardScreen()
                       : const AdminLoginScreen(),
                 );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.description, color: theme.iconTheme.color),
+              title:
+                  Text('Terms & Conditions', style: theme.textTheme.bodyLarge),
+              onTap: () {
+                Navigations.push(context, const TermsAndConditionsScreen());
               },
             ),
             ListTile(
