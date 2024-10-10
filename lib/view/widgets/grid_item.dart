@@ -8,6 +8,7 @@ class GridItem extends StatelessWidget {
   final Widget? screen;
   final String lottieUrl;
   final IconData fallbackIcon;
+  final Function? onTap;
 
   const GridItem({
     super.key,
@@ -16,6 +17,7 @@ class GridItem extends StatelessWidget {
     this.screen,
     required this.lottieUrl,
     required this.fallbackIcon,
+    this.onTap,
   });
 
   @override
@@ -24,6 +26,8 @@ class GridItem extends StatelessWidget {
       onTap: () {
         if (screen != null) {
           Navigations.push(context, screen!);
+        } else if (onTap != null) {
+          onTap!();
         }
       },
       child: Container(
@@ -42,7 +46,6 @@ class GridItem extends StatelessWidget {
                   return Icon(
                     fallbackIcon,
                     size: 50,
-                    color: Colors.white,
                   );
                 },
               ),
@@ -52,7 +55,6 @@ class GridItem extends StatelessWidget {
               child: Text(
                 title,
                 style: const TextStyle(
-                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,

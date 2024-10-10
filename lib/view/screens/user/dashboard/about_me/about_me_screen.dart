@@ -1,19 +1,22 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart'; // Import the GridItem widget
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutMeScreen extends StatelessWidget {
   const AboutMeScreen({super.key});
 
-  Future<void> _launchMaps() async {
-    // Replace these with your institute's coordinates
-    const double latitude = 37.4220;
-    const double longitude = -122.0841;
-    final Uri url = Uri.parse(
-        'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
-    if (!await launchUrl(url)) {
-      throw Exception('Could not launch $url');
+  IconData getFallbackIcon(String title) {
+    switch (title) {
+      case 'Institute Location':
+        return Icons.location_on;
+      case 'YouTube Channel':
+        return Icons.play_circle;
+      default:
+        return Icons.dashboard;
     }
   }
 
@@ -86,7 +89,8 @@ class AboutMeScreen extends StatelessWidget {
                       end: Alignment.bottomRight,
                     ),
                     lottieUrl: gridItems[index]['lottieUrl'],
-                    fallbackIcon: Icons.dashboard,
+                    onTap: gridItems[index]['onTap'],
+                    fallbackIcon: getFallbackIcon(gridItems[index]['title']),
                   );
                 },
               ),
@@ -126,17 +130,19 @@ final List<Map<String, dynamic>> gridItems = [
     'title': 'Institute Location',
     'lottieUrl': 'https://assets3.lottiefiles.com/packages/lf20_UJNc2t.json',
     'onTap': (BuildContext context) async {
-      const double latitude = 37.4220; // Replace with your institute's latitude
-      const double longitude =
-          -122.0841; // Replace with your institute's longitude
-      final Uri url = Uri.parse(
-          'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open the map')),
-        );
+      try {
+        const double latitude = 37.4220;
+        const double longitude = -122.0841;
+        final Uri url = Uri.parse(
+            'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url);
+        } else {
+          TopSnackbar.info(context, "Could not open the map");
+        }
+      } catch (e) {
+        print('Error launching map: $e');
+        TopSnackbar.error(context, "An error occurred while opening the map");
       }
     },
   },
