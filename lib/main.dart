@@ -8,6 +8,7 @@ import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/services/admissions/admissions_services.dart';
 import 'package:selc/services/auth/auth_admin_service.dart';
+import 'package:selc/services/banner/banner_service.dart';
 import 'package:selc/services/courses_outline/courses_outline_service.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/playlists/playlist_service.dart';
@@ -44,6 +45,7 @@ void main() async {
             CoursesOutlineService(),
             AdmissionsService(),
             PlaylistService(),
+            BannerService(),
           ),
         ),
         BlocProvider(

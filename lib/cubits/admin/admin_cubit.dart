@@ -2,14 +2,16 @@ import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/models/admission_announcement.dart';
+import 'package:selc/models/banner.dart';
 import 'package:selc/models/course_outline.dart';
 import 'package:selc/models/note.dart';
 import 'package:selc/models/playlist_model.dart';
 import 'package:selc/services/admissions/admissions_services.dart';
+import 'package:selc/services/banner/banner_service.dart';
 import 'package:selc/services/courses_outline/courses_outline_service.dart';
 import 'package:selc/services/notes/notes_service.dart';
-import 'package:selc/services/storage/storage_service.dart';
 import 'package:selc/services/playlists/playlist_service.dart';
+import 'package:selc/services/storage/storage_service.dart';
 
 part 'admin_states.dart';
 
@@ -19,6 +21,7 @@ class AdminCubit extends Cubit<AdminState> {
   final CoursesOutlineService _coursesOutlineService;
   final AdmissionsService _admissionsService;
   final PlaylistService _playlistService;
+  final BannerService _bannerService;
 
   AdminCubit(
     this._notesService,
@@ -26,6 +29,7 @@ class AdminCubit extends Cubit<AdminState> {
     this._coursesOutlineService,
     this._admissionsService,
     this._playlistService,
+    this._bannerService,
   ) : super(AdminInitial());
 
   Future<void> addCategory(String category) async {
@@ -210,6 +214,56 @@ class AdminCubit extends Cubit<AdminState> {
     try {
       await _playlistService.removeVideoFromPlaylist(playlistId, videoId);
       emit(AdminSuccess('Video removed from playlist successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  // Banner management methods
+  Stream<List<BannerModel>> getBannersStream() {
+    return _bannerService.getBannersStream();
+  }
+
+  Future<void> addBanner(String title, File imageFile) async {
+    emit(AdminLoading());
+    try {
+      String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      String filePath = 'banners/$fileName';
+      String imageUrl = await _storageService.uploadFile(filePath, imageFile);
+      BannerModel banner =
+          BannerModel(id: '', title: title, imageUrl: imageUrl);
+      await _bannerService.addBanner(banner);
+      emit(AdminSuccess('Banner added successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> updateBanner(BannerModel banner, File? newImageFile) async {
+    emit(AdminLoading());
+    try {
+      String imageUrl = banner.imageUrl;
+      if (newImageFile != null) {
+        String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+        String filePath = 'banners/$fileName';
+        imageUrl = await _storageService.uploadFile(filePath, newImageFile);
+        await _storageService.deleteFile(banner.imageUrl);
+      }
+      BannerModel updatedBanner = banner.copyWith(imageUrl: imageUrl);
+      await _bannerService.updateBanner(banner.id, updatedBanner);
+      emit(AdminSuccess('Banner updated successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> deleteBanner(String bannerId) async {
+    emit(AdminLoading());
+    try {
+      BannerModel banner = await _bannerService.getBanner(bannerId);
+      await _bannerService.deleteBanner(bannerId);
+      await _storageService.deleteFile(banner.imageUrl);
+      emit(AdminSuccess('Banner deleted successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
     }

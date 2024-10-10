@@ -4,6 +4,7 @@ import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/dashboard/admissions/admin_admissions.dart';
+import 'package:selc/view/screens/admin/dashboard/banner/manage_banner_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/courses_outlines/manage_courses_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/playlists/playlists_management_screen.dart';
@@ -40,14 +41,14 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': PlaylistsManagementScreen(),
+        'screen': const PlaylistsManagementScreen(),
       },
       {
         'title': 'Manage Courses',
         'lottieUrl':
             'https://assets3.lottiefiles.com/packages/lf20_swnrn2oy.json',
         'gradient': const LinearGradient(
-          colors: [Colors.green, Colors.teal],
+          colors: [Colors.blue, Colors.lightBlueAccent],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -58,7 +59,7 @@ class AdminDashboardScreen extends StatelessWidget {
         'lottieUrl':
             'https://assets5.lottiefiles.com/packages/lf20_qjosmr4w.json',
         'gradient': const LinearGradient(
-          colors: [Colors.blue, Colors.lightBlueAccent],
+          colors: [Colors.green, Colors.teal],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -84,7 +85,51 @@ class AdminDashboardScreen extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       },
+      {
+        'title': 'Manage Banner',
+        'lottieUrl':
+            'https://assets9.lottiefiles.com/packages/lf20_vvqbbhqg.json',
+        'gradient': const LinearGradient(
+          colors: [Colors.amber, Colors.orange],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        'screen': const ManageBannerScreen(),
+      },
+      {
+        'title': 'Manage Enrollment',
+        'lottieUrl':
+            'https://assets2.lottiefiles.com/packages/lf20_q5pk6p1k.json',
+        'gradient': const LinearGradient(
+          colors: [Colors.teal, Colors.cyan],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      },
     ];
+
+    IconData getFallbackIcon(String title) {
+      switch (title) {
+        case 'Manage Notes':
+          return Icons.note;
+        case 'Manage Playlists':
+          return Icons.playlist_play;
+        case 'Manage Courses':
+          return Icons.school;
+        case 'Manage Updates':
+          return Icons.update;
+        case 'Manage Admissions':
+          return Icons.person_add;
+        case 'Analytics':
+          return Icons.analytics;
+        case 'Manage Banner':
+          return Icons.image;
+        case 'Manage Enrollment':
+          return Icons.how_to_reg;
+        default:
+          return Icons.dashboard;
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -144,14 +189,29 @@ class AdminDashboardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Welcome, Admin',
-                style: theme.textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Quick Actions',
-                style: theme.textTheme.titleLarge,
+              Container(
+                padding: const EdgeInsets.all(16),
+                width: double.infinity,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: theme.primaryColor,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.primaryColor.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Welcome, SANI',
+                      style: theme.textTheme.headlineMedium,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
               GridView.builder(
@@ -170,28 +230,11 @@ class AdminDashboardScreen extends StatelessWidget {
                     gradient: adminServices[index]['gradient'],
                     screen: adminServices[index]['screen'],
                     lottieUrl: adminServices[index]['lottieUrl'],
+                    fallbackIcon: getFallbackIcon(
+                      adminServices[index]['title'],
+                    ),
                   );
                 },
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Recent Activity',
-                style: theme.textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: const Icon(Icons.notifications),
-                      title: Text('Activity ${index + 1}'),
-                      subtitle: Text('Description of activity ${index + 1}'),
-                    );
-                  },
-                ),
               ),
             ],
           ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:selc/utils/constants.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PlaceholderWidgets {
   static Widget rectanglePlaceholder({
@@ -90,6 +90,26 @@ class PlaceholderWidgets {
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         return rectanglePlaceholder(height: 120);
+      },
+    );
+  }
+
+  static Widget bannerPlaceholder({double height = 200}) {
+    return Builder(
+      builder: (context) {
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        return Shimmer.fromColors(
+          baseColor:
+              isDarkMode ? AppColors.darkNeutral : AppColors.lightNeutral,
+          highlightColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          child: Container(
+            height: height,
+            decoration: BoxDecoration(
+              color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
       },
     );
   }

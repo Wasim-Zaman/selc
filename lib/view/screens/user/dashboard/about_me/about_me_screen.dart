@@ -86,7 +86,7 @@ class AboutMeScreen extends StatelessWidget {
                       end: Alignment.bottomRight,
                     ),
                     lottieUrl: gridItems[index]['lottieUrl'],
-                    onTap: gridItems[index]['onTap'],
+                    fallbackIcon: Icons.dashboard,
                   );
                 },
               ),

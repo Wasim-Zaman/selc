@@ -4,8 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
+import 'package:selc/models/banner.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/auth/admin_login_screen.dart';
@@ -67,7 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'screen': const PlaylistsScreen(),
     },
     {
-      'title': 'Courses & \nOutlines',
+      'title': 'Courses &\nOutlines',
       'lottieUrl':
           'https://assets3.lottiefiles.com/packages/lf20_swnrn2oy.json',
       'gradient': const LinearGradient(
@@ -110,16 +112,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
   ];
 
-  // Image URLs for carousel
-  final List<String> imageUrls = [
-    'https://khazar.org/uploads/files/eng_depart/eng.jpg',
-    'https://yeapenglish.com/images/blog/4629725007-Ads%C4%B1z.png',
-    'https://www.krmangalamgurgaon.com/wp-content/uploads/2023/12/25-G2-1024x576-1920x1080.webp',
-  ];
+  IconData getFallbackIcon(String title) {
+    switch (title) {
+      case 'Notes':
+        return Icons.note;
+      case 'Playlists':
+        return Icons.playlist_play;
+      case 'Courses &\nOutlines':
+        return Icons.school;
+      case 'Updates':
+        return Icons.update;
+      case 'About Me':
+        return Icons.person_add;
+      default:
+        return Icons.dashboard;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final adminCubit = context.read<AdminCubit>();
 
     return Scaffold(
       appBar: AppBar(
@@ -194,61 +207,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  CarouselSlider(
-                    options: CarouselOptions(
-                      autoPlay: true,
-                      enlargeCenterPage: true,
-                      viewportFraction: 0.9,
-                      aspectRatio: 16 / 9,
-                      initialPage: 0,
-                      onPageChanged: (index, reason) {
-                        setState(() {
-                          _currentIndex = index;
-                        });
-                      },
-                    ),
-                    items: imageUrls.map((url) {
-                      return Builder(
-                        builder: (BuildContext context) {
-                          return CachedNetworkImage(
-                            imageUrl: url,
-                            imageBuilder: (context, imageProvider) => Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 5.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
-                                image: DecorationImage(
-                                  image: imageProvider,
-                                  fit: BoxFit.cover,
+              child: StreamBuilder<List<BannerModel>>(
+                stream: adminCubit.getBannersStream(),
+                builder: (context, snapshot) {
+                  // if (snapshot.connectionState == ConnectionState.waiting) {
+                  //   return PlaceholderWidgets.bannerPlaceholder();
+                  // } else
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      CarouselSlider(
+                        options: CarouselOptions(
+                          autoPlay: true,
+                          enlargeCenterPage: true,
+                          viewportFraction: 0.9,
+                          aspectRatio: 16 / 9,
+                          initialPage: 0,
+                          onPageChanged: (index, reason) {
+                            setState(() {
+                              _currentIndex = index;
+                            });
+                          },
+                        ),
+                        items: snapshot.data!.map((banner) {
+                          return Builder(
+                            builder: (BuildContext context) {
+                              return CachedNetworkImage(
+                                imageUrl: banner.imageUrl,
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 5.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    image: DecorationImage(
+                                      image: imageProvider,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                            placeholder: (context, url) => const Center(
-                                child: CircularProgressIndicator()),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
+                                placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                              );
+                            },
                           );
-                        },
-                      );
-                    }).toList(),
-                  ),
-                  Positioned(
-                    bottom: 16,
-                    child: AnimatedSmoothIndicator(
-                      activeIndex: _currentIndex,
-                      count: imageUrls.length,
-                      effect: ExpandingDotsEffect(
-                        dotHeight: 6,
-                        dotWidth: 6,
-                        dotColor: theme.colorScheme.secondary,
-                        activeDotColor: theme.primaryColor,
+                        }).toList(),
                       ),
-                    ),
-                  ),
-                ],
+                      Positioned(
+                        bottom: 16,
+                        child: AnimatedSmoothIndicator(
+                          activeIndex: _currentIndex,
+                          count: snapshot.data!.length,
+                          effect: ExpandingDotsEffect(
+                            dotHeight: 6,
+                            dotWidth: 6,
+                            dotColor: theme.colorScheme.secondary,
+                            activeDotColor: theme.primaryColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
             Padding(
@@ -270,6 +298,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     lottieUrl: services[index]['lottieUrl'],
                     gradient: services[index]['gradient'],
                     screen: services[index]['screen'],
+                    fallbackIcon: getFallbackIcon(
+                      services[index]['title'],
+                    ),
                   );
                 },
               ),
