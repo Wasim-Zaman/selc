@@ -100,6 +100,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'screen': const AdmissionsScreen(),
     },
     {
+      'title': 'Enrolled\nStudents',
+      'lottieUrl':
+          'https://assets3.lottiefiles.com/packages/lf20_5tl1xxnz.json',
+      'gradient': const LinearGradient(
+        colors: [Colors.amber, Colors.orange],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      // 'screen': const EnrolledStudentsScreen(),
+    },
+    {
       'title': 'About Me',
       'lottieUrl':
           'https://assets5.lottiefiles.com/packages/lf20_v1yudlrx.json',
@@ -109,6 +120,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         end: Alignment.bottomRight,
       ),
       'screen': const AboutMeScreen(),
+    },
+    {
+      'title': 'Terms &\nConditions',
+      'lottieUrl':
+          'https://assets9.lottiefiles.com/packages/lf20_ysrn2iwp.json',
+      'gradient': const LinearGradient(
+        colors: [Colors.teal, Colors.cyan],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      'screen': const TermsAndConditionsScreen(),
     },
   ];
 
@@ -124,6 +146,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Icons.update;
       case 'About Me':
         return Icons.person_add;
+      case 'Enrolled\nStudents':
+        return Icons.school;
+      case 'Terms &\nConditions':
+        return Icons.description;
       default:
         return Icons.dashboard;
     }
@@ -181,14 +207,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ? const AdminDashboardScreen()
                       : const AdminLoginScreen(),
                 );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.description, color: theme.iconTheme.color),
-              title:
-                  Text('Terms & Conditions', style: theme.textTheme.bodyLarge),
-              onTap: () {
-                Navigations.push(context, const TermsAndConditionsScreen());
               },
             ),
             ListTile(
