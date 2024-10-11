@@ -141,11 +141,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Playlists':
         return Icons.playlist_play;
       case 'Courses &\nOutlines':
-        return Icons.school;
+        return Icons.book;
       case 'Updates':
         return Icons.update;
-      case 'About Me':
+      case 'Admissions':
         return Icons.person_add;
+      case 'About Me':
+        return Icons.person;
       case 'Enrolled\nStudents':
         return Icons.school;
       case 'Terms &\nConditions':
