@@ -16,6 +16,7 @@ class AppLotties {
   static const admissions = "assets/lotties/admissions.json";
   static const banners = "assets/lotties/banners.json";
   static const courses = "assets/lotties/courses.json";
+  static const location = "assets/lotties/location.json";
   static const notes = "assets/lotties/notes.json";
   static const playlist = "assets/lotties/playlist.json";
   static const students = "assets/lotties/students.json";

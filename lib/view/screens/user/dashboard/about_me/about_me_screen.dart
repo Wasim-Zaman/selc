@@ -62,7 +62,7 @@ class AboutMeScreen extends StatelessWidget {
                       // const SizedBox(height: AppConstants.defaultPadding),
                       // _buildMapSection(aboutMe),
                       const SizedBox(height: AppConstants.defaultPadding),
-                      _buildResumeSection(aboutMe),
+                      _buildResumeSection(aboutMe, context),
                     ],
                   ),
                 ),
@@ -76,35 +76,56 @@ class AboutMeScreen extends StatelessWidget {
 
   Widget _buildProfileSection(BuildContext context, AboutMe aboutMe) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        gradient: const LinearGradient(
-          colors: [Colors.deepOrange, Colors.orange, Colors.amber],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return Card(
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [
+              theme.colorScheme.primary,
+              theme.colorScheme.secondary,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
-      ),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundImage: aboutMe.profileImageUrl != null
-                ? CachedNetworkImageProvider(aboutMe.profileImageUrl!)
-                : const NetworkImage("https://via.placeholder.com/150"),
-          ),
-          const SizedBox(height: AppConstants.defaultPadding),
-          Text(
-            'John Doe', // Replace with actual name from AboutMe model
-            style: theme.textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Software Developer', // Replace with actual title from AboutMe model
-            style: theme.textTheme.titleMedium,
-          ),
-        ],
+        child: Column(
+          children: [
+            Hero(
+              tag: 'profile_image',
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  radius: 55,
+                  backgroundImage: aboutMe.profileImageUrl != null
+                      ? CachedNetworkImageProvider(
+                          aboutMe.profileImageUrl ?? "")
+                      : const CachedNetworkImageProvider(
+                          "https://via.placeholder.com/150"),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppConstants.defaultPadding),
+            Text(
+              'Sana Ullah',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Instructor',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: Colors.white.withOpacity(0.8),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -124,8 +145,11 @@ class AboutMeScreen extends StatelessWidget {
         return GridItem(
           title: gridItems[index]['title'],
           screen: gridItems[index]['screen'],
-          gradient: const LinearGradient(
-            colors: [Colors.deepPurple, Colors.purple, Colors.pink],
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -179,16 +203,50 @@ class AboutMeScreen extends StatelessWidget {
   //   );
   // }
 
-  Widget _buildResumeSection(AboutMe aboutMe) {
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: Colors.grey),
+  Widget _buildResumeSection(AboutMe aboutMe, context) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        height: 400,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: aboutMe.resumeUrl != null
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                    child: Text(
+                      'Resume',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  Expanded(
+                    child: SfPdfViewer.network(
+                      aboutMe.resumeUrl ?? "",
+                      scrollDirection: PdfScrollDirection.horizontal,
+                      interactionMode: PdfInteractionMode.pan,
+                      enableDoubleTapZooming: true,
+                    ),
+                  ),
+                ],
+              )
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.description, size: 48),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No resume available',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              ),
       ),
-      child: aboutMe.resumeUrl != null
-          ? SfPdfViewer.network(aboutMe.resumeUrl!)
-          : const Center(child: Text('No resume available')),
     );
   }
 
@@ -207,7 +265,7 @@ class AboutMeScreen extends StatelessWidget {
 final List<Map<String, dynamic>> gridItems = [
   {
     'title': 'Institute Location',
-    'lottieUrl': AppLotties.youtube,
+    'lottieUrl': AppLotties.location,
   },
   {
     'title': 'YouTube Channel',
