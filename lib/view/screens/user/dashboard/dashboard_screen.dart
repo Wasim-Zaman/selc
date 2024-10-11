@@ -9,6 +9,7 @@ import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/models/banner.dart';
 import 'package:selc/services/auth/auth_service.dart';
+import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/auth/admin_login_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/admin_dashboard_screen.dart';
@@ -49,8 +50,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<Map<String, dynamic>> services = [
     {
       'title': 'Notes',
-      'lottieUrl':
-          'https://assets10.lottiefiles.com/packages/lf20_w51pcehl.json',
+      'lottieUrl': AppLotties.notes,
       'gradient': const LinearGradient(
         colors: [Colors.purple, Colors.blue],
         begin: Alignment.topLeft,
@@ -60,8 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Playlists',
-      'lottieUrl':
-          'https://assets9.lottiefiles.com/private_files/lf30_WdTEui.json',
+      'lottieUrl': AppLotties.playlist,
       'gradient': const LinearGradient(
         colors: [Colors.orange, Colors.red],
         begin: Alignment.topLeft,
@@ -82,8 +81,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Updates',
-      'lottieUrl':
-          'https://assets5.lottiefiles.com/packages/lf20_qjosmr4w.json',
+      'lottieUrl': AppLotties.updates,
       'gradient': const LinearGradient(
         colors: [Colors.green, Colors.teal],
         begin: Alignment.topLeft,
@@ -93,7 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Admissions',
-      'lottieUrl': 'https://assets3.lottiefiles.com/packages/lf20_DMgKk1.json',
+      'lottieUrl': AppLotties.admissions,
       'gradient': const LinearGradient(
         colors: [Colors.pink, Colors.deepOrangeAccent],
         begin: Alignment.topLeft,

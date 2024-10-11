@@ -11,6 +11,14 @@ class AppIcons {
   static const signinDark = "assets/icons/signin_dark.png";
 }
 
+class AppLotties {
+  static const admissions = "assets/lotties/admissions.json";
+  static const notes = "assets/lotties/notes.json";
+  static const playlist = "assets/lotties/playlist.json";
+  static const updates = "assets/lotties/updates.json";
+  static const youtube = "assets/lotties/youtube.json";
+}
+
 // Colors
 
 class AppColors {

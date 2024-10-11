@@ -39,14 +39,11 @@ class GridItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: Lottie.network(
+              child: Lottie.asset(
                 lottieUrl,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    fallbackIcon,
-                    size: 50,
-                  );
+                  return Icon(fallbackIcon, size: 50);
                 },
               ),
             ),
