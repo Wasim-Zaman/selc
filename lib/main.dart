@@ -13,6 +13,7 @@ import 'package:selc/services/courses_outline/courses_outline_service.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/playlists/playlist_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
+import 'package:selc/services/updates/updates_services.dart';
 import 'package:selc/utils/themes.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
@@ -43,6 +44,7 @@ void main() async {
             AdmissionsService(),
             PlaylistService(),
             BannerService(),
+            UpdatesServices(),
           ),
         ),
         BlocProvider(create: (context) => AuthCubit(AdminAuthService())),

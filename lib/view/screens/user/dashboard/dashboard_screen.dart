@@ -19,6 +19,7 @@ import 'package:selc/view/screens/user/dashboard/courses_outlines/courses_outlin
 import 'package:selc/view/screens/user/dashboard/notes/notes_categories_screen.dart';
 import 'package:selc/view/screens/user/dashboard/playlists/playlists_screen.dart';
 import 'package:selc/view/screens/user/dashboard/terms_and_conditions_screen.dart';
+import 'package:selc/view/screens/user/dashboard/updates/updates_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -88,6 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
+      'screen': const UpdatesScreen(),
     },
     {
       'title': 'Admissions',

@@ -9,6 +9,7 @@ class TextFieldWidget extends StatelessWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final Function(String)? onChanged;
+  final int? maxLines;
   const TextFieldWidget({
     super.key,
     required this.controller,
@@ -18,6 +19,7 @@ class TextFieldWidget extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.validator,
     this.onChanged,
+    this.maxLines,
   });
 
   @override
@@ -37,6 +39,7 @@ class TextFieldWidget extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
+      maxLines: maxLines,
     );
   }
 }

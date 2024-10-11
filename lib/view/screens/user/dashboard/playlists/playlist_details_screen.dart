@@ -23,7 +23,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
       initialVideoId:
           YoutubePlayer.convertUrlToId(widget.playlist.videos.first.link)!,
       flags: const YoutubePlayerFlags(
-        autoPlay: false,
+        autoPlay: true,
         mute: false,
       ),
     );
@@ -53,6 +53,10 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         body: Column(
           children: [
             player,
+            const SizedBox(height: 10),
+            Text(
+                "${widget.playlist.name} - ${widget.playlist.videos.length} videos"),
+            const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: widget.playlist.videos.length,

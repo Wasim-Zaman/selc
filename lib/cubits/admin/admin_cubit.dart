@@ -6,12 +6,14 @@ import 'package:selc/models/banner.dart';
 import 'package:selc/models/course_outline.dart';
 import 'package:selc/models/note.dart';
 import 'package:selc/models/playlist_model.dart';
+import 'package:selc/models/updates.dart';
 import 'package:selc/services/admissions/admissions_services.dart';
 import 'package:selc/services/banner/banner_service.dart';
 import 'package:selc/services/courses_outline/courses_outline_service.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/playlists/playlist_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
+import 'package:selc/services/updates/updates_services.dart';
 
 part 'admin_states.dart';
 
@@ -22,6 +24,7 @@ class AdminCubit extends Cubit<AdminState> {
   final AdmissionsService _admissionsService;
   final PlaylistService _playlistService;
   final BannerService _bannerService;
+  final UpdatesServices _updatesService;
 
   AdminCubit(
     this._notesService,
@@ -30,6 +33,7 @@ class AdminCubit extends Cubit<AdminState> {
     this._admissionsService,
     this._playlistService,
     this._bannerService,
+    this._updatesService,
   ) : super(AdminInitial());
 
   Future<void> addCategory(String category) async {
@@ -264,6 +268,41 @@ class AdminCubit extends Cubit<AdminState> {
       await _bannerService.deleteBanner(bannerId);
       await _storageService.deleteFile(banner.imageUrl);
       emit(AdminSuccess('Banner deleted successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  // Updates management methods
+  Stream<List<Updates>> getUpdatesStream() {
+    return _updatesService.getUpdatesStream();
+  }
+
+  Future<void> addUpdates(Updates update) async {
+    emit(AdminLoading());
+    try {
+      await _updatesService.addUpdate(update);
+      emit(AdminSuccess('Update added successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> updateUpdates(String updateId, Updates update) async {
+    emit(AdminLoading());
+    try {
+      await _updatesService.updateUpdate(updateId, update);
+      emit(AdminSuccess('Update modified successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> deleteUpdates(String updateId) async {
+    emit(AdminLoading());
+    try {
+      await _updatesService.deleteUpdate(updateId);
+      emit(AdminSuccess('Update deleted successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
     }

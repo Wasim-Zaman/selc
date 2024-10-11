@@ -10,6 +10,7 @@ import 'package:selc/view/screens/admin/dashboard/banner/manage_banner_screen.da
 import 'package:selc/view/screens/admin/dashboard/courses_outlines/manage_courses_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/playlists/playlists_management_screen.dart';
+import 'package:selc/view/screens/admin/dashboard/updates/updates_management_screen.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
@@ -65,6 +66,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        'screen': const UpdatesManagementScreen(),
       },
       {
         'title': 'Manage Admissions',
