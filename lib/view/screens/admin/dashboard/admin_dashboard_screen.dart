@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
+import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/dashboard/about_me/manage_about_me_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/admissions/admin_admissions.dart';
@@ -27,10 +28,9 @@ class AdminDashboardScreen extends StatelessWidget {
     final List<Map<String, dynamic>> adminServices = [
       {
         'title': 'Manage Notes',
-        'lottieUrl':
-            'https://assets10.lottiefiles.com/packages/lf20_w51pcehl.json',
+        'lottieUrl': AppLotties.notes,
         'gradient': const LinearGradient(
-          colors: [Colors.purple, Colors.blue],
+          colors: [Color(0xFF6A1B9A), Color(0xFF1E88E5)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -38,10 +38,9 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Playlists',
-        'lottieUrl':
-            'https://assets9.lottiefiles.com/private_files/lf30_WdTEui.json',
+        'lottieUrl': AppLotties.playlist,
         'gradient': const LinearGradient(
-          colors: [Colors.orange, Colors.red],
+          colors: [Color(0xFFFF7043), Color(0xFFE91E63)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -49,10 +48,9 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Courses',
-        'lottieUrl':
-            'https://assets3.lottiefiles.com/packages/lf20_swnrn2oy.json',
+        'lottieUrl': AppLotties.courses,
         'gradient': const LinearGradient(
-          colors: [Colors.blue, Colors.lightBlueAccent],
+          colors: [Color(0xFF00BCD4), Color(0xFF3F51B5)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -60,10 +58,9 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Updates',
-        'lottieUrl':
-            'https://assets5.lottiefiles.com/packages/lf20_qjosmr4w.json',
+        'lottieUrl': AppLotties.updates,
         'gradient': const LinearGradient(
-          colors: [Colors.green, Colors.teal],
+          colors: [Color(0xFF4CAF50), Color(0xFF009688)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -71,10 +68,9 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Admissions',
-        'lottieUrl':
-            'https://assets3.lottiefiles.com/packages/lf20_DMgKk1.json',
+        'lottieUrl': AppLotties.admissions,
         'gradient': const LinearGradient(
-          colors: [Colors.pink, Colors.deepOrangeAccent],
+          colors: [Color(0xFFFF4081), Color(0xFFFF5722)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -82,10 +78,9 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage About Me',
-        'lottieUrl':
-            'https://assets5.lottiefiles.com/packages/lf20_v1yudlrx.json',
+        'lottieUrl': AppLotties.aboutMe,
         'gradient': const LinearGradient(
-          colors: [Colors.indigo, Colors.cyan],
+          colors: [Color(0xFF3F51B5), Color(0xFF00BCD4)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -93,10 +88,9 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Banner',
-        'lottieUrl':
-            'https://assets9.lottiefiles.com/packages/lf20_vvqbbhqg.json',
+        'lottieUrl': AppLotties.banners,
         'gradient': const LinearGradient(
-          colors: [Colors.amber, Colors.orange],
+          colors: [Color(0xFFFFA000), Color(0xFFFF5722)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -107,13 +101,12 @@ class AdminDashboardScreen extends StatelessWidget {
         'lottieUrl':
             'https://assets3.lottiefiles.com/packages/lf20_5tl1xxnz.json',
         'gradient': const LinearGradient(
-          colors: [Colors.teal, Colors.cyan],
+          colors: [Color(0xFF009688), Color(0xFF00BCD4)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       },
     ];
-
     IconData getFallbackIcon(String title) {
       switch (title) {
         case 'Manage Notes':
@@ -198,25 +191,52 @@ class AdminDashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
                 width: double.infinity,
-                alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: theme.primaryColor,
-                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    colors: [
+                      theme.primaryColor,
+                      theme.primaryColor.withOpacity(0.7)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
                       color: theme.primaryColor.withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
-                child: Column(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Welcome, SANI',
-                      style: theme.textTheme.headlineMedium,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Welcome back,',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: theme.colorScheme.onPrimary.withOpacity(0.8),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'SANI',
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            color: theme.colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Icon(
+                      Icons.admin_panel_settings,
+                      size: 48,
+                      color: theme.colorScheme.onPrimary.withOpacity(0.8),
                     ),
                   ],
                 ),
