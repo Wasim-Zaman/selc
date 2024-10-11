@@ -100,8 +100,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Enrolled\nStudents',
-      'lottieUrl':
-          'https://assets3.lottiefiles.com/packages/lf20_5tl1xxnz.json',
+      'lottieUrl': AppLotties.students,
       'gradient': const LinearGradient(
         colors: [Color(0xFFFFA000), Color(0xFFFF5722)],
         begin: Alignment.topLeft,

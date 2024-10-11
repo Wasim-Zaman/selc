@@ -98,8 +98,7 @@ class AdminDashboardScreen extends StatelessWidget {
       },
       {
         'title': 'Manage Enrollment',
-        'lottieUrl':
-            'https://assets3.lottiefiles.com/packages/lf20_5tl1xxnz.json',
+        'lottieUrl': AppLotties.students,
         'gradient': const LinearGradient(
           colors: [Color(0xFF009688), Color(0xFF00BCD4)],
           begin: Alignment.topLeft,
