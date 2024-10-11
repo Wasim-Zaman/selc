@@ -277,7 +277,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   crossAxisCount: 2,
                   crossAxisSpacing: 16.0,
                   mainAxisSpacing: 16.0,
-                  childAspectRatio: 1.3,
+                  childAspectRatio: 1.5,
                 ),
                 itemBuilder: (context, index) {
                   return GridItem(
