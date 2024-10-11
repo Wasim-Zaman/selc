@@ -211,7 +211,6 @@ final List<Map<String, dynamic>> gridItems = [
   },
   {
     'title': 'YouTube Channel',
-    'lottieUrl':
-        'https://assets4.lottiefiles.com/private_files/lf30_bb9bkg1h.json',
+    'lottieUrl': AppLotties.youtube,
   },
 ];
