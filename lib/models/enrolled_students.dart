@@ -11,6 +11,7 @@ class EnrolledStudent {
   final String address;
   final DateTime dateOfBirth;
   final String gender;
+  final DateTime enrollmentDate;
 
   EnrolledStudent({
     required this.id,
@@ -23,6 +24,7 @@ class EnrolledStudent {
     required this.address,
     required this.dateOfBirth,
     required this.gender,
+    required this.enrollmentDate,
   });
 
   factory EnrolledStudent.fromMap(Map<String, dynamic> data, String id) {
@@ -37,6 +39,7 @@ class EnrolledStudent {
       address: data['address'] ?? '',
       dateOfBirth: (data['date_of_birth'] as Timestamp).toDate(),
       gender: data['gender'] ?? '',
+      enrollmentDate: DateTime.parse(data['enrollmentDate']),
     );
   }
 
@@ -51,6 +54,7 @@ class EnrolledStudent {
       'address': address,
       'date_of_birth': Timestamp.fromDate(dateOfBirth),
       'gender': gender,
+      'enrollmentDate': enrollmentDate.toIso8601String(),
     };
   }
 }

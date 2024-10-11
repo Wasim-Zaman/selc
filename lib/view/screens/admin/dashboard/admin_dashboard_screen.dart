@@ -9,6 +9,7 @@ import 'package:selc/view/screens/admin/dashboard/about_me/manage_about_me_scree
 import 'package:selc/view/screens/admin/dashboard/admissions/admin_admissions.dart';
 import 'package:selc/view/screens/admin/dashboard/banner/manage_banner_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/courses_outlines/manage_courses_screen.dart';
+import 'package:selc/view/screens/admin/dashboard/enrolled_students/enroll_students_management_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/playlists/playlists_management_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/updates/updates_management_screen.dart';
@@ -111,6 +112,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        'screen': EnrollStudentsManagementScreen(),
       },
     ];
 

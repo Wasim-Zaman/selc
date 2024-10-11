@@ -1,4 +1,4 @@
-// ignore_for_file: library_prefixes
+// ignore_for_file: library_prefixes, depend_on_referenced_packages, unused_import
 
 import 'dart:math' as Math;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,27 +23,16 @@ class EnrolledStudentsServices {
   }
 
   Future<void> addStudent(EnrolledStudent student) async {
-    await _firestore.runTransaction((transaction) async {
-      // Add the new student
-      DocumentReference newStudentRef =
-          _firestore.collection(_collection).doc();
-      transaction.set(newStudentRef, student.toMap());
+    try {
+      // First, get a new document reference
+      final docRef = _firestore.collection('enrolled_students').doc();
 
-      // Update total count in subcollection
-      DocumentReference totalRef = _firestore
-          .collection(_collection)
-          .doc(_totalDocId)
-          .collection(_statsCollection)
-          .doc(_totalDocId);
-      DocumentSnapshot totalSnapshot = await transaction.get(totalRef);
-
-      if (totalSnapshot.exists) {
-        int currentTotal = totalSnapshot.get('count') as int;
-        transaction.update(totalRef, {'count': currentTotal + 1});
-      } else {
-        transaction.set(totalRef, {'count': 1});
-      }
-    });
+      // Then, set the data for this document
+      await docRef.set(student.toMap()..['id'] = docRef.id);
+    } catch (e) {
+      print('Error adding student: $e');
+      rethrow;
+    }
   }
 
   Future<void> updateStudent(String studentId, EnrolledStudent student) async {
@@ -54,25 +43,12 @@ class EnrolledStudentsServices {
   }
 
   Future<void> deleteStudent(String studentId) async {
-    await _firestore.runTransaction((transaction) async {
-      // Delete the student
-      DocumentReference studentRef =
-          _firestore.collection(_collection).doc(studentId);
-      transaction.delete(studentRef);
-
-      // Update total count in subcollection
-      DocumentReference totalRef = _firestore
-          .collection(_collection)
-          .doc(_totalDocId)
-          .collection(_statsCollection)
-          .doc(_totalDocId);
-      DocumentSnapshot totalSnapshot = await transaction.get(totalRef);
-
-      if (totalSnapshot.exists) {
-        int currentTotal = totalSnapshot.get('count') as int;
-        transaction.update(totalRef, {'count': Math.max(0, currentTotal - 1)});
-      }
-    });
+    try {
+      await _firestore.collection('enrolled_students').doc(studentId).delete();
+    } catch (e) {
+      print('Error deleting student: $e');
+      rethrow;
+    }
   }
 
   Future<EnrolledStudent?> getStudentById(String studentId) async {
@@ -107,5 +83,65 @@ class EnrolledStudentsServices {
       return totalSnapshot.get('count') as int;
     }
     return 0;
+  }
+
+  Future<List<EnrolledStudent>> getStudentsByYear(int year) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection(_collection)
+        .where('enrollmentDate',
+            isGreaterThanOrEqualTo: DateTime(year, 1, 1).toIso8601String())
+        .where('enrollmentDate',
+            isLessThan: DateTime(year + 1, 1, 1).toIso8601String())
+        .get();
+    return snapshot.docs
+        .map((doc) =>
+            EnrolledStudent.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
+  }
+
+  Future<int> getStudentCountByYear(int year) async {
+    DocumentSnapshot yearSnapshot = await _firestore
+        .collection(_collection)
+        .doc(_totalDocId)
+        .collection(_statsCollection)
+        .doc(year.toString())
+        .get();
+    if (yearSnapshot.exists) {
+      return yearSnapshot.get('count') as int;
+    }
+    return 0;
+  }
+
+  Future<void> _updateTotalCount(Transaction transaction, int increment) async {
+    DocumentReference totalRef = _firestore
+        .collection(_collection)
+        .doc(_totalDocId)
+        .collection(_statsCollection)
+        .doc(_totalDocId);
+    DocumentSnapshot totalSnapshot = await transaction.get(totalRef);
+
+    if (totalSnapshot.exists) {
+      int currentTotal = totalSnapshot.get('count') as int;
+      transaction.update(totalRef, {'count': currentTotal + increment});
+    } else {
+      transaction.set(totalRef, {'count': increment});
+    }
+  }
+
+  Future<void> _updateYearCount(
+      Transaction transaction, int year, int increment) async {
+    DocumentReference yearRef = _firestore
+        .collection(_collection)
+        .doc(_totalDocId)
+        .collection(_statsCollection)
+        .doc(year.toString());
+    DocumentSnapshot yearSnapshot = await transaction.get(yearRef);
+
+    if (yearSnapshot.exists) {
+      int currentCount = yearSnapshot.get('count') as int;
+      transaction.update(yearRef, {'count': currentCount + increment});
+    } else {
+      transaction.set(yearRef, {'count': increment});
+    }
   }
 }

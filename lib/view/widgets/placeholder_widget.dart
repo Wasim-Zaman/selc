@@ -254,4 +254,118 @@ class PlaceholderWidgets {
       },
     );
   }
+
+  static Widget studentsStatsTabPlaceholder() {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildShimmerCard(height: 100),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildShimmerCard(height: 350),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: _buildShimmerText(width: 150, height: 24),
+          ),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: _buildShimmerListTile(),
+            ),
+            childCount: 5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildShimmerCard({required double height}) {
+    return Builder(
+      builder: (context) {
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        return Shimmer.fromColors(
+          baseColor:
+              isDarkMode ? AppColors.darkNeutral : AppColors.lightNeutral,
+          highlightColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          child: Card(
+            elevation: 4,
+            child: Container(
+              height: height,
+              decoration: BoxDecoration(
+                color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _buildShimmerText(
+      {required double width, required double height}) {
+    return Builder(
+      builder: (context) {
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        return Shimmer.fromColors(
+          baseColor:
+              isDarkMode ? AppColors.darkNeutral : AppColors.lightNeutral,
+          highlightColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          child: Container(
+            width: width,
+            height: height,
+            color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _buildShimmerListTile() {
+    return Builder(
+      builder: (context) {
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        return Shimmer.fromColors(
+          baseColor:
+              isDarkMode ? AppColors.darkNeutral : AppColors.lightNeutral,
+          highlightColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          child: Card(
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor:
+                    isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              ),
+              title: Container(
+                width: double.infinity,
+                height: 16,
+                color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              ),
+              subtitle: Container(
+                width: 100,
+                height: 14,
+                color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                margin: const EdgeInsets.only(top: 4),
+              ),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

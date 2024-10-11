@@ -10,6 +10,9 @@ class TextFieldWidget extends StatelessWidget {
   final String? Function(String?)? validator;
   final Function(String)? onChanged;
   final int? maxLines;
+  final FocusNode? focusNode;
+  final Function(String)? onFieldSubmitted;
+
   const TextFieldWidget({
     super.key,
     required this.controller,
@@ -20,6 +23,8 @@ class TextFieldWidget extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.maxLines,
+    this.focusNode,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -27,6 +32,8 @@ class TextFieldWidget extends StatelessWidget {
     return TextFormField(
       controller: controller,
       onChanged: onChanged,
+      focusNode: focusNode,
+      onFieldSubmitted: onFieldSubmitted,
       decoration: InputDecoration(
         labelText: labelText,
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
