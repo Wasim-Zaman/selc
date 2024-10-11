@@ -207,11 +207,10 @@ class AboutMeScreen extends StatelessWidget {
 final List<Map<String, dynamic>> gridItems = [
   {
     'title': 'Institute Location',
-    'lottieUrl': 'https://assets3.lottiefiles.com/packages/lf20_UJNc2t.json',
+    'lottieUrl': AppLotties.youtube,
   },
   {
     'title': 'YouTube Channel',
-    'lottieUrl':
-        'https://assets4.lottiefiles.com/private_files/lf30_bb9bkg1h.json',
+    'lottieUrl': AppLotties.youtube,
   },
 ];
