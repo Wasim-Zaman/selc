@@ -5,6 +5,7 @@ import 'package:selc/models/about_me.dart';
 import 'package:selc/models/admission_announcement.dart';
 import 'package:selc/models/banner.dart';
 import 'package:selc/models/course_outline.dart';
+import 'package:selc/models/enrolled_students.dart';
 import 'package:selc/models/note.dart';
 import 'package:selc/models/playlist_model.dart';
 import 'package:selc/models/updates.dart';
@@ -16,6 +17,7 @@ import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/playlists/playlist_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
 import 'package:selc/services/updates/updates_services.dart';
+import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
 
 part 'admin_states.dart';
 
@@ -28,6 +30,7 @@ class AdminCubit extends Cubit<AdminState> {
   final BannerService _bannerService;
   final AboutMeService _aboutMeService;
   final UpdatesServices _updatesService;
+  final EnrolledStudentsServices _enrolledStudentsServices;
 
   AdminCubit(
     this._notesService,
@@ -38,6 +41,7 @@ class AdminCubit extends Cubit<AdminState> {
     this._bannerService,
     this._aboutMeService,
     this._updatesService,
+    this._enrolledStudentsServices,
   ) : super(AdminInitial());
 
   Future<void> addCategory(String category) async {
@@ -343,6 +347,60 @@ class AdminCubit extends Cubit<AdminState> {
       emit(AdminSuccess('Update deleted successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
+    }
+  }
+
+  // Enrolled Students management methods
+  Stream<List<EnrolledStudent>> getEnrolledStudentsStream() {
+    return _enrolledStudentsServices.getEnrolledStudentsStream();
+  }
+
+  Future<void> addEnrolledStudent(EnrolledStudent student) async {
+    emit(AdminLoading());
+    try {
+      await _enrolledStudentsServices.addStudent(student);
+      emit(AdminSuccess('Student enrolled successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> updateEnrolledStudent(
+      String studentId, EnrolledStudent student) async {
+    emit(AdminLoading());
+    try {
+      await _enrolledStudentsServices.updateStudent(studentId, student);
+      emit(AdminSuccess('Student information updated successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<void> deleteEnrolledStudent(String studentId) async {
+    emit(AdminLoading());
+    try {
+      await _enrolledStudentsServices.deleteStudent(studentId);
+      emit(AdminSuccess('Student removed successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Future<EnrolledStudent?> getEnrolledStudentById(String studentId) async {
+    try {
+      return await _enrolledStudentsServices.getStudentById(studentId);
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+      return null;
+    }
+  }
+
+  Future<List<EnrolledStudent>> getEnrolledStudentsByLevel(String level) async {
+    try {
+      return await _enrolledStudentsServices.getStudentsByLevel(level);
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+      return [];
     }
   }
 }
