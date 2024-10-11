@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class YouTubeChannelScreen extends StatefulWidget {
-  const YouTubeChannelScreen({super.key});
+  final String url;
+  const YouTubeChannelScreen({super.key, required this.url});
 
   @override
   State<YouTubeChannelScreen> createState() => _YouTubeChannelScreenState();
@@ -30,8 +31,7 @@ class _YouTubeChannelScreenState extends State<YouTubeChannelScreen> {
           },
         ),
       )
-      ..loadRequest(
-          Uri.parse('https://youtube.com/@saniacademy?si=koFrp6DPHLu2hUkk'));
+      ..loadRequest(Uri.parse(widget.url));
   }
 
   @override

@@ -59,6 +59,8 @@ dependencies:
   youtube_player_flutter: ^9.1.1
   url_launcher: ^6.3.0
   image_picker: ^1.1.2
+  syncfusion_flutter_pdfviewer: ^27.1.52
+  google_maps_flutter: ^2.9.0
 
 dev_dependencies:
   flutter_test:

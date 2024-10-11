@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/models/about_me.dart';
 import 'package:selc/models/admission_announcement.dart';
 import 'package:selc/models/banner.dart';
 import 'package:selc/models/course_outline.dart';
 import 'package:selc/models/note.dart';
 import 'package:selc/models/playlist_model.dart';
 import 'package:selc/models/updates.dart';
+import 'package:selc/services/about_me/about_me_service.dart';
 import 'package:selc/services/admissions/admissions_services.dart';
 import 'package:selc/services/banner/banner_service.dart';
 import 'package:selc/services/courses_outline/courses_outline_service.dart';
@@ -24,6 +26,7 @@ class AdminCubit extends Cubit<AdminState> {
   final AdmissionsService _admissionsService;
   final PlaylistService _playlistService;
   final BannerService _bannerService;
+  final AboutMeService _aboutMeService;
   final UpdatesServices _updatesService;
 
   AdminCubit(
@@ -33,6 +36,7 @@ class AdminCubit extends Cubit<AdminState> {
     this._admissionsService,
     this._playlistService,
     this._bannerService,
+    this._aboutMeService,
     this._updatesService,
   ) : super(AdminInitial());
 
@@ -271,6 +275,40 @@ class AdminCubit extends Cubit<AdminState> {
     } catch (e) {
       emit(AdminFailure(e.toString()));
     }
+  }
+
+  // About Me management methods
+  Future<void> updateAboutMe(AboutMe aboutMe,
+      {File? profileImage, File? resume}) async {
+    emit(AdminLoading());
+    try {
+      String? profileImageUrl = aboutMe.profileImageUrl;
+      String? resumeUrl = aboutMe.resumeUrl;
+
+      if (profileImage != null) {
+        profileImageUrl = await _storageService.uploadFile(
+            'profile_images/admin_profile.jpg', profileImage);
+      }
+
+      if (resume != null) {
+        resumeUrl = await _storageService.uploadFile(
+            'resumes/admin_resume.pdf', resume);
+      }
+
+      final updatedAboutMe = aboutMe.copyWith(
+        profileImageUrl: profileImageUrl,
+        resumeUrl: resumeUrl,
+      );
+
+      await _aboutMeService.updateAboutMeData(updatedAboutMe);
+      emit(AdminSuccess('About Me information updated successfully'));
+    } catch (e) {
+      emit(AdminFailure(e.toString()));
+    }
+  }
+
+  Stream<AboutMe> getAboutMeStream() {
+    return _aboutMeService.getAboutMeStream();
   }
 
   // Updates management methods

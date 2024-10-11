@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
+import 'package:selc/services/about_me/about_me_service.dart';
 import 'package:selc/services/admissions/admissions_services.dart';
 import 'package:selc/services/auth/auth_admin_service.dart';
 import 'package:selc/services/banner/banner_service.dart';
@@ -44,6 +45,7 @@ void main() async {
             AdmissionsService(),
             PlaylistService(),
             BannerService(),
+            AboutMeService(),
             UpdatesServices(),
           ),
         ),
