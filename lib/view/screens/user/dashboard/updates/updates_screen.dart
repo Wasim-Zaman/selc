@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:selc/models/updates.dart';
+import 'package:selc/view/widgets/placeholder_widget.dart';
 
 class UpdatesScreen extends StatelessWidget {
   const UpdatesScreen({super.key});
@@ -14,7 +15,7 @@ class UpdatesScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance.collection('updates').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return PlaceholderWidgets.listPlaceholder(itemCount: 5);
           }
 
           if (snapshot.hasError) {
