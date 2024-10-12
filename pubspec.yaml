@@ -61,7 +61,7 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^27.1.52
   google_maps_flutter: ^2.9.0
   marquee: ^2.3.0
-  fl_chart: ^0.62.0
+  fl_chart: ^0.69.0
 
 dev_dependencies:
   flutter_test:
