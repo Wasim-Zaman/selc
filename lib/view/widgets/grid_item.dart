@@ -24,10 +24,11 @@ class GridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (screen != null) {
           final AnalyticsService analyticsService = AnalyticsService();
-          analyticsService.logButtonClick(title);
+          await analyticsService.logButtonClick(title);
+          // ignore: use_build_context_synchronously
           Navigations.push(context, screen!);
         } else if (onTap != null) {
           onTap!();
