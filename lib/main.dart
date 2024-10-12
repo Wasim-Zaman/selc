@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
+
   User? user = FirebaseAuth.instance.currentUser;
   Widget initialScreen =
       user != null ? const DashboardScreen() : const LoginScreen();
@@ -54,14 +59,15 @@ void main() async {
         BlocProvider(create: (context) => AuthCubit(AdminAuthService())),
         BlocProvider(create: (context) => ThemeCubit()),
       ],
-      child: MyApp(initialScreen: initialScreen),
+      child: MyApp(initialScreen: initialScreen, observer: observer),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
+  final FirebaseAnalyticsObserver observer;
   final Widget initialScreen;
-  const MyApp({super.key, required this.initialScreen});
+  const MyApp({super.key, required this.initialScreen, required this.observer});
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +80,7 @@ class MyApp extends StatelessWidget {
           darkTheme: AppThemes.darkTheme,
           themeMode: state.themeMode,
           home: initialScreen,
+          navigatorObservers: [observer],
         );
       },
     );

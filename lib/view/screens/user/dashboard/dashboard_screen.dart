@@ -8,6 +8,7 @@ import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/models/banner.dart';
+import 'package:selc/services/analytics/analytics_service.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
@@ -36,10 +37,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Track the current page index for the carousel
   int _currentIndex = 0;
   bool _isAdminLoggedIn = false;
+  final AnalyticsService _analyticsService = AnalyticsService();
 
   @override
   void initState() {
     super.initState();
+    _analyticsService.logScreenView('Dashboard');
     context.read<AuthCubit>().isAdminLoggedIn().then((value) {
       setState(() {
         _isAdminLoggedIn = value;

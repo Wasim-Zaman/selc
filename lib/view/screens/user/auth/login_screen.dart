@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
+import 'package:selc/services/analytics/analytics_service.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
@@ -17,6 +18,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final AuthService authService = AuthService();
+    final AnalyticsService analyticsService = AnalyticsService();
 
     return Scaffold(
       appBar: AppBar(
@@ -64,6 +66,7 @@ class LoginScreen extends StatelessWidget {
               onPressed: () async {
                 User? user = await authService.signInWithGoogle();
                 if (user != null) {
+                  await analyticsService.logLogin('google');
                   Navigations.pushAndRemoveUntil(
                     context,
                     const DashboardScreen(),
