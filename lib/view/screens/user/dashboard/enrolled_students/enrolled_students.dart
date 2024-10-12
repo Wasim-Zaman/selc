@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:selc/models/enrolled_students.dart';
+import 'package:selc/services/analytics/analytics_service.dart';
 import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
 import 'package:selc/view/widgets/placeholder_widget.dart';
 
 class EnrolledStudentsScreen extends StatelessWidget {
   final EnrolledStudentsServices _enrolledStudentsServices =
-      EnrolledStudentsServices();
+      EnrolledStudentsServices(AnalyticsService());
 
   EnrolledStudentsScreen({super.key});
 

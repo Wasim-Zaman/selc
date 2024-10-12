@@ -9,6 +9,7 @@ import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/services/about_me/about_me_service.dart';
 import 'package:selc/services/admissions/admissions_services.dart';
+import 'package:selc/services/analytics/analytics_service.dart';
 import 'package:selc/services/auth/auth_admin_service.dart';
 import 'package:selc/services/banner/banner_service.dart';
 import 'package:selc/services/courses_outline/courses_outline_service.dart';
@@ -53,7 +54,7 @@ void main() async {
             BannerService(),
             AboutMeService(),
             UpdatesServices(),
-            EnrolledStudentsServices(),
+            EnrolledStudentsServices(AnalyticsService()),
           ),
         ),
         BlocProvider(create: (context) => AuthCubit(AdminAuthService())),

@@ -4,12 +4,16 @@ import 'dart:math' as Math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:selc/models/enrolled_students.dart';
+import 'package:selc/services/analytics/analytics_service.dart';
 
 class EnrolledStudentsServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collection = 'enrolled_students';
   final String _statsCollection = 'stats';
   final String _totalDocId = 'total_students';
+  final AnalyticsService _analyticsService;
+
+  EnrolledStudentsServices(this._analyticsService);
 
   Stream<List<EnrolledStudent>> getEnrolledStudentsStream() {
     return _firestore
@@ -30,6 +34,10 @@ class EnrolledStudentsServices {
 
       // Then, set the data for this document
       await docRef.set(student.toMap()..['id'] = docRef.id);
+
+      // Log the student enrollment
+      await _analyticsService.logStudentEnrollment(
+          student.name, student.fatherName);
     } catch (e) {
       print('Error adding student: $e');
       rethrow;
@@ -41,11 +49,25 @@ class EnrolledStudentsServices {
         .collection(_collection)
         .doc(studentId)
         .update(student.toMap());
+
+    // Log the student update
+    await _analyticsService.logStudentUpdate(student.name, student.fatherName);
   }
 
   Future<void> deleteStudent(String studentId) async {
     try {
+      // Get the student data before deletion
+      DocumentSnapshot studentDoc =
+          await _firestore.collection('enrolled_students').doc(studentId).get();
+      Map<String, dynamic> studentData =
+          studentDoc.data() as Map<String, dynamic>;
+
+      // Delete the student
       await _firestore.collection('enrolled_students').doc(studentId).delete();
+
+      // Log the student deletion
+      await _analyticsService.logStudentDeletion(
+          studentData['name'], studentData['father_name']);
     } catch (e) {
       print('Error deleting student: $e');
       rethrow;

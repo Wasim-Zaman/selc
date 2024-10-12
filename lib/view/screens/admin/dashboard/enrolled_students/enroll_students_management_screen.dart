@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:selc/services/analytics/analytics_service.dart';
 import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
 import 'package:selc/view/screens/admin/dashboard/enrolled_students/students_list_tab_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/enrolled_students/students_states_tab.dart';
 
 class EnrollStudentsManagementScreen extends StatelessWidget {
   final EnrolledStudentsServices _enrolledStudentsServices =
-      EnrolledStudentsServices();
+      EnrolledStudentsServices(AnalyticsService());
 
   EnrollStudentsManagementScreen({super.key});
 
