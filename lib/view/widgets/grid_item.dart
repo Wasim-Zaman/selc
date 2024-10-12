@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:selc/services/analytics/analytics_service.dart';
 import 'package:selc/utils/navigation.dart';
 
 class GridItem extends StatelessWidget {
@@ -25,6 +26,8 @@ class GridItem extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (screen != null) {
+          final AnalyticsService analyticsService = AnalyticsService();
+          analyticsService.logButtonClick(title);
           Navigations.push(context, screen!);
         } else if (onTap != null) {
           onTap!();
