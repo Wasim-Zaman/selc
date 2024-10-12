@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
-import 'package:selc/models/enrolled_students.dart';
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:selc/models/enrolled_students.dart';
+import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
 import 'package:selc/view/screens/admin/dashboard/enrolled_students/student_details_screen.dart';
 import 'package:selc/view/widgets/placeholder_widget.dart';
 
@@ -138,9 +140,9 @@ class StudentsStatsTab extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: LineChart(
         LineChartData(
-          gridData: const FlGridData(show: false),
+          gridData: FlGridData(show: false),
           titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(
+            leftTitles: AxisTitles(
               sideTitles: SideTitles(showTitles: true, reservedSize: 40),
             ),
             bottomTitles: AxisTitles(
@@ -181,7 +183,7 @@ class StudentsStatsTab extends StatelessWidget {
               spots: enrollmentData,
               isCurved: true,
               color: Colors.blue,
-              dotData: const FlDotData(show: false),
+              dotData: FlDotData(show: false),
               belowBarData: BarAreaData(show: false),
             ),
           ],

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:selc/models/enrolled_students.dart';
 import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/edit_student_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/student_details_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/add_student_screen.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/snackbars.dart';
+import 'package:selc/view/screens/admin/dashboard/enrolled_students/add_student_screen.dart';
+import 'package:selc/view/screens/admin/dashboard/enrolled_students/edit_student_screen.dart';
+import 'package:selc/view/screens/admin/dashboard/enrolled_students/student_details_screen.dart';
 
 class StudentsListTab extends StatelessWidget {
   final EnrolledStudentsServices enrolledStudentsServices;

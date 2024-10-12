@@ -1,9 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api, unused_local_variable, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:selc/models/enrolled_students.dart';
 import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
-import 'package:intl/intl.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/widgets/text_field_widget.dart';
