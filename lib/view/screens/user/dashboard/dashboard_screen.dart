@@ -53,7 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'title': 'Notes',
       'lottieUrl': AppLotties.notes,
       'gradient': const LinearGradient(
-        colors: [Colors.purple, Colors.blue],
+        colors: [Color(0xFF6A1B9A), Color(0xFF1E88E5)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -63,7 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'title': 'Playlists',
       'lottieUrl': AppLotties.playlist,
       'gradient': const LinearGradient(
-        colors: [Colors.orange, Colors.red],
+        colors: [Color(0xFFFF7043), Color(0xFFE91E63)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -71,10 +71,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Courses &\nOutlines',
-      'lottieUrl':
-          'https://assets3.lottiefiles.com/packages/lf20_swnrn2oy.json',
+      'lottieUrl': AppLotties.courses,
       'gradient': const LinearGradient(
-        colors: [Colors.blue, Colors.lightBlueAccent],
+        colors: [Color(0xFF00BCD4), Color(0xFF3F51B5)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -84,7 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'title': 'Updates',
       'lottieUrl': AppLotties.updates,
       'gradient': const LinearGradient(
-        colors: [Colors.green, Colors.teal],
+        colors: [Color(0xFF4CAF50), Color(0xFF009688)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -94,7 +93,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'title': 'Admissions',
       'lottieUrl': AppLotties.admissions,
       'gradient': const LinearGradient(
-        colors: [Colors.pink, Colors.deepOrangeAccent],
+        colors: [Color(0xFFFF4081), Color(0xFFFF5722)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -102,10 +101,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Enrolled\nStudents',
-      'lottieUrl':
-          'https://assets3.lottiefiles.com/packages/lf20_5tl1xxnz.json',
+      'lottieUrl': AppLotties.students,
       'gradient': const LinearGradient(
-        colors: [Colors.amber, Colors.orange],
+        colors: [Color(0xFFFFA000), Color(0xFFFF5722)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -113,10 +111,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'About Me',
-      'lottieUrl':
-          'https://assets5.lottiefiles.com/packages/lf20_v1yudlrx.json',
+      'lottieUrl': AppLotties.aboutMe,
       'gradient': const LinearGradient(
-        colors: [Colors.indigo, Colors.cyan],
+        colors: [Color(0xFF3F51B5), Color(0xFF00BCD4)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -124,10 +121,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
     {
       'title': 'Terms &\nConditions',
-      'lottieUrl':
-          'https://assets9.lottiefiles.com/packages/lf20_ysrn2iwp.json',
+      'lottieUrl': AppLotties.terms,
       'gradient': const LinearGradient(
-        colors: [Colors.teal, Colors.cyan],
+        colors: [Color(0xFF009688), Color(0xFF00BCD4)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -246,6 +242,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       CarouselSlider(
                         options: CarouselOptions(
                           autoPlay: true,
+                          autoPlayInterval: const Duration(seconds: 3),
                           enlargeCenterPage: true,
                           viewportFraction: 0.9,
                           aspectRatio: 16 / 9,
@@ -286,12 +283,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         bottom: 16,
                         child: AnimatedSmoothIndicator(
                           activeIndex: _currentIndex,
-                          count: snapshot.data!.length,
+                          count: snapshot.data?.length ?? 0,
                           effect: ExpandingDotsEffect(
-                            dotHeight: 6,
-                            dotWidth: 6,
+                            dotHeight: 4,
+                            dotWidth: 4,
                             dotColor: theme.colorScheme.secondary,
                             activeDotColor: theme.primaryColor,
+                            spacing: 4,
                           ),
                         ),
                       ),

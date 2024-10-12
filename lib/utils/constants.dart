@@ -12,9 +12,15 @@ class AppIcons {
 }
 
 class AppLotties {
+  static const aboutMe = "assets/lotties/about_me.json";
   static const admissions = "assets/lotties/admissions.json";
+  static const banners = "assets/lotties/banners.json";
+  static const courses = "assets/lotties/courses.json";
+  static const location = "assets/lotties/location.json";
   static const notes = "assets/lotties/notes.json";
   static const playlist = "assets/lotties/playlist.json";
+  static const students = "assets/lotties/students.json";
+  static const terms = "assets/lotties/terms.json";
   static const updates = "assets/lotties/updates.json";
   static const youtube = "assets/lotties/youtube.json";
 }
