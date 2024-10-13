@@ -42,12 +42,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _analyticsService.logScreenView('Dashboard');
-    context.read<AuthCubit>().isAdminLoggedIn().then((value) {
-      setState(() {
-        _isAdminLoggedIn = value;
-      });
-    });
+    init();
+  }
+
+  Future<void> init() async {
+    await _analyticsService.logScreenView('Dashboard');
+    _isAdminLoggedIn = await context.read<AuthCubit>().isAdminLoggedIn();
   }
 
   // Services data with icons and gradients

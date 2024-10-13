@@ -8,7 +8,10 @@ class AnalyticsService {
   }
 
   Future<void> logScreenView(String screenName) async {
-    await _analytics.logScreenView(screenName: screenName);
+    await _analytics.logScreenView(
+      screenName: screenName,
+      screenClass: screenName,
+    );
   }
 
   Future<void> logButtonClick(String buttonName) async {
