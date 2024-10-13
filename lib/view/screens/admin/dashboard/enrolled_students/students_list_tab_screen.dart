@@ -104,17 +104,17 @@ class StudentsListTab extends StatelessWidget {
   }
 
   void _editStudent(BuildContext context, EnrolledStudent student) async {
-    final result = await Navigator.push(
+    final result = await Navigations.pushForResult<bool>(
       context,
-      MaterialPageRoute(
-        builder: (context) => EditStudentScreen(
-          student: student,
-          enrolledStudentsServices: enrolledStudentsServices,
-        ),
+      EditStudentScreen(
+        student: student,
+        enrolledStudentsServices: enrolledStudentsServices,
       ),
     );
 
-    if (result == true) {}
+    if (result == true) {
+      TopSnackbar.success(context, 'Student updated successfully');
+    }
   }
 
   void _showStudentDetails(BuildContext context, EnrolledStudent student) {
@@ -122,14 +122,11 @@ class StudentsListTab extends StatelessWidget {
   }
 
   void _addStudent(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddStudentScreen(
+    final result = await Navigations.pushForResult<bool>(
+        context,
+        AddStudentScreen(
           enrolledStudentsServices: enrolledStudentsServices,
-        ),
-      ),
-    );
+        ));
 
     if (result == true) {
       TopSnackbar.success(context, 'Student added successfully');

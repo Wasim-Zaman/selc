@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/about_me.dart';
 import 'package:selc/utils/constants.dart';
+import 'package:selc/utils/navigation.dart';
 import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
@@ -167,12 +168,9 @@ class AboutMeScreen extends StatelessWidget {
         _launchMaps(context, aboutMe.latitude, aboutMe.longitude);
         break;
       case 'YouTube Channel':
-        Navigator.push(
+        Navigations.push(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                YouTubeChannelScreen(url: aboutMe.youtubeChannelLink),
-          ),
+          YouTubeChannelScreen(url: aboutMe.youtubeChannelLink),
         );
         break;
     }

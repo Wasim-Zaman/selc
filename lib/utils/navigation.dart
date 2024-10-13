@@ -45,4 +45,16 @@ class Navigations {
   static void popWithResult<T>(BuildContext context, T result) {
     Navigator.of(context).pop(result);
   }
+
+  static Future<T?> pushForResult<T>(BuildContext context, Widget screen) {
+    return Navigator.push<T>(
+      context,
+      PageTransition(
+        type: PageTransitionType.rightToLeft,
+        child: screen,
+        duration: const Duration(milliseconds: 300),
+        reverseDuration: const Duration(milliseconds: 300),
+      ),
+    );
+  }
 }
