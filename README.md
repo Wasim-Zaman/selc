@@ -109,4 +109,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-Developed with ❤️ by SAIRATEC SOLUTIONS
+Developed with ❤️ by Sairatec-Solutions
