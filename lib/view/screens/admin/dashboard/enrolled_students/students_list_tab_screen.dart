@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:selc/models/enrolled_students.dart';
 import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
 import 'package:selc/utils/constants.dart';
+import 'package:selc/utils/navigation.dart';
 import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/screens/admin/dashboard/enrolled_students/add_student_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/enrolled_students/edit_student_screen.dart';
@@ -117,12 +118,7 @@ class StudentsListTab extends StatelessWidget {
   }
 
   void _showStudentDetails(BuildContext context, EnrolledStudent student) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => StudentDetailsScreen(student: student),
-      ),
-    );
+    Navigations.push(context, StudentDetailsScreen(student: student));
   }
 
   void _addStudent(BuildContext context) async {
@@ -136,9 +132,7 @@ class StudentsListTab extends StatelessWidget {
     );
 
     if (result == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Student added successfully')),
-      );
+      TopSnackbar.success(context, 'Student added successfully');
     }
   }
 

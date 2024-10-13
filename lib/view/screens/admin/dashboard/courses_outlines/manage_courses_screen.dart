@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/course_outline.dart';
 import 'package:selc/utils/constants.dart';
+import 'package:selc/utils/navigation.dart';
 import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/screens/admin/dashboard/courses_outlines/add_course_outline_screen.dart';
 import 'package:selc/view/widgets/placeholder_widget.dart';
@@ -86,10 +87,9 @@ class ManageCoursesScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
+        onPressed: () => Navigations.push(
           context,
-          MaterialPageRoute(
-              builder: (context) => const AddCourseOutlineScreen()),
+          const AddCourseOutlineScreen(),
         ),
         child: const Icon(Icons.add),
       ),
@@ -98,12 +98,7 @@ class ManageCoursesScreen extends StatelessWidget {
 
   void _editCourse(BuildContext context, Course course) {
     // Navigate to edit course screen
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddCourseOutlineScreen(courseToEdit: course),
-      ),
-    );
+    Navigations.push(context, AddCourseOutlineScreen(courseToEdit: course));
   }
 
   void _deleteCourse(BuildContext context, Course course) {

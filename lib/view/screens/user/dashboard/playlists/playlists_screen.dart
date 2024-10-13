@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/playlist_model.dart';
 import 'package:selc/utils/constants.dart';
+import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/user/dashboard/playlists/playlist_details_screen.dart';
 import 'package:selc/view/widgets/placeholder_widget.dart';
 
@@ -62,14 +63,11 @@ class PlaylistsScreen extends StatelessWidget {
                 playlist: playlists[index],
                 gradient: _generateGradient(),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PlaylistDetailScreen(
+                  Navigations.push(
+                      context,
+                      PlaylistDetailScreen(
                         playlist: playlists[index],
-                      ),
-                    ),
-                  );
+                      ));
                 },
               );
             },
