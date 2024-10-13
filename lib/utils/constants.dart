@@ -7,6 +7,7 @@ class Images {
 }
 
 class AppIcons {
+  static const selcLogo = "assets/icons/selc_logo.png";
   static const siginLight = "assets/icons/signin_light.png";
   static const signinDark = "assets/icons/signin_dark.png";
 }

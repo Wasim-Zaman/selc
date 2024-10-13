@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:selc/utils/constants.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -28,8 +29,7 @@ class SplashScreenState extends State<SplashScreen>
       curve: Curves.easeInOut,
     ));
 
-    // Navigate to the initial screen after 3 seconds
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () {
       Navigator.of(context).pushReplacementNamed('/home');
     });
   }
@@ -43,13 +43,12 @@ class SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Center(
         child: SlideTransition(
           position: _animation,
           child: Image.asset(
             fit: BoxFit.cover,
-            'assets/icons/selc_logo.png',
+            AppIcons.selcLogo,
             width: MediaQuery.of(context).size.width * 0.5,
             height: MediaQuery.of(context).size.height * 0.5,
           ),
