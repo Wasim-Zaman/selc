@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
+import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/screens/admin/dashboard/admin_dashboard_screen.dart';
@@ -37,7 +38,11 @@ class AdminLoginScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       const SizedBox(height: 80),
-                      const FlutterLogo(size: 100),
+                      Image.asset(
+                        AppIcons.selcLogo,
+                        height: 100,
+                        width: 100,
+                      ),
                       const SizedBox(height: 40),
                       Text(
                         'Admin Login',

@@ -46,7 +46,11 @@ class LoginScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const SizedBox(height: 80),
-            const FlutterLogo(size: 100),
+            Image.asset(
+              AppIcons.selcLogo,
+              height: 100,
+              width: 100,
+            ),
             const SizedBox(height: 40),
             Text(
               'Welcome Back!',
