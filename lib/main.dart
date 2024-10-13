@@ -21,6 +21,7 @@ import 'package:selc/services/updates/updates_services.dart';
 import 'package:selc/utils/themes.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
+import 'package:selc/view/splash_screen.dart';
 
 import 'firebase_options.dart';
 
@@ -68,7 +69,11 @@ void main() async {
 class MyApp extends StatelessWidget {
   final FirebaseAnalyticsObserver observer;
   final Widget initialScreen;
-  const MyApp({super.key, required this.initialScreen, required this.observer});
+  const MyApp({
+    super.key,
+    required this.initialScreen,
+    required this.observer,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +85,10 @@ class MyApp extends StatelessWidget {
           theme: AppThemes.lightTheme,
           darkTheme: AppThemes.darkTheme,
           themeMode: state.themeMode,
-          home: initialScreen,
+          home: const SplashScreen(),
+          routes: {
+            '/home': (context) => initialScreen,
+          },
           navigatorObservers: [observer],
         );
       },
