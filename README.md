@@ -44,7 +44,7 @@ SELC (Smart English Learning Center) is a comprehensive Flutter application desi
 1. Clone the repository:
 
    ```
-   git clone https://github.com/your-username/selc.git
+   git clone https://github.com/wasim-zaman/selc.git
    ```
 
 2. Navigate to the project directory:
@@ -109,4 +109,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-Developed with ❤️ by [Your Name/Organization]
+Developed with ❤️ by SAIRATEC SOLUTIONS
