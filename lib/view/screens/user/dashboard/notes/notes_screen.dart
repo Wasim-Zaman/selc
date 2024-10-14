@@ -33,7 +33,10 @@ class NotesScreen extends StatelessWidget {
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              return NoteCard(note: snapshot.data![index]);
+              return NoteCard(
+                key: Key('Notes Card'),
+                note: snapshot.data![index],
+              );
             },
           );
         },

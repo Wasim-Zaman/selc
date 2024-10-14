@@ -1,0 +1,30 @@
+appId: com.sairatec.selc
+---
+- launchApp
+- assertVisible: Version 1.0.0
+- takeScreenshot: splash_screen
+
+# Dashboard
+- waitForAnimationToEnd
+- assertVisible: Dashboard
+- takeScreenshot: dashboard
+
+# Notes
+- tapOn: "Notes"
+- waitForAnimationToEnd
+- assertVisible: Notes 
+- takeScreenshot: notes_screen
+- tapOn:
+    text: "Grammar"
+- waitForAnimationToEnd
+- assertVisible: Notes - Grammar
+- takeScreenshot: pdf_viewer_grammar
+
+
+# back to notes
+- tapOn: "Back"
+
+# Back to Dashboard
+- tapOn: "Back"
+- assertVisible: Dashboard
+- takeScreenshot: final_dashboard 

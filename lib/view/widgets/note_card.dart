@@ -63,6 +63,7 @@ class NoteCard extends StatelessWidget {
                 ),
               ),
               IconButton(
+                key: Key('View PDF'),
                 icon: const Icon(Icons.remove_red_eye),
                 onPressed: () => _viewPdf(context),
                 tooltip: 'View PDF',

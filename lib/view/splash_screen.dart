@@ -43,16 +43,24 @@ class SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SlideTransition(
-          position: _animation,
-          child: Image.asset(
-            fit: BoxFit.cover,
-            AppIcons.selcLogo,
-            width: MediaQuery.of(context).size.width * 0.5,
-            height: MediaQuery.of(context).size.height * 0.5,
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: SlideTransition(
+                position: _animation,
+                child: Image.asset(
+                  fit: BoxFit.cover,
+                  AppIcons.selcLogo,
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                ),
+              ),
+            ),
           ),
-        ),
+          const Text("Version 1.0.0"),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }

@@ -22,6 +22,7 @@ import 'package:selc/utils/themes.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 import 'package:selc/view/splash_screen.dart';
+import 'package:selc/view/widgets/app_wrapper.dart';
 
 import 'firebase_options.dart';
 
@@ -79,17 +80,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, state) {
-        return MaterialApp(
-          title: 'SELC',
-          debugShowCheckedModeBanner: false,
-          theme: AppThemes.lightTheme,
-          darkTheme: AppThemes.darkTheme,
-          themeMode: state.themeMode,
-          home: const SplashScreen(),
-          routes: {
-            '/home': (context) => initialScreen,
-          },
-          navigatorObservers: [observer],
+        return AppWrapper(
+          child: MaterialApp(
+            title: 'SELC',
+            debugShowCheckedModeBanner: false,
+            theme: AppThemes.lightTheme,
+            darkTheme: AppThemes.darkTheme,
+            themeMode: state.themeMode,
+            home: const SplashScreen(),
+            routes: {
+              '/home': (context) => initialScreen,
+            },
+            navigatorObservers: [observer],
+          ),
         );
       },
     );

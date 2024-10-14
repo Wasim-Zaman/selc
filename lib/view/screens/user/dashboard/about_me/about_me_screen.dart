@@ -7,6 +7,7 @@ import 'package:selc/models/about_me.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/utils/snackbars.dart';
+import 'package:selc/view/screens/user/dashboard/about_me/full_screen_resume_screen.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -201,7 +202,7 @@ class AboutMeScreen extends StatelessWidget {
   //   );
   // }
 
-  Widget _buildResumeSection(AboutMe aboutMe, context) {
+  Widget _buildResumeSection(AboutMe aboutMe, BuildContext context) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -216,9 +217,19 @@ class AboutMeScreen extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                    child: Text(
-                      'Resume',
-                      style: Theme.of(context).textTheme.titleLarge,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Resume',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.fullscreen),
+                          onPressed: () => _openFullScreenResume(
+                              context, aboutMe.resumeUrl!),
+                        ),
+                      ],
                     ),
                   ),
                   Expanded(
@@ -245,6 +256,13 @@ class AboutMeScreen extends StatelessWidget {
                 ),
               ),
       ),
+    );
+  }
+
+  void _openFullScreenResume(BuildContext context, String resumeUrl) {
+    Navigations.push(
+      context,
+      FullScreenResumeScreen(resumeUrl: resumeUrl),
     );
   }
 
