@@ -46,6 +46,10 @@ workflows:
       - name: Build AAB
         script: |
           fvm flutter build appbundle --release --build-name=1.0.$BUILD_NUMBER --build-number=$BUILD_NUMBER
+      - name: Create .env file
+        script: |
+          echo "API_KEY=$API_KEY" > .env
+          echo "SECRET_TOKEN=$SECRET_TOKEN" >> .env
     artifacts:
       - build/**/outputs/**/*.aab
     # publishing:
