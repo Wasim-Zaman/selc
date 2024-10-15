@@ -48,37 +48,64 @@
 #         track: internal
 
 
-
 workflows:
-  android-test-workflow:
-    name: Android Test Workflow
+  android-release-workflow:
+    name: Android Release Workflow
     max_build_duration: 60
     environment:
       flutter: stable
       android_signing:
         - selc
+      groups:
+        - keystore_credentials
+        - google_play
+        - app_secrets
+      vars:
+        PACKAGE_NAME: "com.yourdomain.appname"  # Replace with your app's package name
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
     scripts:
+      - name: Set up keystore
+        script: |
+          echo $CM_KEYSTORE | base64 --decode > $CM_BUILD_DIR/app/keystore.jks
+          cat >> "$CM_BUILD_DIR/android/key.properties" <<EOF
+          storePassword=$CM_KEYSTORE_PASSWORD
+          keyPassword=$CM_KEY_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          storeFile=$CM_BUILD_DIR/app/keystore.jks
+          EOF
+      - name: Set up local.properties
+        script: |
+          echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
       - name: Create .env file
         script: |
           echo "ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER" > .env
           echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" >> .env
-      - name: Set up keystore
+      - name: Flutter analyze
         script: |
-          echo $CM_KEYSTORE | base64 --decode > /tmp/selc.jks
-          cat >> "$FCI_BUILD_DIR/android/key.properties" <<EOF
-          storePassword=$CM_KEYSTORE_PASSWORD
-          keyPassword=$CM_KEY_PASSWORD
-          keyAlias=$CM_KEY_ALIAS
-          storeFile=/tmp/selc.jks
-          EOF
-      - name: Set up local.properties
+          flutter analyze
+      - name: Flutter test
         script: |
-          echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
-      - name: Get Flutter packages
-        script: |
-          flutter packages pub get
+          flutter test
       - name: Build APK
         script: |
-          flutter build apk --release
+          flutter build apk --release \
+            --build-name=1.0.$BUILD_NUMBER \
+            --build-number=$BUILD_NUMBER
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
+    publishing:
+      email:
+        recipients:
+          - user@example.com
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
