@@ -13,7 +13,7 @@ workflows:
     environment:
       flutter: stable
       android_signing:
-        - keystore_reference
+        - selc
       vars:
         KEYSTORE_PATH: selc.jks
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
