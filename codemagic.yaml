@@ -88,12 +88,12 @@ workflows:
         script: |
           echo "ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER" > .env
           echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" >> .env
-      # - name: Flutter analyze
-      #   script: |
-      #     flutter analyze
-      # - name: Flutter test
-      #   script: |
-      #     flutter test
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+      - name: Flutter test
+        script: |
+          flutter test
       - name: Build APK
         script: |
           flutter build apk --release \

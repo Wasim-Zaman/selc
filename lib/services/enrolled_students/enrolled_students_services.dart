@@ -135,36 +135,36 @@ class EnrolledStudentsServices {
     return 0;
   }
 
-  Future<void> _updateTotalCount(Transaction transaction, int increment) async {
-    DocumentReference totalRef = _firestore
-        .collection(_collection)
-        .doc(_totalDocId)
-        .collection(_statsCollection)
-        .doc(_totalDocId);
-    DocumentSnapshot totalSnapshot = await transaction.get(totalRef);
+  // Future<void> _updateTotalCount(Transaction transaction, int increment) async {
+  //   DocumentReference totalRef = _firestore
+  //       .collection(_collection)
+  //       .doc(_totalDocId)
+  //       .collection(_statsCollection)
+  //       .doc(_totalDocId);
+  //   DocumentSnapshot totalSnapshot = await transaction.get(totalRef);
 
-    if (totalSnapshot.exists) {
-      int currentTotal = totalSnapshot.get('count') as int;
-      transaction.update(totalRef, {'count': currentTotal + increment});
-    } else {
-      transaction.set(totalRef, {'count': increment});
-    }
-  }
+  //   if (totalSnapshot.exists) {
+  //     int currentTotal = totalSnapshot.get('count') as int;
+  //     transaction.update(totalRef, {'count': currentTotal + increment});
+  //   } else {
+  //     transaction.set(totalRef, {'count': increment});
+  //   }
+  // }
 
-  Future<void> _updateYearCount(
-      Transaction transaction, int year, int increment) async {
-    DocumentReference yearRef = _firestore
-        .collection(_collection)
-        .doc(_totalDocId)
-        .collection(_statsCollection)
-        .doc(year.toString());
-    DocumentSnapshot yearSnapshot = await transaction.get(yearRef);
+  // Future<void> _updateYearCount(
+  //     Transaction transaction, int year, int increment) async {
+  //   DocumentReference yearRef = _firestore
+  //       .collection(_collection)
+  //       .doc(_totalDocId)
+  //       .collection(_statsCollection)
+  //       .doc(year.toString());
+  //   DocumentSnapshot yearSnapshot = await transaction.get(yearRef);
 
-    if (yearSnapshot.exists) {
-      int currentCount = yearSnapshot.get('count') as int;
-      transaction.update(yearRef, {'count': currentCount + increment});
-    } else {
-      transaction.set(yearRef, {'count': increment});
-    }
-  }
+  //   if (yearSnapshot.exists) {
+  //     int currentCount = yearSnapshot.get('count') as int;
+  //     transaction.update(yearRef, {'count': currentCount + increment});
+  //   } else {
+  //     transaction.set(yearRef, {'count': increment});
+  //   }
+  // }
 }
