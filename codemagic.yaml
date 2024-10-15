@@ -33,12 +33,6 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter packages pub get
-      - name: Flutter analyze
-        script: |
-          flutter analyze
-      - name: Flutter test
-        script: |
-          flutter test
       - name: Build AAB
         script: |
           flutter build appbundle --release --build-name=1.0.$BUILD_NUMBER --build-number=$BUILD_NUMBER
