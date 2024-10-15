@@ -33,13 +33,13 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter packages pub get
-      - name: Build AAB
-        script: |
-          flutter build appbundle --release --build-name=1.0.$BUILD_NUMBER --build-number=$BUILD_NUMBER
       - name: Create .env file
         script: |
           echo "API_KEY=$API_KEY" > .env
           echo "SECRET_TOKEN=$SECRET_TOKEN" >> .env
+      - name: Build AAB
+        script: |
+          flutter build appbundle --release --build-name=1.0.$BUILD_NUMBER --build-number=$BUILD_NUMBER
     artifacts:
       - build/**/outputs/**/*.aab
     # publishing:
