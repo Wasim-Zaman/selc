@@ -27,25 +27,21 @@ workflows:
           echo "keyPassword=$KEY_PASSWORD" >> key.properties
           echo "keyAlias=$KEY_ALIAS" >> key.properties
           echo "storeFile=$KEYSTORE_PATH" >> key.properties
-      - name: Set up FVM
-        script: |
-          brew install fvm
-          fvm install
       - name: Set up local.properties
         script: |
-          echo "flutter.sdk=$HOME/fvm/versions/stable" > "$FCI_BUILD_DIR/android/local.properties"
+          echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
       - name: Get Flutter packages
         script: |
-          fvm flutter packages pub get
+          flutter packages pub get
       - name: Flutter analyze
         script: |
-          fvm flutter analyze
+          flutter analyze
       - name: Flutter test
         script: |
-          fvm flutter test
+          flutter test
       - name: Build AAB
         script: |
-          fvm flutter build appbundle --release --build-name=1.0.$BUILD_NUMBER --build-number=$BUILD_NUMBER
+          flutter build appbundle --release --build-name=1.0.$BUILD_NUMBER --build-number=$BUILD_NUMBER
       - name: Create .env file
         script: |
           echo "API_KEY=$API_KEY" > .env
