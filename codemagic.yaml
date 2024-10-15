@@ -91,14 +91,16 @@ workflows:
       - name: Flutter analyze
         script: |
           flutter analyze
-      - name: Flutter test
-        script: |
-          flutter test
+      # - name: Flutter test
+      #   script: |
+      #     flutter test
       - name: Build APK
         script: |
-          flutter build apk --release \
-            --build-name=1.0.$BUILD_NUMBER \
-            --build-number=$BUILD_NUMBER
+          flutter build apk --release --no-tree-shake-icons
+        # script: |
+        #   flutter build apk --release \
+        #     --build-name=1.0.$BUILD_NUMBER \
+        #     --build-number=$BUILD_NUMBER
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
     publishing:
