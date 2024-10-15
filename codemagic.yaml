@@ -58,10 +58,10 @@ workflows:
         - selc
       groups:
         - keystore_credentials
-        - google_play
+        - google_play_credentials  # Add this new group
         - app_secrets
       vars:
-        PACKAGE_NAME: "com.yourdomain.appname"  # Replace with your app's package name
+        PACKAGE_NAME: "com.sairatec.com"  # Replace with your app's package name
     triggering:
       events:
         - push
