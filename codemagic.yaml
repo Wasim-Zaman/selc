@@ -71,12 +71,12 @@ workflows:
     scripts:
       - name: Set up keystore
         script: |
-          echo $CM_KEYSTORE | base64 --decode > $CM_BUILD_DIR/app/keystore.jks
+          echo $CM_KEYSTORE | base64 --decode > $CM_BUILD_DIR/keystore.jks
           cat >> "$CM_BUILD_DIR/android/key.properties" <<EOF
           storePassword=$CM_KEYSTORE_PASSWORD
           keyPassword=$CM_KEY_PASSWORD
           keyAlias=$CM_KEY_ALIAS
-          storeFile=$CM_BUILD_DIR/app/keystore.jks
+          storeFile=$CM_BUILD_DIR/keystore.jks
           EOF
       - name: Set up local.properties
         script: |
