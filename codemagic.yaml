@@ -1,0 +1,54 @@
+workflows:
+  android-workflow:
+    name: Android Workflow
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      android_signing:
+        - keystore_reference
+      vars:
+        KEYSTORE_PATH: selc.jks
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+    scripts:
+      - name: Set up keystore
+        script: |
+          echo $KEYSTORE_PASSWORD | base64 --decode > $KEYSTORE_PATH
+          echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
+          echo "keyPassword=$KEY_PASSWORD" >> key.properties
+          echo "keyAlias=$KEY_ALIAS" >> key.properties
+          echo "storeFile=$KEYSTORE_PATH" >> key.properties
+      - name: Set up FVM
+        script: |
+          brew install fvm
+          fvm install
+      - name: Set up local.properties
+        script: |
+          echo "flutter.sdk=$HOME/fvm/versions/stable" > "$FCI_BUILD_DIR/android/local.properties"
+      - name: Get Flutter packages
+        script: |
+          fvm flutter packages pub get
+      - name: Flutter analyze
+        script: |
+          fvm flutter analyze
+      - name: Flutter test
+        script: |
+          fvm flutter test
+      - name: Build AAB
+        script: |
+          fvm flutter build appbundle --release --build-name=1.0.$BUILD_NUMBER --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/**/outputs/**/*.aab
+    # publishing:
+    #   google_play:
+    #     credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+    #     track: internal
