@@ -61,7 +61,7 @@ workflows:
         - google_play_credentials  # Add this new group
         - app_secrets
       vars:
-        PACKAGE_NAME: "com.sairatec.com"  # Replace with your app's package name
+        PACKAGE_NAME: "com.sairatec.selc"  # Replace with your app's package name
     triggering:
       events:
         - push
