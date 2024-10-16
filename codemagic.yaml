@@ -98,7 +98,7 @@ workflows:
         script: |
           flutter build apk --release --no-tree-shake-icons
         # script: |
-        #   flutter build apk --release \
+        #   flutter build apk --release --no-tree-shake-icons \
         #     --build-name=1.0.$BUILD_NUMBER \
         #     --build-number=$BUILD_NUMBER
     artifacts:

@@ -67,6 +67,7 @@ dependencies:
   icons_launcher: ^3.0.0
   upgrader: ^11.3.0
   in_app_review: ^2.0.9
+  flutter_windowmanager: ^0.2.0
 
 dev_dependencies:
   flutter_test:
