@@ -13,11 +13,11 @@ import 'package:selc/services/about_me/about_me_service.dart';
 import 'package:selc/services/admissions/admissions_services.dart';
 import 'package:selc/services/banner/banner_service.dart';
 import 'package:selc/services/courses_outline/courses_outline_service.dart';
+import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/services/playlists/playlist_service.dart';
 import 'package:selc/services/storage/storage_service.dart';
 import 'package:selc/services/updates/updates_services.dart';
-import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
 
 part 'admin_states.dart';
 
