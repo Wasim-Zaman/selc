@@ -6,6 +6,7 @@ import 'package:selc/models/enrolled_students.dart';
 import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/snackbars.dart';
+import 'package:selc/view/widgets/placeholder_widget.dart';
 import 'package:selc/view/widgets/text_field_widget.dart';
 
 class AddStudentScreen extends StatefulWidget {
@@ -43,155 +44,138 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Add New Student')),
-      body: Stack(
-        children: [
-          Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppConstants.defaultPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextFieldWidget(
-                    controller: _nameController,
-                    labelText: 'Name',
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter a name' : null,
-                    focusNode: _nameFocus,
-                    onFieldSubmitted: (_) =>
-                        FocusScope.of(context).requestFocus(_emailFocus),
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding),
-                  TextFieldWidget(
-                    controller: _emailController,
-                    labelText: 'Email',
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter an email' : null,
-                    focusNode: _emailFocus,
-                    onFieldSubmitted: (_) =>
-                        FocusScope.of(context).requestFocus(_fatherNameFocus),
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding),
-                  TextFieldWidget(
-                    controller: _fatherNameController,
-                    labelText: 'Father\'s Name',
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter father\'s name' : null,
-                    focusNode: _fatherNameFocus,
-                    onFieldSubmitted: (_) =>
-                        FocusScope.of(context).requestFocus(_levelFocus),
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding),
-                  TextFieldWidget(
-                    controller: _levelController,
-                    labelText: 'Level',
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter a level' : null,
-                    focusNode: _levelFocus,
-                    onFieldSubmitted: (_) => FocusScope.of(context)
-                        .requestFocus(_contactNumberFocus),
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding),
-                  TextFieldWidget(
-                    controller: _contactNumberController,
-                    labelText: 'Contact Number',
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter a contact number' : null,
-                    focusNode: _contactNumberFocus,
-                    onFieldSubmitted: (_) => FocusScope.of(context)
-                        .requestFocus(_fatherContactNumberFocus),
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding),
-                  TextFieldWidget(
-                    controller: _fatherContactNumberController,
-                    labelText: 'Father\'s Contact Number',
-                    validator: (value) => value!.isEmpty
-                        ? 'Please enter father\'s contact number'
-                        : null,
-                    focusNode: _fatherContactNumberFocus,
-                    onFieldSubmitted: (_) =>
-                        FocusScope.of(context).requestFocus(_addressFocus),
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding),
-                  TextFieldWidget(
-                    controller: _addressController,
-                    labelText: 'Address',
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter an address' : null,
-                    focusNode: _addressFocus,
-                    onFieldSubmitted: (_) => _addStudent(),
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding),
-                  ListTile(
-                    title: const Text('Date of Birth'),
-                    subtitle:
-                        Text(DateFormat('yyyy-MM-dd').format(_dateOfBirth)),
-                    trailing: const Icon(Icons.calendar_today),
-                    onTap: () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: _dateOfBirth,
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
-                      );
-                      if (picked != null) {
-                        setState(() => _dateOfBirth = picked);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding),
-                  DropdownButtonFormField<String>(
-                    value: _gender,
-                    decoration: const InputDecoration(labelText: 'Gender'),
-                    items: ['Male', 'Female', 'Other']
-                        .map((label) => DropdownMenuItem(
-                              value: label,
-                              child: Text(label),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() => _gender = value!);
-                    },
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding),
-                  ListTile(
-                    title: const Text('Enrollment Date'),
-                    subtitle:
-                        Text(DateFormat('yyyy-MM-dd').format(_enrollmentDate)),
-                    trailing: const Icon(Icons.calendar_today),
-                    onTap: () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: _enrollmentDate,
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
-                      );
-                      if (picked != null) {
-                        setState(() => _enrollmentDate = picked);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: AppConstants.defaultPadding * 2),
-                  ElevatedButton(
-                    onPressed: _addStudent,
-                    child: const Text('Add Student'),
-                  ),
-                ],
+      body: _isLoading
+          ? PlaceholderWidgets.addStudentScreenPlaceholder()
+          : Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFieldWidget(
+                      controller: _nameController,
+                      labelText: 'Name',
+                      validator: (value) =>
+                          value!.isEmpty ? 'Please enter a name' : null,
+                      focusNode: _nameFocus,
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).requestFocus(_emailFocus),
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    TextFieldWidget(
+                      controller: _emailController,
+                      labelText: 'Email (Optional)',
+                      focusNode: _emailFocus,
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).requestFocus(_fatherNameFocus),
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    TextFieldWidget(
+                      controller: _fatherNameController,
+                      labelText: 'Father\'s Name',
+                      validator: (value) =>
+                          value!.isEmpty ? 'Please enter father\'s name' : null,
+                      focusNode: _fatherNameFocus,
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).requestFocus(_levelFocus),
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    TextFieldWidget(
+                      controller: _levelController,
+                      labelText: 'Level',
+                      validator: (value) =>
+                          value!.isEmpty ? 'Please enter a level' : null,
+                      focusNode: _levelFocus,
+                      onFieldSubmitted: (_) => FocusScope.of(context)
+                          .requestFocus(_contactNumberFocus),
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    TextFieldWidget(
+                      controller: _contactNumberController,
+                      labelText: 'Contact Number (Optional)',
+                      focusNode: _contactNumberFocus,
+                      onFieldSubmitted: (_) => FocusScope.of(context)
+                          .requestFocus(_fatherContactNumberFocus),
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    TextFieldWidget(
+                      controller: _fatherContactNumberController,
+                      labelText: 'Father\'s Contact Number (Optional)',
+                      focusNode: _fatherContactNumberFocus,
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).requestFocus(_addressFocus),
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    TextFieldWidget(
+                      controller: _addressController,
+                      labelText: 'Address',
+                      validator: (value) =>
+                          value!.isEmpty ? 'Please enter an address' : null,
+                      focusNode: _addressFocus,
+                      onFieldSubmitted: (_) => _addStudent(),
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    ListTile(
+                      title: const Text('Date of Birth'),
+                      subtitle:
+                          Text(DateFormat('yyyy-MM-dd').format(_dateOfBirth)),
+                      trailing: const Icon(Icons.calendar_today),
+                      onTap: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: _dateOfBirth,
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null) {
+                          setState(() => _dateOfBirth = picked);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    DropdownButtonFormField<String>(
+                      value: _gender,
+                      decoration: const InputDecoration(labelText: 'Gender'),
+                      items: ['Male', 'Female', 'Other']
+                          .map((label) => DropdownMenuItem(
+                                value: label,
+                                child: Text(label),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() => _gender = value!);
+                      },
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    ListTile(
+                      title: const Text('Enrollment Date'),
+                      subtitle: Text(
+                          DateFormat('yyyy-MM-dd').format(_enrollmentDate)),
+                      trailing: const Icon(Icons.calendar_today),
+                      onTap: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: _enrollmentDate,
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null) {
+                          setState(() => _enrollmentDate = picked);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding * 2),
+                    ElevatedButton(
+                      onPressed: _addStudent,
+                      child: const Text('Add Student'),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (_isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-        ],
-      ),
     );
   }
 

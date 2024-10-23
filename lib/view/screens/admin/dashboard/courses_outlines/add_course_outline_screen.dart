@@ -18,6 +18,8 @@ class _AddCourseOutlineScreenState extends State<AddCourseOutlineScreen> {
   final _formKey = GlobalKey<FormState>();
   final _courseTitle = TextEditingController();
   final List<Week> _weeks = [];
+  // Add this line to store text controllers
+  final List<List<TextEditingController>> _topicControllers = [];
 
   @override
   void initState() {
@@ -25,6 +27,15 @@ class _AddCourseOutlineScreenState extends State<AddCourseOutlineScreen> {
     if (widget.courseToEdit != null) {
       _courseTitle.text = widget.courseToEdit!.title;
       _weeks.addAll(widget.courseToEdit!.weeks);
+      // Initialize controllers for existing weeks and topics
+      for (var week in _weeks) {
+        List<TextEditingController> weekControllers = [
+          TextEditingController(text: week.title)
+        ];
+        weekControllers.addAll(
+            week.topics.map((topic) => TextEditingController(text: topic)));
+        _topicControllers.add(weekControllers);
+      }
     }
   }
 
@@ -89,7 +100,7 @@ class _AddCourseOutlineScreenState extends State<AddCourseOutlineScreen> {
           Text('Week ${idx + 1}',
               style: Theme.of(context).textTheme.titleMedium),
           TextFieldWidget(
-            controller: TextEditingController(text: week.title),
+            controller: _topicControllers[idx][0],
             labelText: 'Week Title',
             onChanged: (value) {
               setState(() {
@@ -111,9 +122,8 @@ class _AddCourseOutlineScreenState extends State<AddCourseOutlineScreen> {
   List<Widget> _buildTopicsList(int weekIndex) {
     return _weeks[weekIndex].topics.asMap().entries.map((entry) {
       int idx = entry.key;
-      String topic = entry.value;
       return TextFieldWidget(
-        controller: TextEditingController(text: topic),
+        controller: _topicControllers[weekIndex][idx + 1],
         labelText: 'Topic ${idx + 1}',
         onChanged: (value) {
           setState(() {
@@ -130,6 +140,7 @@ class _AddCourseOutlineScreenState extends State<AddCourseOutlineScreen> {
   void _addWeek() {
     setState(() {
       _weeks.add(Week(title: '', topics: []));
+      _topicControllers.add([TextEditingController()]);
     });
   }
 
@@ -139,6 +150,7 @@ class _AddCourseOutlineScreenState extends State<AddCourseOutlineScreen> {
       updatedTopics.add('');
       _weeks[weekIndex] =
           Week(title: _weeks[weekIndex].title, topics: updatedTopics);
+      _topicControllers[weekIndex].add(TextEditingController());
     });
   }
 
@@ -164,6 +176,11 @@ class _AddCourseOutlineScreenState extends State<AddCourseOutlineScreen> {
   @override
   void dispose() {
     _courseTitle.dispose();
+    for (var controllers in _topicControllers) {
+      for (var controller in controllers) {
+        controller.dispose();
+      }
+    }
     super.dispose();
   }
 }

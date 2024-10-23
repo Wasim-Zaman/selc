@@ -368,4 +368,172 @@ class PlaceholderWidgets {
       },
     );
   }
+
+  static Widget editStudentScreenPlaceholder() {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildShimmerTextField(),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildShimmerTextField(),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildShimmerTextField(),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildShimmerTextField(),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildShimmerTextField(),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildShimmerTextField(),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildShimmerTextField(),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildShimmerListTile(),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildShimmerDropdown(),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildShimmerListTile(),
+                const SizedBox(height: AppConstants.defaultPadding * 2),
+                _buildShimmerButton(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget addStudentScreenPlaceholder() {
+    // This can be the same as editStudentScreenPlaceholder
+    return editStudentScreenPlaceholder();
+  }
+
+  static Widget studentDetailsScreenPlaceholder() {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildShimmerCard(height: 100),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildShimmerCard(height: 200),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildShimmerCard(height: 150),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildShimmerCard(height: 100),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget studentsListTabScreenPlaceholder() {
+    return ListView.separated(
+      itemCount: 10,
+      separatorBuilder: (context, index) => const Divider(),
+      itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.only(top: 5),
+          child: Card(
+            margin: const EdgeInsets.symmetric(
+              vertical: 4,
+              horizontal: AppConstants.defaultPadding,
+            ),
+            child: _buildShimmerListTile(),
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget enrolledStudentsScreenPlaceholder() {
+    return ListView.builder(
+      itemCount: 10,
+      itemBuilder: (context, index) {
+        return Card(
+          margin: const EdgeInsets.symmetric(
+            vertical: 4,
+            horizontal: AppConstants.defaultPadding,
+          ),
+          child: _buildShimmerListTile(),
+        );
+      },
+    );
+  }
+
+  static Widget _buildShimmerTextField() {
+    return Builder(
+      builder: (context) {
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        return Shimmer.fromColors(
+          baseColor:
+              isDarkMode ? AppColors.darkNeutral : AppColors.lightNeutral,
+          highlightColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _buildShimmerDropdown() {
+    return Builder(
+      builder: (context) {
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        return Shimmer.fromColors(
+          baseColor:
+              isDarkMode ? AppColors.darkNeutral : AppColors.lightNeutral,
+          highlightColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _buildShimmerButton() {
+    return Builder(
+      builder: (context) {
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        return Shimmer.fromColors(
+          baseColor:
+              isDarkMode ? AppColors.darkNeutral : AppColors.lightNeutral,
+          highlightColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

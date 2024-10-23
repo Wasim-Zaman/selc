@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:selc/models/enrolled_students.dart';
 import 'package:intl/intl.dart';
+import 'package:selc/models/enrolled_students.dart';
 
 class StudentDetailsScreen extends StatelessWidget {
   final EnrolledStudent student;

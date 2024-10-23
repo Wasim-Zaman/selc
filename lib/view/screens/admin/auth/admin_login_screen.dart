@@ -40,8 +40,8 @@ class AdminLoginScreen extends StatelessWidget {
                       const SizedBox(height: 80),
                       Image.asset(
                         AppIcons.selcLogo,
-                        height: 100,
-                        width: 100,
+                        height: 200,
+                        width: 200,
                       ),
                       const SizedBox(height: 40),
                       Text(

@@ -18,7 +18,7 @@ import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
 import 'package:selc/view/screens/user/dashboard/admissions/admissions_screen.dart';
 import 'package:selc/view/screens/user/dashboard/courses_outlines/courses_outlines_screen.dart';
-import 'package:selc/view/screens/user/dashboard/enrolled_students/enrolled_students.dart';
+import 'package:selc/view/screens/user/dashboard/enrolled_students/enrolled_students_screen.dart';
 import 'package:selc/view/screens/user/dashboard/notes/notes_categories_screen.dart';
 import 'package:selc/view/screens/user/dashboard/playlists/playlists_screen.dart';
 import 'package:selc/view/screens/user/dashboard/terms_and_conditions_screen.dart';
