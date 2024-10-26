@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/banner.dart';
 import 'package:selc/utils/constants.dart';
@@ -181,10 +183,43 @@ class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
+      // Load the image file
+      final File imageFile = File(pickedFile.path);
+      final img = await decodeImageFromList(await imageFile.readAsBytes());
+
+      // Create an image with the desired resolution
+      final ui.Image resizedImage = await _resizeImage(img, 1200, 480);
+
+      // Convert to bytes and create a new file
+      final byteData =
+          await resizedImage.toByteData(format: ui.ImageByteFormat.png);
+      final buffer = byteData!.buffer;
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/resized_banner.png');
+      await tempFile.writeAsBytes(
+        buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+      );
+
       setState(() {
-        _imageFile = File(pickedFile.path);
+        _imageFile = tempFile;
       });
     }
+  }
+
+  Future<ui.Image> _resizeImage(
+      ui.Image image, int targetWidth, int targetHeight) async {
+    final pictureRecorder = ui.PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      Rect.fromLTWH(0, 0, targetWidth.toDouble(), targetHeight.toDouble()),
+      Paint()..filterQuality = FilterQuality.high,
+    );
+
+    final picture = pictureRecorder.endRecording();
+    return picture.toImage(targetWidth, targetHeight);
   }
 
   void _saveBanner() {
@@ -219,6 +254,15 @@ class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
               decoration: const InputDecoration(labelText: 'Title'),
             ),
             const SizedBox(height: 16),
+            Text(
+              'Recommended image resolution: 1200x480 pixels\nImages will be automatically resized',
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodySmall?.color,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
             ElevatedButton(
               onPressed: _pickImage,
               child: const Text('Pick Image'),
