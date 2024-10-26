@@ -246,7 +246,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _buildBannerSlider(),
 
               // Activity Graph
-              if (_isAdminLoggedIn) _buildEnrollmentGraph(),
+              _buildEnrollmentGraph(),
 
               // Services Grid
               _buildServicesGrid(),
