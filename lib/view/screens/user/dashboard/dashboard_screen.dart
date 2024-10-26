@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
+import 'package:selc/cubits/banner/banner_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/models/banner.dart';
 import 'package:selc/models/enrolled_students.dart';
@@ -24,7 +25,9 @@ import 'package:selc/view/screens/user/dashboard/notes/notes_categories_screen.d
 import 'package:selc/view/screens/user/dashboard/playlists/playlists_screen.dart';
 import 'package:selc/view/screens/user/dashboard/terms_and_conditions_screen.dart';
 import 'package:selc/view/screens/user/dashboard/updates/updates_screen.dart';
+import 'package:selc/view/widgets/banner_slider.dart';
 import 'package:selc/view/widgets/grid_item.dart';
+import 'package:selc/view/widgets/learning_resources_section.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -243,7 +246,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _buildHeader(user, theme),
 
               // Banner Slider
-              _buildBannerSlider(),
+              BlocProvider(
+                create: (context) => BannerCubit(
+                  bannersStream: context.read<AdminCubit>().getBannersStream(),
+                ),
+                child: const BannerSlider(),
+              ),
 
               // Activity Graph
               _buildEnrollmentGraph(),
@@ -418,64 +426,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildServicesGrid() {
-    // Primary services for horizontal scrolling
-    final primaryServices = services.sublist(0, 4); // First 4 services
-    // Secondary services for grid view
-    final secondaryServices = services.sublist(4); // Remaining services
+    // Learning Resources section
+    final learningResources = [
+      services[0], // Notes
+      services[1], // Playlists
+      services[2], // Courses & Outlines
+      services[3], // Updates
+    ];
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Horizontal scrolling services
-          SizedBox(
-            height: 160,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: primaryServices.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  width: 140,
-                  margin: const EdgeInsets.only(right: 16),
-                  child: GridItem(
-                    title: primaryServices[index]['title'],
-                    lottieUrl: primaryServices[index]['lottieUrl'],
-                    gradient: primaryServices[index]['gradient'],
-                    screen: primaryServices[index]['screen'],
-                    fallbackIcon:
-                        getFallbackIcon(primaryServices[index]['title']),
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Vertical grid services
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: secondaryServices.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16.0,
-              mainAxisSpacing: 16.0,
-              childAspectRatio: 1.5,
-            ),
-            itemBuilder: (context, index) {
-              return GridItem(
-                title: secondaryServices[index]['title'],
-                lottieUrl: secondaryServices[index]['lottieUrl'],
-                gradient: secondaryServices[index]['gradient'],
-                screen: secondaryServices[index]['screen'],
-                fallbackIcon: getFallbackIcon(
-                  secondaryServices[index]['title'],
+    // Information & Support section
+    final informationSupport = [
+      services[4], // Admissions
+      services[5], // Enrolled Students
+      services[6], // About Me
+      services[7], // Terms & Conditions
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        // Learning Resources Section with horizontal scroll
+        LearningResourcesSection(resources: learningResources),
+
+        // Information & Support Section
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Information & Support',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: informationSupport.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                  childAspectRatio: 1.3,
                 ),
-              );
-            },
+                itemBuilder: (context, index) {
+                  return GridItem(
+                    title: informationSupport[index]['title'],
+                    lottieUrl: informationSupport[index]['lottieUrl'],
+                    gradient: informationSupport[index]['gradient'],
+                    screen: informationSupport[index]['screen'],
+                    fallbackIcon:
+                        getFallbackIcon(informationSupport[index]['title']),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
