@@ -13,6 +13,7 @@ import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/view/screens/admin/dashboard/admin_dashboard_screen.dart';
+import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
 import 'package:selc/view/screens/user/dashboard/admissions/admissions_screen.dart';
 import 'package:selc/view/screens/user/dashboard/courses_outlines/courses_outlines_screen.dart';
@@ -218,6 +219,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onTap: () async {
               Navigator.pop(context);
               await context.read<AuthCubit>().logout();
+              Navigations.pushAndRemoveUntil(context, const LoginScreen());
             },
           ),
         ],

@@ -1,15 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
-import 'package:selc/services/analytics/analytics_service.dart';
-import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
-import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -17,8 +12,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final AuthService authService = AuthService();
-    final AnalyticsService analyticsService = AnalyticsService();
 
     return Scaffold(
       appBar: AppBar(
@@ -68,16 +61,7 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 50),
             ElevatedButton(
               onPressed: () async {
-                User? user = await authService.signInWithGoogle();
-                if (user != null) {
-                  await analyticsService.logLogin('google');
-                  Navigations.pushAndRemoveUntil(
-                    context,
-                    const DashboardScreen(),
-                  );
-                } else {
-                  TopSnackbar.error(context, 'Sign in failed or was canceled.');
-                }
+                await context.read<AuthCubit>().signInWithGoogle();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.primaryColor,

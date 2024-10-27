@@ -1,9 +1,4 @@
 {
   //   "dart.flutterSdkPath": ".fvm/versions/3.24.3"
-"dart.flutterSdkPath": "/Users/wasimzaman/development/flutter/bin",
-"workbench.colorCustomizations": {
-    "activityBar.background": "#10341A",
-    "titleBar.activeBackground": "#164925",
-    "titleBar.activeForeground": "#F5FCF7"
-}
+"dart.flutterSdkPath": "/Users/wasimzaman/development/flutter/bin"
 }

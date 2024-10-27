@@ -18,9 +18,10 @@ class AdminLoginScreen extends StatelessWidget {
         final authCubit = context.read<AuthCubit>();
         return BlocListener<AuthCubit, AuthState>(
           listener: (context, state) {
-            if (state is AuthSuccess) {
+            if (state is AuthSuccess && state.isAdmin) {
               TopSnackbar.success(context, 'Login successful');
-              Navigations.push(context, const AdminDashboardScreen());
+              Navigations.pushAndRemoveUntil(
+                  context, const AdminDashboardScreen());
             } else if (state is AuthFailure) {
               TopSnackbar.error(context, state.errorMessage);
             }
