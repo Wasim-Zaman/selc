@@ -1,7 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +7,6 @@ import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/banner/banner_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
-import 'package:selc/models/banner.dart';
 import 'package:selc/models/enrolled_students.dart';
 import 'package:selc/services/analytics/analytics_service.dart';
 import 'package:selc/services/auth/auth_service.dart';
@@ -38,7 +34,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int _currentIndex = 0;
+
   bool _isAdminLoggedIn = false;
   final AnalyticsService _analyticsService = AnalyticsService();
 
@@ -348,80 +344,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildBannerSlider() {
-    return Column(
-      children: [
-        AspectRatio(
-          aspectRatio: 2.5, // Changed to match the 1200x480 resolution
-          child: StreamBuilder<List<BannerModel>>(
-            stream: context.read<AdminCubit>().getBannersStream(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              return CarouselSlider(
-                options: CarouselOptions(
-                  // height: 200,
-                  viewportFraction: 0.9,
-                  autoPlay: true,
-                  autoPlayInterval: const Duration(seconds: 3),
-                  autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                  autoPlayCurve: Curves.fastOutSlowIn,
-                  enlargeCenterPage: true,
-                  onPageChanged: (index, reason) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                ),
-                items: snapshot.data!.map((banner) {
-                  return Builder(
-                    builder: (BuildContext context) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          image: DecorationImage(
-                            image: CachedNetworkImageProvider(banner.imageUrl),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }).toList(),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 8),
-        StreamBuilder<List<BannerModel>>(
-          stream: context.read<AdminCubit>().getBannersStream(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const SizedBox();
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: snapshot.data!.asMap().entries.map((entry) {
-                return Container(
-                  width: 8.0,
-                  height: 8.0,
-                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).primaryColor.withOpacity(
-                          _currentIndex == entry.key ? 0.9 : 0.4,
-                        ),
-                  ),
-                );
-              }).toList(),
-            );
-          },
-        ),
-      ],
     );
   }
 
