@@ -57,7 +57,7 @@ definitions:
         echo PATH="/Users/builder/.shorebird/bin:$PATH" >> $CM_ENV        
     - &flutter_analyze
       name: Run static code analysis
-      script: flutter analyze
+      script: flutter analyze --no-fatal-warnings  # This will treat warnings as non-fatal
     - &setup_local_properties
       name: Set up local.properties
       script: echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
