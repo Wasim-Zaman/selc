@@ -53,3 +53,6 @@ app.*.map.json
 
 # key.properties file
 **/android/key.properties
+
+# Google services json file
+/android/app/google-services.json
