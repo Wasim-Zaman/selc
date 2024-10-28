@@ -69,13 +69,10 @@ workflows:
     environment:
       flutter: stable
       groups:
-        - keystore_credentials
-        - app_secrets
-        - firebase_credentials
+        - keystore_credentials  # Contains: CM_KEYSTORE, CM_KEY_ALIAS, CM_KEY_PASSWORD, CM_KEYSTORE_PASSWORD
+        - app_secrets          # Contains: GOOGLE_SERVICES_JSON, ADMIN_PASSWORD, ADMIN_PHONE_NUMBER
       vars:
         PACKAGE_NAME: "com.sairatec.selc"
-        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
     triggering:
       events:
         - push
@@ -94,25 +91,21 @@ workflows:
           storeFile=$CM_BUILD_DIR/keystore.jks
           EOF
       
-      - *setup_local_properties  # Using the anchor
+      - *setup_local_properties
       
-      - *shorebird_install      # Using the anchor
+      - *flutter_analyze
       
-      - name: Release with Shorebird
+      - name: Set up Google Services
         script: |
-          export PATH="/Users/builder/.shorebird/bin:$PATH"
-          echo "$SHOREBIRD_TOKEN" | shorebird login --token-stdin
-          shorebird release android
+          echo "$GOOGLE_SERVICES_JSON" > "$CM_BUILD_DIR/android/app/google-services.json"
       
       - name: Get Flutter packages
         script: |
           flutter packages pub get
       
-      - *flutter_analyze        # Using the anchor
-      
-      - name: Set up Google Services
+      - name: Build APK
         script: |
-          echo "$GOOGLE_SERVICES_JSON" > "$CM_BUILD_DIR/android/app/google-services.json"
+          flutter build apk --release
     
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
