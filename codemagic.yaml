@@ -82,11 +82,12 @@ workflows:
       - name: Set up local.properties
         script: |
           echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
-      - name: Install Shorebird
+      - name: Install and Release with Shorebird
         script: |
           curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
           export PATH="$PATH":"$HOME/.shorebird/bin"
           shorebird --version
+          shorebird release android
       - name: Get Flutter packages
         script: |
           flutter packages pub get
@@ -100,13 +101,6 @@ workflows:
       # - name: Flutter test
       #   script: |
       #     flutter test
-      - name: Build and Release with Shorebird
-        script: |
-          shorebird init  # Only needed first time
-          shorebird release android \
-            --force \  # Skip validation checks
-            --no-release-notes \  # Optional: Remove if you want to provide release notes
-            --patch  # Creates a patch release. Use --minor or --major as needed
       - name: Build APK (Fallback)
         script: |
           flutter build apk --release --no-tree-shake-icons
