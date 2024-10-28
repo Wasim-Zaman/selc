@@ -73,6 +73,8 @@ workflows:
         - app_secrets          # Contains: GOOGLE_SERVICES_JSON, ADMIN_PASSWORD, ADMIN_PHONE_NUMBER
       vars:
         PACKAGE_NAME: "com.sairatec.selc"
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}  # Add this to CodeMagic encrypted variables
+        FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}  # Add your Android app ID from Firebase
     triggering:
       events:
         - push
@@ -103,10 +105,24 @@ workflows:
         script: |
           flutter packages pub get
       
+      - name: Install Firebase CLI
+        script: |
+          curl -sL https://firebase.tools | bash
+      
       - name: Build APK
         script: |
           flutter build apk --release
-    
+      
+      - name: Upload to Firebase App Distribution
+        script: |
+          if [[ $FCI_BUILD_TYPE == "release" ]]; then
+            firebase appdistribution:distribute "build/app/outputs/flutter-apk/app-release.apk" \
+              --app "$FIREBASE_APP_ID" \
+              --token "$FIREBASE_TOKEN" \
+              --groups "testers" \
+              --release-notes "New build from CodeMagic CI/CD"
+          fi
+      
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
       - build/**/outputs/**/*.aab
