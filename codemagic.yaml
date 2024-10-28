@@ -48,20 +48,34 @@
 #         track: internal
 
 
+definitions:
+  scripts:
+    - &shorebird_install
+      name: Install Shorebird CLI
+      script: |
+        curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+        echo PATH="/Users/builder/.shorebird/bin:$PATH" >> $CM_ENV        
+    - &flutter_analyze
+      name: Run static code analysis
+      script: flutter analyze
+    - &setup_local_properties
+      name: Set up local.properties
+      script: echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+
 workflows:
   android-release-workflow:
     name: Android Release Workflow
     max_build_duration: 60
     environment:
       flutter: stable
-      android_signing:
-        - selc
       groups:
         - keystore_credentials
         - app_secrets
+        - firebase_credentials
       vars:
         PACKAGE_NAME: "com.sairatec.selc"
-        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}  # Add this to CodeMagic encrypted variables
+        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
     triggering:
       events:
         - push
@@ -79,37 +93,31 @@ workflows:
           keyAlias=$CM_KEY_ALIAS
           storeFile=$CM_BUILD_DIR/keystore.jks
           EOF
-      - name: Set up local.properties
+      
+      - *setup_local_properties  # Using the anchor
+      
+      - *shorebird_install      # Using the anchor
+      
+      - name: Release with Shorebird
         script: |
-          echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
-      - name: Install and Release with Shorebird
-        script: |
-          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-          export PATH="$PATH":"$HOME/.shorebird/bin"
-          shorebird --version
+          export PATH="/Users/builder/.shorebird/bin:$PATH"
+          echo "$SHOREBIRD_TOKEN" | shorebird login --token-stdin
           shorebird release android
+      
       - name: Get Flutter packages
         script: |
           flutter packages pub get
-      - name: Create .env file
-        script: |
-          echo "ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER" > .env
-          echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" >> .env
-      - name: Flutter analyze
-        script: |
-          flutter analyze
-      # - name: Flutter test
-      #   script: |
-      #     flutter test
-      - name: Build APK (Fallback)
-        script: |
-          flutter build apk --release --no-tree-shake-icons
+      
+      - *flutter_analyze        # Using the anchor
+      
       - name: Set up Google Services
         script: |
           echo "$GOOGLE_SERVICES_JSON" > "$CM_BUILD_DIR/android/app/google-services.json"
+    
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
       - build/**/outputs/**/*.aab
+    
     publishing:
       email:
         recipients:
