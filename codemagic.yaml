@@ -57,10 +57,18 @@ definitions:
         echo PATH="/Users/builder/.shorebird/bin:$PATH" >> $CM_ENV        
     - &flutter_analyze
       name: Run static code analysis
-      script: flutter analyze --no-fatal-warnings  # This will treat warnings as non-fatal
+      script: flutter analyze
     - &setup_local_properties
       name: Set up local.properties
       script: echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+    - &create_env_file
+      name: Create .env file
+      script: |
+        cat > .env << EOF
+        # Admin
+        ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER
+        ADMIN_PASSWORD=$ADMIN_PASSWORD
+        EOF
 
 workflows:
   android-release-workflow:
@@ -69,12 +77,12 @@ workflows:
     environment:
       flutter: stable
       groups:
-        - keystore_credentials  # Contains: CM_KEYSTORE, CM_KEY_ALIAS, CM_KEY_PASSWORD, CM_KEYSTORE_PASSWORD
-        - app_secrets          # Contains: GOOGLE_SERVICES_JSON, ADMIN_PASSWORD, ADMIN_PHONE_NUMBER
+        - keystore_credentials
+        - app_secrets  # Contains ADMIN_PHONE_NUMBER and ADMIN_PASSWORD
       vars:
         PACKAGE_NAME: "com.sairatec.selc"
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}  # Add this to CodeMagic encrypted variables
-        FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}  # Add your Android app ID from Firebase
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
     triggering:
       events:
         - push
@@ -83,6 +91,8 @@ workflows:
           include: true
           source: true
     scripts:
+      - *create_env_file  # This will create the .env file using variables from app_secrets
+      
       - name: Set up keystore
         script: |
           echo $CM_KEYSTORE | base64 --decode > $CM_BUILD_DIR/keystore.jks
