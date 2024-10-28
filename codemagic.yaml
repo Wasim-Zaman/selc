@@ -61,6 +61,7 @@ workflows:
         - app_secrets
       vars:
         PACKAGE_NAME: "com.sairatec.selc"
+        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}  # Add this to CodeMagic encrypted variables
     triggering:
       events:
         - push
@@ -81,6 +82,11 @@ workflows:
       - name: Set up local.properties
         script: |
           echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Install Shorebird
+        script: |
+          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          export PATH="$PATH":"$HOME/.shorebird/bin"
+          shorebird --version
       - name: Get Flutter packages
         script: |
           flutter packages pub get
@@ -94,16 +100,23 @@ workflows:
       # - name: Flutter test
       #   script: |
       #     flutter test
-      - name: Build APK
+      - name: Build and Release with Shorebird
+        script: |
+          shorebird init  # Only needed first time
+          shorebird release android \
+            --force \  # Skip validation checks
+            --no-release-notes \  # Optional: Remove if you want to provide release notes
+            --patch  # Creates a patch release. Use --minor or --major as needed
+      - name: Build APK (Fallback)
         script: |
           flutter build apk --release --no-tree-shake-icons
-        # script: |
-        #   flutter build apk --release --no-tree-shake-icons \
-        #     --build-name=1.0.$BUILD_NUMBER \
-        #     --build-number=$BUILD_NUMBER
+      - name: Set up Google Services
+        script: |
+          echo "$GOOGLE_SERVICES_JSON" > "$CM_BUILD_DIR/android/app/google-services.json"
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
+      - build/**/outputs/**/*.aab
     publishing:
       email:
         recipients:
-          - user@example.com
+          - wasimxaman13@gmail.com
