@@ -134,7 +134,7 @@ workflows:
           BUILD_NUMBER=$(($(firebase appdistribution:get-latest-build-number --app "$FIREBASE_APP_ID" --token "$FIREBASE_TOKEN") + 1))
           
           # Build AAB using Shorebird (removed unsupported flags)
-          shorebird build appbundle
+          shorebird build android
       
       - name: Upload to Firebase App Distribution
         script: |
