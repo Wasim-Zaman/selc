@@ -120,12 +120,14 @@ workflows:
       
       - name: Setup Shorebird
         script: |
-          # Install Shorebird
-          *shorebird_install
-          # Create the credentials directory
-          mkdir -p ~/.shorebird
-          # Create credentials.json with proper JSON formatting
-          echo "{\"token\": \"$SHOREBIRD_TOKEN\"}" > ~/.shorebird/credentials.json
+           # Install Shorebird
+            curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+            # Add Shorebird to PATH
+            echo PATH="$HOME/.shorebird/bin:$PATH" >> $CM_ENV
+            # Create the credentials directory
+            mkdir -p ~/.shorebird
+            # Create credentials.json with proper JSON formatting
+            echo "{\"token\": \"$SHOREBIRD_TOKEN\"}" > ~/.shorebird/credentials.json
       
       - name: Build AAB with Shorebird
         script: |
