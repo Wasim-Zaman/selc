@@ -40,10 +40,22 @@ android {
 
     signingConfigs {
         release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
+            if (System.getenv()['CI']) { // CI=true is exported by Codemagic
+                storeFile file(System.getenv()['CM_KEYSTORE'])
+                storePassword System.getenv()['CM_KEYSTORE_PASSWORD']
+                keyAlias System.getenv()['CM_KEY_ALIAS']
+                keyPassword System.getenv()['CM_KEY_PASSWORD']
+            } else if (System.getenv()['SHOREBIRD']) { // For Shorebird builds
+                storeFile file(System.getenv()['SHOREBIRD_KEYSTORE_PATH'])
+                storePassword System.getenv()['SHOREBIRD_KEYSTORE_PASSWORD']
+                keyAlias System.getenv()['SHOREBIRD_KEY_ALIAS']
+                keyPassword System.getenv()['SHOREBIRD_KEY_PASSWORD']
+            } else {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+                storePassword keystoreProperties['storePassword']
+            }
         }
     }
 
