@@ -120,7 +120,11 @@ workflows:
         script: |
           curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
           export PATH="/Users/builder/.shorebird/bin:$PATH"
-          echo "$SHOREBIRD_TOKEN" | shorebird login --token-stdin
+          # Create a temporary file for the token
+          echo "$SHOREBIRD_TOKEN" > shorebird_token.txt
+          # Login using the token file
+          shorebird login --token "$(cat shorebird_token.txt)"
+          rm shorebird_token.txt
       
       - name: Build AAB with Shorebird
         script: |
