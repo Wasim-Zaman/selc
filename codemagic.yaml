@@ -86,7 +86,7 @@ workflows:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
-        FLUTTER_VERSION: 3.24.3  # Added Flutter version variable
+        FLUTTER_VERSION: 3.24.3
     triggering:
       events:
         - push
@@ -131,13 +131,7 @@ workflows:
       
       - name: Build AAB with Shorebird
         script: |
-          # Source the environment to get the updated PATH
           source $CM_ENV
-          
-          # Get the latest build number from Firebase
-          BUILD_NUMBER=$(($(firebase appdistribution:get-latest-build-number --app "$FIREBASE_APP_ID" --token "$FIREBASE_TOKEN") + 1))
-          
-          # Build AAB using Shorebird
           shorebird release android
       
       - name: Upload to Firebase App Distribution
