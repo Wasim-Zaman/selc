@@ -1,10 +1,11 @@
 definitions:
   environment:
     shared_env: &shared_env
-      flutter: 3.24.3
+      flutter: 3.24.1
       groups:
         - keystore_credentials
         - app_secrets
+        - shorebird
       vars:
         FLUTTER_VERSION: 3.24.1
         PACKAGE_NAME: "com.sairatec.selc"
@@ -105,9 +106,6 @@ workflows:
       email:
         recipients:
           - wasimxaman13@gmail.com
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
 
   patch-android-workflow:
     name: Patch Android
@@ -120,12 +118,3 @@ workflows:
       release_version:
         description: The release version to patch
     scripts:
-      - *shorebird_install
-      - *create_env_file
-      - name: Shorebird Patch
-        script: |
-          source $CM_ENV
-          echo "$SHOREBIRD_TOKEN" > shorebird_token.txt
-          shorebird login --token "$(cat shorebird_token.txt)"
-          rm shorebird_token.txt
-          shorebird patch android --release-version=${{ inputs.release_version }}
