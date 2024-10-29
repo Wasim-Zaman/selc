@@ -1,63 +1,21 @@
-# workflows:
-#   android-workflow:
-#     name: Android Workflow
-#     triggering:
-#       events:
-#         - push
-#         - pull_request
-#       branch_patterns:
-#         - pattern: 'main'
-#           include: true
-#           source: true
-#     max_build_duration: 60
-#     environment:
-#       flutter: stable
-#       android_signing:
-#         - selc
-#       vars:
-#         KEYSTORE_PATH: selc.jks
-#         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-#         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-#         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-#     scripts:
-#       - name: Set up keystore
-#         script: |
-#           echo $KEYSTORE_PASSWORD | base64 --decode > $KEYSTORE_PATH
-#           echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
-#           echo "keyPassword=$KEY_PASSWORD" >> key.properties
-#           echo "keyAlias=$KEY_ALIAS" >> key.properties
-#           echo "storeFile=$KEYSTORE_PATH" >> key.properties
-#       - name: Set up local.properties
-#         script: |
-#           echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
-#       - name: Get Flutter packages
-#         script: |
-#           flutter packages pub get
-#       - name: Create .env file
-#         script: |
-#           echo "API_KEY=$API_KEY" > .env
-#           echo "SECRET_TOKEN=$SECRET_TOKEN" >> .env
-#       - name: Build AAB
-#         script: |
-#           flutter build appbundle --release --build-name=1.0.$BUILD_NUMBER --build-number=$BUILD_NUMBER
-#     artifacts:
-#       - build/**/outputs/**/*.aab
-#     publishing:
-#       google_play:
-#         credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-#         track: internal
-
-
 definitions:
+  environment:
+    shared_env: &shared_env
+      flutter: 3.24.1
+      groups:
+        - keystore_credentials
+        - app_secrets
+      vars:
+        FLUTTER_VERSION: 3.24.1
+        PACKAGE_NAME: "com.sairatec.selc"
   scripts:
     - &shorebird_install
-      name: Install Shorebird CLI
+      name: Install Shorebird
       script: |
+        # Install Shorebird
         curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-        echo PATH="/Users/builder/.shorebird/bin:$PATH" >> $CM_ENV        
-    - &flutter_analyze
-      name: Run static code analysis
-      script: flutter analyze
+        # Add Shorebird to PATH
+        echo 'export PATH="$HOME/.shorebird/bin:$PATH"' >> $CM_ENV
     - &setup_local_properties
       name: Set up local.properties
       script: echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
@@ -73,17 +31,12 @@ definitions:
 workflows:
   android-release-workflow:
     name: Android Release Workflow
+    instance_type: mac_mini_m1
     max_build_duration: 60
     environment:
-      flutter: stable
-      groups:
-        - keystore_credentials
-        - app_secrets
-      vars:
-        PACKAGE_NAME: "com.sairatec.selc"
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-        SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+      <<: *shared_env
+      android_signing:
+        - android_keystore
     triggering:
       events:
         - push
@@ -106,8 +59,6 @@ workflows:
       
       - *setup_local_properties
       
-      - *flutter_analyze
-      
       - name: Set up Google Services
         script: |
           echo "$GOOGLE_SERVICES_JSON" > "$CM_BUILD_DIR/android/app/google-services.json"
@@ -116,28 +67,22 @@ workflows:
         script: |
           curl -sL https://firebase.tools | bash
       
-      - name: Install and Setup Shorebird
+      - *shorebird_install
+      
+      - name: Shorebird Login and Release
         script: |
-          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-          # Add PATH to CM_ENV to persist between steps
-          echo 'export PATH="/Users/builder/.shorebird/bin:$PATH"' >> $CM_ENV
+          # Source the environment to get Shorebird in PATH
           source $CM_ENV
-          # Create a temporary file for the token
+          # Login to Shorebird
           echo "$SHOREBIRD_TOKEN" > shorebird_token.txt
-          # Login using the token file
           shorebird login --token "$(cat shorebird_token.txt)"
           rm shorebird_token.txt
-      
-      - name: Build AAB with Shorebird
-        script: |
-          # Source the environment to get the updated PATH
-          source $CM_ENV
           
           # Get the latest build number from Firebase
           BUILD_NUMBER=$(($(firebase appdistribution:get-latest-build-number --app "$FIREBASE_APP_ID" --token "$FIREBASE_TOKEN") + 1))
           
-          # Build AAB using Shorebird
-          shorebird build android
+          # Release with Shorebird
+          shorebird release android --flutter-version="$FLUTTER_VERSION"
       
       - name: Upload to Firebase App Distribution
         script: |
@@ -153,9 +98,34 @@ workflows:
     
     artifacts:
       - build/**/outputs/**/*.aab
-      - build/app/outputs/bundle/release/app-release.aab
+      - build/**/outputs/**/mapping.txt
+      - flutter_drive.log
     
     publishing:
       email:
         recipients:
           - wasimxaman13@gmail.com
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+
+  patch-android-workflow:
+    name: Patch Android
+    instance_type: mac_mini_m1
+    environment:
+      <<: *shared_env
+      android_signing:
+        - android_keystore
+    inputs:
+      release_version:
+        description: The release version to patch
+    scripts:
+      - *shorebird_install
+      - *create_env_file
+      - name: Shorebird Patch
+        script: |
+          source $CM_ENV
+          echo "$SHOREBIRD_TOKEN" > shorebird_token.txt
+          shorebird login --token "$(cat shorebird_token.txt)"
+          rm shorebird_token.txt
+          shorebird patch android --release-version=${{ inputs.release_version }}
