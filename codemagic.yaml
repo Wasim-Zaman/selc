@@ -1,7 +1,7 @@
 definitions:
   environment:
     shared_env: &shared_env
-      flutter: 3.24.1
+      flutter: 3.24.3
       groups:
         - keystore_credentials
         - app_secrets
