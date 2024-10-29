@@ -118,20 +118,23 @@ workflows:
         script: |
           curl -sL https://firebase.tools | bash
       
-      - name: Install and Setup Shorebird
+      - name: Setup Shorebird
         script: |
           # Install Shorebird
           curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-          # Add PATH to CM_ENV to persist between steps
-          echo 'export PATH="$HOME/.shorebird/bin:$PATH"' >> $CM_ENV
-          source $CM_ENV
-          # Login to Shorebird (using direct variable)
-          echo "$SHOREBIRD_TOKEN" > ~/.shorebird/credentials.json
+          # Add Shorebird to PATH
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          # Create the credentials directory
+          mkdir -p ~/.shorebird
+          # Create credentials.json with proper JSON formatting
+          echo "{\"token\": \"$SHOREBIRD_TOKEN\"}" > ~/.shorebird/credentials.json
+          # Verify the token is set correctly (optional)
+          cat ~/.shorebird/credentials.json
       
       - name: Build AAB with Shorebird
         script: |
-          source $CM_ENV
-          shorebird release android --flutter-version="3.24.3"
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          shorebird release android --verbose  # Added verbose flag for debugging
       
       - name: Upload to Firebase App Distribution
         script: |
