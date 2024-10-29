@@ -119,6 +119,8 @@ workflows:
       - name: Install and Setup Shorebird
         script: |
           curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          # Add PATH to CM_ENV to persist between steps
+          echo 'PATH="/Users/builder/.shorebird/bin:$PATH"' >> $CM_ENV
           export PATH="/Users/builder/.shorebird/bin:$PATH"
           # Create a temporary file for the token
           echo "$SHOREBIRD_TOKEN" > shorebird_token.txt
@@ -131,10 +133,8 @@ workflows:
           # Get the latest build number from Firebase
           BUILD_NUMBER=$(($(firebase appdistribution:get-latest-build-number --app "$FIREBASE_APP_ID" --token "$FIREBASE_TOKEN") + 1))
           
-          # Build AAB using Shorebird
-          shorebird build appbundle \
-            --build-number=$BUILD_NUMBER \
-            --build-name=1.0.$BUILD_NUMBER
+          # Build AAB using Shorebird (removed unsupported flags)
+          shorebird build appbundle
       
       - name: Upload to Firebase App Distribution
         script: |
