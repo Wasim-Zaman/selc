@@ -83,9 +83,9 @@ workflows:
         - app_secrets
       vars:
         PACKAGE_NAME: "com.sairatec.selc"
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-        SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+        FIREBASE_TOKEN: $FIREBASE_TOKEN
+        FIREBASE_APP_ID: $FIREBASE_APP_ID
+        SHOREBIRD_TOKEN: $SHOREBIRD_TOKEN
         FLUTTER_VERSION: 3.24.3
     triggering:
       events:
@@ -126,7 +126,7 @@ workflows:
           # Add PATH to CM_ENV to persist between steps
           echo 'export PATH="$HOME/.shorebird/bin:$PATH"' >> $CM_ENV
           source $CM_ENV
-          # Login to Shorebird
+          # Login to Shorebird (using direct variable)
           echo "$SHOREBIRD_TOKEN" > ~/.shorebird/credentials.json
       
       - name: Build AAB with Shorebird
