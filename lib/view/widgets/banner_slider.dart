@@ -26,7 +26,7 @@ class BannerSlider extends StatelessWidget {
                 aspectRatio: 2.5,
                 child: CarouselSlider(
                   options: CarouselOptions(
-                    viewportFraction: 0.9,
+                    viewportFraction: 0.8,
                     autoPlay: true,
                     autoPlayInterval: const Duration(seconds: 3),
                     autoPlayAnimationDuration:
@@ -43,6 +43,7 @@ class BannerSlider extends StatelessWidget {
                         return Container(
                           margin: const EdgeInsets.symmetric(horizontal: 5.0),
                           decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black38),
                             borderRadius: BorderRadius.circular(15),
                             image: DecorationImage(
                               image:

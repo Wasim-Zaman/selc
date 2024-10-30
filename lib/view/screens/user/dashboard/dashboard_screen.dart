@@ -421,19 +421,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Padding(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: Colors.black26),
+              left: BorderSide(color: Colors.black26),
+              right: BorderSide(color: Colors.black26),
+              bottom: BorderSide(color: Colors.black26),
+            ),
+          ),
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'Student Enrollment',
+                'Students Enrollment',
                 style: Theme.of(context).textTheme.titleMedium,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
               SizedBox(
-                height: 80, // Changed from 100 to make it smaller
+                height: MediaQuery.sizeOf(context).height * 0.2,
                 child: StreamBuilder<List<EnrolledStudent>>(
                   stream:
                       context.read<AdminCubit>().getEnrolledStudentsStream(),
@@ -442,19 +449,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    return LineChart(
-                      LineChartData(
-                        gridData: FlGridData(show: false),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 30, // Reduced from 40 to 30
-                            ),
+                    final enrollmentData = _getEnrollmentData(snapshot.data!);
+                    final maxY = enrollmentData
+                        .map((spot) => spot.y)
+                        .reduce((a, b) => a > b ? a : b);
+
+                    return BarChart(
+                      BarChartData(
+                        alignment: BarChartAlignment.spaceAround,
+                        maxY: maxY + 2,
+                        barTouchData: BarTouchData(
+                          enabled: true,
+                          touchTooltipData: BarTouchTooltipData(
+                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                              return BarTooltipItem(
+                                rod.toY.round().toString(),
+                                const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
                           ),
+                        ),
+                        titlesData: FlTitlesData(
+                          show: true,
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
+                              reservedSize: 30,
                               getTitlesWidget: (value, meta) {
                                 const months = [
                                   'Jan',
@@ -462,32 +485,87 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   'Mar',
                                   'Apr',
                                   'May',
-                                  'Jun'
+                                  'Jun',
+                                  'Jul',
+                                  'Aug',
+                                  'Sep',
+                                  'Oct',
+                                  'Nov',
+                                  'Dec'
                                 ];
                                 if (value.toInt() >= 0 &&
                                     value.toInt() < months.length) {
-                                  return Text(months[value.toInt()]);
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      months[value.toInt()],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  );
                                 }
                                 return const Text('');
                               },
                             ),
                           ),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: _getEnrollmentData(snapshot.data!),
-                            isCurved: true,
-                            color: Theme.of(context).primaryColor,
-                            dotData: FlDotData(show: false),
-                            belowBarData: BarAreaData(
-                              show: true,
-                              color: Theme.of(context)
-                                  .primaryColor
-                                  .withOpacity(0.1),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 30,
+                              getTitlesWidget: (value, meta) {
+                                return Text(
+                                  value.toInt().toString(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                        ],
+                          topTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                          rightTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                        ),
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          horizontalInterval: 1,
+                          getDrawingHorizontalLine: (value) {
+                            return FlLine(
+                              color: Colors.grey.withOpacity(0.2),
+                              strokeWidth: 1,
+                            );
+                          },
+                        ),
+                        borderData: FlBorderData(show: false),
+                        barGroups: enrollmentData.asMap().entries.map((entry) {
+                          return BarChartGroupData(
+                            x: entry.key,
+                            barRods: [
+                              BarChartRodData(
+                                toY: entry.value.y,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Theme.of(context)
+                                        .primaryColor
+                                        .withOpacity(0.7),
+                                    Theme.of(context).primaryColor,
+                                  ],
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                ),
+                                width: 20,
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(6),
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     );
                   },
