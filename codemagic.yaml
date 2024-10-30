@@ -1,69 +1,69 @@
-definitions:
-  scripts:
-    - &setup_local_properties
-      name: Set up local.properties
-      script: echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+# definitions:
+#   scripts:
+#     - &setup_local_properties
+#       name: Set up local.properties
+#       script: echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
     
-    - &create_env_file
-      name: Create .env file
-      script: |
-        cat > .env << EOF
-        ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER
-        ADMIN_PASSWORD=$ADMIN_PASSWORD
-        EOF
+#     - &create_env_file
+#       name: Create .env file
+#       script: |
+#         cat > .env << EOF
+#         ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER
+#         ADMIN_PASSWORD=$ADMIN_PASSWORD
+#         EOF
     
-    - &setup_keystore
-      name: Set up keystore
-      script: |
-        echo "$CM_KEYSTORE" | base64 --decode > selc.jks
-        cat >> android/key.properties << EOF
-        storePassword=$CM_KEYSTORE_PASSWORD
-        keyPassword=$CM_KEY_PASSWORD
-        keyAlias=selc
-        storeFile=../selc.jks
-        EOF
+#     - &setup_keystore
+#       name: Set up keystore
+#       script: |
+#         echo "$CM_KEYSTORE" | base64 --decode > selc.jks
+#         cat >> android/key.properties << EOF
+#         storePassword=$CM_KEYSTORE_PASSWORD
+#         keyPassword=$CM_KEY_PASSWORD
+#         keyAlias=selc
+#         storeFile=../selc.jks
+#         EOF
 
-    - &setup_firebase
-      name: Set up Firebase
-      script: |
-        echo "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+#     - &setup_firebase
+#       name: Set up Firebase
+#       script: |
+#         echo "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
 
-    - &build_apk
-      name: Build APK
-      script: |
-        flutter clean
-        flutter pub get
-        flutter build apk --release
+#     - &build_apk
+#       name: Build APK
+#       script: |
+#         flutter clean
+#         flutter pub get
+#         flutter build apk --release
 
-    - &firebase_distribute
-      name: Firebase Distribution
-      script: |
-        if [ -f "build/app/outputs/apk/release/app-release.apk" ]; then
-          firebase appdistribution:distribute "build/app/outputs/apk/release/app-release.apk" \
-            --app "$FIREBASE_APP_ID" \
-            --token "$FIREBASE_TOKEN" \
-            --groups "selc-testing"
-        else
-          echo "APK file not found!"
-          exit 1
-        fi
+#     - &firebase_distribute
+#       name: Firebase Distribution
+#       script: |
+#         if [ -f "build/app/outputs/apk/release/app-release.apk" ]; then
+#           firebase appdistribution:distribute "build/app/outputs/apk/release/app-release.apk" \
+#             --app "$FIREBASE_APP_ID" \
+#             --token "$FIREBASE_TOKEN" \
+#             --groups "selc-testing"
+#         else
+#           echo "APK file not found!"
+#           exit 1
+#         fi
 
-workflows:
-  android-workflow:
-    name: Android Release
-    max_build_duration: 60
-    environment:
-      flutter: 3.24.3
-      groups:
-        - keystore_credentials
-        - app_secrets
-    scripts:
-      - *create_env_file
-      - *setup_local_properties
-      - *setup_keystore
-      - *setup_firebase
-      - *build_apk
-      - *firebase_distribute
+# workflows:
+#   android-workflow:
+#     name: Android Release
+#     max_build_duration: 60
+#     environment:
+#       flutter: 3.24.3
+#       groups:
+#         - keystore_credentials
+#         - app_secrets
+#     scripts:
+#       - *create_env_file
+#       - *setup_local_properties
+#       - *setup_keystore
+#       - *setup_firebase
+#       - *build_apk
+#       - *firebase_distribute
     
-    artifacts:
-      - build/app/outputs/apk/release/app-release.apk
+#     artifacts:
+#       - build/app/outputs/apk/release/app-release.apk
