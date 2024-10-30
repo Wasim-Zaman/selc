@@ -22,7 +22,7 @@ definitions:
         cat >> "$CM_BUILD_DIR/android/key.properties" << EOF
         storePassword=$CM_KEYSTORE_PASSWORD
         keyPassword=$CM_KEY_PASSWORD
-        keyAlias=$CM_KEY_ALIAS
+        keyAlias=selc
         storeFile=$CM_BUILD_DIR/selc.jks
         EOF
     
@@ -47,13 +47,16 @@ definitions:
         # Install Firebase CLI
         curl -sL https://firebase.tools | bash
         
+        # Debug - Check if APK exists
+        ls -l build/app/outputs/apk/release/
+        
         # Distribute to Firebase
         firebase appdistribution:distribute \
           "build/app/outputs/apk/release/app-release.apk" \
           --app "$FIREBASE_APP_ID" \
           --token "$FIREBASE_TOKEN" \
-          --groups "pre-tester" \
-          --release-notes "Build $BUILD_NUMBER via CodeMagic CI/CD"
+          --groups "selc-testing" \
+          --release-notes "SELC App v1.0.$BUILD_NUMBER (Build $BUILD_NUMBER)"
 
 workflows:
   android-release-workflow:
@@ -78,6 +81,12 @@ workflows:
       - *setup_local_properties
       - *setup_keystore
       - *setup_firebase
+      - name: Debug - List Environment
+        script: |
+          echo "Checking environment setup..."
+          echo "BUILD_NUMBER: $BUILD_NUMBER"
+          echo "FIREBASE_APP_ID exists: $([[ ! -z "$FIREBASE_APP_ID" ]] && echo 'yes' || echo 'no')"
+          echo "FIREBASE_TOKEN exists: $([[ ! -z "$FIREBASE_TOKEN" ]] && echo 'yes' || echo 'no')"
       - *build_and_distribute
     
     artifacts:
