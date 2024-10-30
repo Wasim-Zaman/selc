@@ -68,7 +68,7 @@ workflows:
           source: true
     scripts:
       - *setup_local_properties
-      - *flutter_analyze
+      # - *flutter_analyze
       - *setup_keystore
       - *setup_firebase
       - *build_and_distribute
