@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:selc/models/note.dart';
 
@@ -10,7 +12,7 @@ class NotesService {
       final snapshot = await _firestore.collection(_categoriesCollection).get();
       return snapshot.docs.map((doc) => doc.id).toList();
     } catch (e) {
-      print('Error getting categories: $e');
+      log('Error getting categories: $e');
       return [];
     }
   }
@@ -21,7 +23,7 @@ class NotesService {
         'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      print('Error adding category: $e');
+      log('Error adding category: $e');
     }
   }
 
@@ -52,7 +54,7 @@ class NotesService {
           .map((doc) => 'notes/$category/${doc.id}.pdf')
           .toList();
     } catch (e) {
-      print('Error deleting category: $e');
+      log('Error deleting category: $e');
       rethrow;
     }
   }

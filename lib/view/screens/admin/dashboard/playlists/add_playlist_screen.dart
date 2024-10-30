@@ -9,10 +9,10 @@ import 'package:selc/view/widgets/text_field_widget.dart';
 class AddPlaylistScreen extends StatefulWidget {
   final PlaylistModel? playlist;
 
-  const AddPlaylistScreen({Key? key, this.playlist}) : super(key: key);
+  const AddPlaylistScreen({super.key, this.playlist});
 
   @override
-  _AddPlaylistScreenState createState() => _AddPlaylistScreenState();
+  State<AddPlaylistScreen> createState() => _AddPlaylistScreenState();
 }
 
 class _AddPlaylistScreenState extends State<AddPlaylistScreen> {

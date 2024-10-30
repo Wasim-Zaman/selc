@@ -4,8 +4,7 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 class FullScreenResumeScreen extends StatelessWidget {
   final String resumeUrl;
 
-  const FullScreenResumeScreen({Key? key, required this.resumeUrl})
-      : super(key: key);
+  const FullScreenResumeScreen({super.key, required this.resumeUrl});
 
   @override
   Widget build(BuildContext context) {

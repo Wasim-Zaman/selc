@@ -5,10 +5,10 @@ import 'package:upgrader/upgrader.dart';
 class AppWrapper extends StatefulWidget {
   final Widget child;
 
-  const AppWrapper({Key? key, required this.child}) : super(key: key);
+  const AppWrapper({super.key, required this.child});
 
   @override
-  _AppWrapperState createState() => _AppWrapperState();
+  State<AppWrapper> createState() => _AppWrapperState();
 }
 
 class _AppWrapperState extends State<AppWrapper> {

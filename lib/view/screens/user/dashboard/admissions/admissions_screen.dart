@@ -99,7 +99,7 @@ class AnnouncementCard extends StatefulWidget {
   const AnnouncementCard({super.key, required this.announcement});
 
   @override
-  _AnnouncementCardState createState() => _AnnouncementCardState();
+  State<AnnouncementCard> createState() => _AnnouncementCardState();
 }
 
 class _AnnouncementCardState extends State<AnnouncementCard>

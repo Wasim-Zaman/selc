@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -12,6 +14,7 @@ import 'package:selc/services/analytics/analytics_service.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
+import 'package:selc/view/screens/admin/auth/admin_login_screen.dart';
 import 'package:selc/view/screens/admin/dashboard/admin_dashboard_screen.dart';
 import 'package:selc/view/screens/user/auth/login_screen.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
@@ -185,16 +188,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // Add profile navigation
             },
           ),
-          if (_isAdminLoggedIn)
-            ListTile(
-              leading: const Icon(Icons.admin_panel_settings),
-              title: const Text('Admin Panel'),
-              onTap: () {
-                Navigator.pop(context);
+          ListTile(
+            leading: const Icon(Icons.admin_panel_settings),
+            title: const Text('Admin Panel'),
+            onTap: () {
+              Navigator.pop(context);
+              if (_isAdminLoggedIn) {
                 Navigations.pushReplacement(
                     context, const AdminDashboardScreen());
-              },
-            ),
+              } else {
+                Navigations.pushReplacement(context, const AdminLoginScreen());
+              }
+            },
+          ),
           BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, themeMode) {
               return ListTile(

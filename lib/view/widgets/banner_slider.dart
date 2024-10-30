@@ -7,7 +7,7 @@ import 'package:selc/cubits/banner/banner_state.dart';
 import 'package:selc/utils/constants.dart';
 
 class BannerSlider extends StatelessWidget {
-  const BannerSlider({Key? key}) : super(key: key);
+  const BannerSlider({super.key});
 
   @override
   Widget build(BuildContext context) {

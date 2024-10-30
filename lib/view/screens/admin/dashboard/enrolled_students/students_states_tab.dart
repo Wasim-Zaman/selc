@@ -1,5 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'dart:developer';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -198,8 +200,7 @@ class StudentsStatsTab extends StatelessWidget {
             DateTime.parse(student.enrollmentDate.toString());
         enrollmentCounts[enrollmentDate.month - 1]++;
       } catch (e) {
-        print(
-            'Invalid date for student ${student.name}: ${student.enrollmentDate}');
+        log('Invalid date for student ${student.name}: ${student.enrollmentDate}');
       }
     }
     return List.generate(

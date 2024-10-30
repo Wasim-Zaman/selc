@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -11,7 +13,7 @@ class AuthService {
       // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      print('Google User: $googleUser');
+      log('Google User: $googleUser');
 
       // If the user cancels the sign-in flow, return null
       if (googleUser == null) {
@@ -35,7 +37,7 @@ class AuthService {
       // Return the signed-in user
       return userCredential.user;
     } catch (e) {
-      print('Error signing in with Google: $e');
+      log('Error signing in with Google: $e');
       return null;
     }
   }
@@ -46,7 +48,7 @@ class AuthService {
       await _firebaseAuth.signOut();
       await _googleSignIn.signOut();
     } catch (e) {
-      print('Error signing out: $e');
+      log('Error signing out: $e');
     }
   }
 

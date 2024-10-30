@@ -6,9 +6,9 @@ class LearningResourcesSection extends StatelessWidget {
   final List<Map<String, dynamic>> resources;
 
   const LearningResourcesSection({
-    Key? key,
+    super.key,
     required this.resources,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

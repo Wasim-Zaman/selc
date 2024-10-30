@@ -7,10 +7,10 @@ import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/widgets/text_field_widget.dart';
 
 class UpdatesManagementScreen extends StatefulWidget {
-  const UpdatesManagementScreen({Key? key}) : super(key: key);
+  const UpdatesManagementScreen({super.key});
 
   @override
-  _UpdatesManagementScreenState createState() =>
+  State<UpdatesManagementScreen> createState() =>
       _UpdatesManagementScreenState();
 }
 
@@ -268,6 +268,7 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
     );
 
     if (confirmed == true) {
+      // ignore: use_build_context_synchronously
       context.read<AdminCubit>().deleteUpdates(updateId);
     }
   }

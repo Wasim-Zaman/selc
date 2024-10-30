@@ -1,5 +1,6 @@
 // ignore_for_file: library_prefixes, depend_on_referenced_packages, unused_import
 
+import 'dart:developer';
 import 'dart:math' as Math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,7 +40,7 @@ class EnrolledStudentsServices {
       await _analyticsService.logStudentEnrollment(
           student.name, student.fatherName);
     } catch (e) {
-      print('Error adding student: $e');
+      log('Error adding student: $e');
       rethrow;
     }
   }
@@ -69,7 +70,7 @@ class EnrolledStudentsServices {
       await _analyticsService.logStudentDeletion(
           studentData['name'], studentData['father_name']);
     } catch (e) {
-      print('Error deleting student: $e');
+      log('Error deleting student: $e');
       rethrow;
     }
   }

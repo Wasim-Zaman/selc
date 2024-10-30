@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,7 +37,7 @@ class AdminAuthService {
 
       return false;
     } catch (e) {
-      print('Error signing in admin: $e');
+      log('Error signing in admin: $e');
       return false;
     }
   }

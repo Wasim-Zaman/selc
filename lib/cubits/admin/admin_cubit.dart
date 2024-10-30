@@ -73,9 +73,10 @@ class AdminCubit extends Cubit<AdminState> {
   Future<void> uploadNote(String category, String title, File file) async {
     emit(AdminLoading());
     try {
-      String fileName = '${DateTime.now().millisecondsSinceEpoch}.pdf';
-      String filePath = 'notes/$category/$fileName';
-      String downloadUrl = await _storageService.uploadFile(filePath, file);
+      final String fileName = '${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final String filePath = 'notes/$category/$fileName';
+      final String downloadUrl =
+          await _storageService.uploadFile(filePath, file);
       await _notesService.addNote(category, title, downloadUrl);
       emit(AdminSuccess('Note uploaded successfully'));
     } catch (e) {
@@ -239,10 +240,11 @@ class AdminCubit extends Cubit<AdminState> {
   Future<void> addBanner(String title, File imageFile) async {
     emit(AdminLoading());
     try {
-      String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-      String filePath = 'banners/$fileName';
-      String imageUrl = await _storageService.uploadFile(filePath, imageFile);
-      BannerModel banner =
+      final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final String filePath = 'banners/$fileName';
+      final String imageUrl =
+          await _storageService.uploadFile(filePath, imageFile);
+      final BannerModel banner =
           BannerModel(id: '', title: title, imageUrl: imageUrl);
       await _bannerService.addBanner(banner);
       emit(AdminSuccess('Banner added successfully'));
@@ -256,12 +258,12 @@ class AdminCubit extends Cubit<AdminState> {
     try {
       String imageUrl = banner.imageUrl;
       if (newImageFile != null) {
-        String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-        String filePath = 'banners/$fileName';
+        final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final String filePath = 'banners/$fileName';
         imageUrl = await _storageService.uploadFile(filePath, newImageFile);
         await _storageService.deleteFile(banner.imageUrl);
       }
-      BannerModel updatedBanner = banner.copyWith(imageUrl: imageUrl);
+      final BannerModel updatedBanner = banner.copyWith(imageUrl: imageUrl);
       await _bannerService.updateBanner(banner.id, updatedBanner);
       emit(AdminSuccess('Banner updated successfully'));
     } catch (e) {
@@ -272,7 +274,7 @@ class AdminCubit extends Cubit<AdminState> {
   Future<void> deleteBanner(String bannerId) async {
     emit(AdminLoading());
     try {
-      BannerModel banner = await _bannerService.getBanner(bannerId);
+      final BannerModel banner = await _bannerService.getBanner(bannerId);
       await _bannerService.deleteBanner(bannerId);
       await _storageService.deleteFile(banner.imageUrl);
       emit(AdminSuccess('Banner deleted successfully'));

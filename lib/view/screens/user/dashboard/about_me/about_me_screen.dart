@@ -115,16 +115,13 @@ class AboutMeScreen extends StatelessWidget {
             Text(
               'Sana Ullah',
               style: theme.textTheme.headlineMedium?.copyWith(
-                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Instructor',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: Colors.white.withOpacity(0.8),
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(),
             ),
           ],
         ),
@@ -273,6 +270,7 @@ class AboutMeScreen extends StatelessWidget {
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
+      // ignore: use_build_context_synchronously
       TopSnackbar.error(context, "Could not open the map");
     }
   }

@@ -173,7 +173,7 @@ class AddEditAnnouncementDialog extends StatefulWidget {
   });
 
   @override
-  _AddEditAnnouncementDialogState createState() =>
+  State<AddEditAnnouncementDialog> createState() =>
       _AddEditAnnouncementDialogState();
 }
 

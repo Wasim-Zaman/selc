@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:selc/models/enrolled_students.dart';
 import 'package:selc/services/enrolled_students/enrolled_students_services.dart';

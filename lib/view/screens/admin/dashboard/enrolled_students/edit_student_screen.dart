@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:selc/models/enrolled_students.dart';
@@ -18,7 +20,7 @@ class EditStudentScreen extends StatefulWidget {
   });
 
   @override
-  _EditStudentScreenState createState() => _EditStudentScreenState();
+  State<EditStudentScreen> createState() => _EditStudentScreenState();
 }
 
 class _EditStudentScreenState extends State<EditStudentScreen> {

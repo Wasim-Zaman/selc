@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
@@ -26,7 +27,7 @@ class StorageService {
       Reference ref = _storage.refFromURL(fileUrl);
       await ref.delete();
     } catch (e) {
-      print('Error deleting file: $e');
+      log('Error deleting file: $e');
       rethrow;
     }
   }

@@ -107,6 +107,7 @@ class AddNotesScreen extends StatelessWidget {
 
     if (result != null) {
       File file = File(result.files.single.path!);
+      // ignore: use_build_context_synchronously
       context.read<AdminCubit>().uploadNote(
             category,
             _titleController.text,
