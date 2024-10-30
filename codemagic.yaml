@@ -1,76 +1,50 @@
-# workflows:
-#   android-workflow:
-#     name: Android Workflow
-#     triggering:
-#       events:
-#         - push
-#         - pull_request
-#       branch_patterns:
-#         - pattern: 'main'
-#           include: true
-#           source: true
-#     max_build_duration: 60
-#     environment:
-#       flutter: stable
-#       android_signing:
-#         - selc
-#       vars:
-#         KEYSTORE_PATH: selc.jks
-#         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-#         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-#         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-#     scripts:
-#       - name: Set up keystore
-#         script: |
-#           echo $KEYSTORE_PASSWORD | base64 --decode > $KEYSTORE_PATH
-#           echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
-#           echo "keyPassword=$KEY_PASSWORD" >> key.properties
-#           echo "keyAlias=$KEY_ALIAS" >> key.properties
-#           echo "storeFile=$KEYSTORE_PATH" >> key.properties
-#       - name: Set up local.properties
-#         script: |
-#           echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
-#       - name: Get Flutter packages
-#         script: |
-#           flutter packages pub get
-#       - name: Create .env file
-#         script: |
-#           echo "API_KEY=$API_KEY" > .env
-#           echo "SECRET_TOKEN=$SECRET_TOKEN" >> .env
-#       - name: Build AAB
-#         script: |
-#           flutter build appbundle --release --build-name=1.0.$BUILD_NUMBER --build-number=$BUILD_NUMBER
-#     artifacts:
-#       - build/**/outputs/**/*.aab
-#     publishing:
-#       google_play:
-#         credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-#         track: internal
-
-
 definitions:
   scripts:
-    - &shorebird_install
-      name: Install Shorebird CLI
-      script: |
-        # Install Shorebird
-        curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-        # Add Shorebird to PATH
-        echo PATH="$HOME/.shorebird/bin:$PATH" >> $CM_ENV
-    - &flutter_analyze
-      name: Run static code analysis
-      script: flutter analyze
     - &setup_local_properties
       name: Set up local.properties
       script: echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
-    - &create_env_file
-      name: Create .env file
+    
+    - &flutter_analyze
+      name: Run static code analysis
+      script: flutter analyze
+    
+    - &setup_keystore
+      name: Set up keystore
       script: |
-        cat > .env << EOF
-        # Admin
-        ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER
-        ADMIN_PASSWORD=$ADMIN_PASSWORD
+        echo "$CM_KEYSTORE" | base64 --decode > "$CM_BUILD_DIR/selc.jks"
+        cat >> "$CM_BUILD_DIR/android/key.properties" << EOF
+        storePassword=${CM_KEYSTORE_PASSWORD}
+        keyPassword=${CM_KEY_PASSWORD}
+        keyAlias=selc
+        storeFile=${CM_BUILD_DIR}/selc.jks
         EOF
+    
+    - &setup_firebase
+      name: Set up Firebase
+      script: |
+        # Install Firebase CLI
+        curl -sL https://firebase.tools | bash
+        # Set up google-services.json
+        echo "$GOOGLE_SERVICES_JSON" > "$CM_BUILD_DIR/android/app/google-services.json"
+    
+    - &build_and_distribute
+      name: Build and Distribute AAB
+      script: |
+        # Build the app bundle
+        flutter build appbundle \
+          --release \
+          --build-name=1.0.$BUILD_NUMBER \
+          --build-number=$BUILD_NUMBER
+        
+        # Find the generated AAB file
+        AAB_PATH="$CM_BUILD_DIR/build/app/outputs/bundle/release/app-release.aab"
+        
+        # Upload to Firebase
+        firebase appdistribution:distribute "$AAB_PATH" \
+          --app "$FIREBASE_APP_ID" \
+          --token "$FIREBASE_TOKEN" \
+          --groups "testers" \
+          --release-notes "Build $BUILD_NUMBER via CodeMagic CI/CD"
 
 workflows:
   android-release-workflow:
@@ -85,7 +59,6 @@ workflows:
         PACKAGE_NAME: "com.sairatec.selc"
         FIREBASE_TOKEN: $FIREBASE_TOKEN
         FIREBASE_APP_ID: $FIREBASE_APP_ID
-        SHOREBIRD_TOKEN: $SHOREBIRD_TOKEN
     triggering:
       events:
         - push
@@ -94,60 +67,13 @@ workflows:
           include: true
           source: true
     scripts:
-      - *create_env_file
-      
-      - name: Set up keystore
-        script: |
-          echo "$CM_KEYSTORE" | base64 --decode > "$CM_BUILD_DIR/selc.jks"
-          cat >> "$CM_BUILD_DIR/android/key.properties" << EOF
-          storePassword=${CM_KEYSTORE_PASSWORD}
-          keyPassword=${CM_KEY_PASSWORD}
-          keyAlias=selc
-          storeFile=${CM_BUILD_DIR}/selc.jks
-          EOF
-      
       - *setup_local_properties
-      
       - *flutter_analyze
-      
-      - name: Set up Google Services
-        script: |
-          echo "$GOOGLE_SERVICES_JSON" > "$CM_BUILD_DIR/android/app/google-services.json"
-      
-      - name: Install Firebase CLI
-        script: |
-          curl -sL https://firebase.tools | bash
-      
-      - name: Setup Shorebird
-        script: |
-           # Install Shorebird
-            curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-            # Add Shorebird to PATH
-            echo PATH="$HOME/.shorebird/bin:$PATH" >> $CM_ENV
-            # Create the credentials directory
-            mkdir -p ~/.shorebird
-            # Create credentials.json with proper JSON formatting
-            echo "{\"token\": \"$SHOREBIRD_TOKEN\"}" > ~/.shorebird/credentials.json
-      
-      - name: Build AAB with Shorebird
-        script: |
-          shorebird release android \
-            --flutter-version="3.24.3"
-      
-      - name: Upload to Firebase App Distribution
-        script: |
-          # Find the generated AAB file
-          AAB_PATH=$(find build -name "*.aab" | head -n 1)
-          
-          # Upload to Firebase
-          firebase appdistribution:distribute "$AAB_PATH" \
-            --app "$FIREBASE_APP_ID" \
-            --token "$FIREBASE_TOKEN" \
-            --groups "testers" \
-            --release-notes "Build $BUILD_NUMBER from Shorebird via CodeMagic CI/CD"
+      - *setup_keystore
+      - *setup_firebase
+      - *build_and_distribute
     
     artifacts:
-      - build/**/outputs/**/*.aab
       - build/app/outputs/bundle/release/app-release.aab
     
     publishing:
