@@ -440,7 +440,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(
-                height: MediaQuery.sizeOf(context).height * 0.2,
+                height: MediaQuery.sizeOf(context).height * 0.15,
                 child: StreamBuilder<List<EnrolledStudent>>(
                   stream:
                       context.read<AdminCubit>().getEnrolledStudentsStream(),
