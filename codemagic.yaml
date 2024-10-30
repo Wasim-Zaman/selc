@@ -4,33 +4,29 @@ definitions:
       name: Set up local.properties
       script: echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
     
+    - &create_env_file
+      name: Create .env file
+      script: |
+        cat > .env << EOF
+        # Admin credentials
+        ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER
+        ADMIN_PASSWORD=$ADMIN_PASSWORD
+        EOF
+    
     - &setup_keystore
       name: Set up keystore
       script: |
         echo "$CM_KEYSTORE" | base64 --decode > "$CM_BUILD_DIR/selc.jks"
         cat >> "$CM_BUILD_DIR/android/key.properties" << EOF
-        storePassword=${CM_KEYSTORE_PASSWORD}
-        keyPassword=${CM_KEY_PASSWORD}
+        storePassword=$CM_KEYSTORE_PASSWORD
+        keyPassword=$CM_KEY_PASSWORD
         keyAlias=selc
-        storeFile=${CM_BUILD_DIR}/selc.jks
+        storeFile=$CM_BUILD_DIR/selc.jks
         EOF
     
-    - &create_env_file
-      name: Create .env file
+    - &setup_google_services
+      name: Set up Google Services
       script: |
-        cat > .env << EOF
-        # Add your environment variables here
-        ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER
-        ADMIN_PASSWORD=$ADMIN_PASSWORD
-        # Add any other required environment variables
-        EOF
-    
-    - &setup_firebase
-      name: Set up Firebase
-      script: |
-        # Install Firebase CLI
-        curl -sL https://firebase.tools | bash
-        # Set up google-services.json
         echo "$GOOGLE_SERVICES_JSON" > "$CM_BUILD_DIR/android/app/google-services.json"
     
     - &build_and_distribute
@@ -45,11 +41,12 @@ definitions:
           --build-name=1.0.$BUILD_NUMBER \
           --build-number=$BUILD_NUMBER
         
-        # Find the generated AAB file
-        AAB_PATH="$CM_BUILD_DIR/build/app/outputs/bundle/release/app-release.aab"
+        # Install Firebase CLI
+        curl -sL https://firebase.tools | bash
         
-        # Upload to Firebase
-        firebase appdistribution:distribute "$AAB_PATH" \
+        # Upload to Firebase App Distribution
+        firebase appdistribution:distribute \
+          "build/app/outputs/bundle/release/app-release.aab" \
           --app "$FIREBASE_APP_ID" \
           --token "$FIREBASE_TOKEN" \
           --groups "testers" \
@@ -78,10 +75,10 @@ workflows:
           include: true
           source: true
     scripts:
-      - *create_env_file  # Create .env file first
+      - *create_env_file
       - *setup_local_properties
       - *setup_keystore
-      - *setup_firebase
+      - *setup_google_services
       - *build_and_distribute
     
     artifacts:
