@@ -4,10 +4,6 @@ definitions:
       name: Set up local.properties
       script: echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
     
-    - &flutter_analyze
-      name: Run static code analysis
-      script: flutter analyze
-    
     - &setup_keystore
       name: Set up keystore
       script: |
@@ -17,6 +13,16 @@ definitions:
         keyPassword=${CM_KEY_PASSWORD}
         keyAlias=selc
         storeFile=${CM_BUILD_DIR}/selc.jks
+        EOF
+    
+    - &create_env_file
+      name: Create .env file
+      script: |
+        cat > .env << EOF
+        # Add your environment variables here
+        ADMIN_PHONE_NUMBER=$ADMIN_PHONE_NUMBER
+        ADMIN_PASSWORD=$ADMIN_PASSWORD
+        # Add any other required environment variables
         EOF
     
     - &setup_firebase
@@ -30,6 +36,9 @@ definitions:
     - &build_and_distribute
       name: Build and Distribute AAB
       script: |
+        # Get Flutter dependencies
+        flutter pub get
+        
         # Build the app bundle
         flutter build appbundle \
           --release \
@@ -59,6 +68,8 @@ workflows:
         PACKAGE_NAME: "com.sairatec.selc"
         FIREBASE_TOKEN: $FIREBASE_TOKEN
         FIREBASE_APP_ID: $FIREBASE_APP_ID
+        ADMIN_PHONE_NUMBER: $ADMIN_PHONE_NUMBER
+        ADMIN_PASSWORD: $ADMIN_PASSWORD
     triggering:
       events:
         - push
@@ -67,8 +78,8 @@ workflows:
           include: true
           source: true
     scripts:
+      - *create_env_file  # Create .env file first
       - *setup_local_properties
-      # - *flutter_analyze
       - *setup_keystore
       - *setup_firebase
       - *build_and_distribute
