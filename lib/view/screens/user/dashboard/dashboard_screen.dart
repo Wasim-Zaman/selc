@@ -197,7 +197,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigations.pushReplacement(
                     context, const AdminDashboardScreen());
               } else {
-                Navigations.pushReplacement(context, const AdminLoginScreen());
+                Navigations.push(context, const AdminLoginScreen());
               }
             },
           ),
