@@ -22,16 +22,16 @@ class BannerSlider extends StatelessWidget {
 
         if (state is BannerLoaded) {
           return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
               border: Border.all(
-                color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                width: 2,
+                color: theme.dividerColor,
+                width: 1,
               ),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(13),
+              borderRadius: BorderRadius.circular(14),
               child: AspectRatio(
                 aspectRatio: 2,
                 child: CarouselSlider(

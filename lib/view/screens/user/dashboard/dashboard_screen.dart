@@ -375,7 +375,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
         // Learning Resources Section with horizontal scroll
         LearningResourcesSection(resources: learningResources),
 
@@ -421,164 +420,176 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildEnrollmentGraph() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
+    return Card(
+      margin: const EdgeInsets.all(16.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Theme.of(context).dividerColor),
+            left: BorderSide(color: Theme.of(context).dividerColor),
+            right: BorderSide(color: Theme.of(context).dividerColor),
+            bottom: BorderSide(color: Theme.of(context).dividerColor),
+          ),
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(color: Colors.black26),
-              left: BorderSide(color: Colors.black26),
-              right: BorderSide(color: Colors.black26),
-              bottom: BorderSide(color: Colors.black26),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Students Enrollment',
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
             ),
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Students Enrollment',
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(
-                height: MediaQuery.sizeOf(context).height * 0.15,
-                child: StreamBuilder<List<EnrolledStudent>>(
-                  stream:
-                      context.read<AdminCubit>().getEnrolledStudentsStream(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+            SizedBox(
+              height: MediaQuery.sizeOf(context).height * 0.15,
+              child: StreamBuilder<List<EnrolledStudent>>(
+                stream: context.read<AdminCubit>().getEnrolledStudentsStream(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                    final enrollmentData = _getEnrollmentData(snapshot.data!);
-                    final maxY = enrollmentData
-                        .map((spot) => spot.y)
-                        .reduce((a, b) => a > b ? a : b);
+                  final enrollmentData = _getEnrollmentData(snapshot.data!);
+                  final maxY = enrollmentData
+                      .map((spot) => spot.y)
+                      .reduce((a, b) => a > b ? a : b);
 
-                    return BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.spaceAround,
-                        maxY: maxY + 2,
-                        barTouchData: BarTouchData(
-                          enabled: true,
-                          touchTooltipData: BarTouchTooltipData(
-                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                              return BarTooltipItem(
-                                rod.toY.round().toString(),
-                                const TextStyle(
-                                  color: Colors.white,
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+
+                  return BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: maxY + 2,
+                      barTouchData: BarTouchData(
+                        enabled: true,
+                        touchTooltipData: BarTouchTooltipData(
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            return BarTooltipItem(
+                              rod.toY.round().toString(),
+                              TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isDark
+                                    ? AppColors.darkBodyText
+                                    : AppColors.lightBodyText,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      titlesData: FlTitlesData(
+                        show: true,
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            getTitlesWidget: (value, meta) {
+                              const months = [
+                                'Jan',
+                                'Feb',
+                                'Mar',
+                                'Apr',
+                                'May',
+                                'Jun',
+                                'Jul',
+                                'Aug',
+                                'Sep',
+                                'Oct',
+                                'Nov',
+                                'Dec'
+                              ];
+                              if (value.toInt() >= 0 &&
+                                  value.toInt() < months.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    months[value.toInt()],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      color: isDark
+                                          ? AppColors.darkBodyText
+                                          : AppColors.lightBodyText,
+                                    ),
+                                  ),
+                                );
+                              }
+                              return const Text('');
+                            },
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            getTitlesWidget: (value, meta) {
+                              return Text(
+                                value.toInt().toString(),
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: isDark
+                                      ? AppColors.darkBodyText
+                                      : AppColors.lightBodyText,
                                 ),
                               );
                             },
                           ),
                         ),
-                        titlesData: FlTitlesData(
-                          show: true,
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 30,
-                              getTitlesWidget: (value, meta) {
-                                const months = [
-                                  'Jan',
-                                  'Feb',
-                                  'Mar',
-                                  'Apr',
-                                  'May',
-                                  'Jun',
-                                  'Jul',
-                                  'Aug',
-                                  'Sep',
-                                  'Oct',
-                                  'Nov',
-                                  'Dec'
-                                ];
-                                if (value.toInt() >= 0 &&
-                                    value.toInt() < months.length) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: Text(
-                                      months[value.toInt()],
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  );
-                                }
-                                return const Text('');
-                              },
-                            ),
-                          ),
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 30,
-                              getTitlesWidget: (value, meta) {
-                                return Text(
-                                  value.toInt().toString(),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
-                          rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
-                        ),
-                        gridData: FlGridData(
-                          show: true,
-                          drawVerticalLine: false,
-                          horizontalInterval: 1,
-                          getDrawingHorizontalLine: (value) {
-                            return FlLine(
-                              color: Colors.grey.withOpacity(0.2),
-                              strokeWidth: 1,
-                            );
-                          },
-                        ),
-                        borderData: FlBorderData(show: false),
-                        barGroups: enrollmentData.asMap().entries.map((entry) {
-                          return BarChartGroupData(
-                            x: entry.key,
-                            barRods: [
-                              BarChartRodData(
-                                toY: entry.value.y,
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Theme.of(context)
-                                        .primaryColor
-                                        .withOpacity(0.7),
-                                    Theme.of(context).primaryColor,
-                                  ],
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                ),
-                                width: 20,
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(6),
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
+                        topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                       ),
-                    );
-                  },
-                ),
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        horizontalInterval: 1,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: (isDark
+                                    ? AppColors.darkDivider
+                                    : AppColors.lightDivider)
+                                .withOpacity(0.2),
+                            strokeWidth: 1,
+                          );
+                        },
+                      ),
+                      borderData: FlBorderData(show: false),
+                      barGroups: enrollmentData.asMap().entries.map((entry) {
+                        return BarChartGroupData(
+                          x: entry.key,
+                          barRods: [
+                            BarChartRodData(
+                              toY: entry.value.y,
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.7),
+                                  Theme.of(context).primaryColor,
+                                ],
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                              ),
+                              width: 20,
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(6),
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
