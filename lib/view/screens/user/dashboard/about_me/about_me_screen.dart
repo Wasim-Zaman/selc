@@ -1,7 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/about_me.dart';
 import 'package:selc/utils/constants.dart';
@@ -61,8 +63,6 @@ class AboutMeScreen extends StatelessWidget {
                       _buildProfileSection(context, aboutMe),
                       const SizedBox(height: AppConstants.defaultPadding),
                       _buildGridItems(context, aboutMe),
-                      // const SizedBox(height: AppConstants.defaultPadding),
-                      // _buildMapSection(aboutMe),
                       const SizedBox(height: AppConstants.defaultPadding),
                       _buildResumeSection(aboutMe, context),
                     ],
@@ -121,7 +121,6 @@ class AboutMeScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Instructor',
-              style: theme.textTheme.titleMedium?.copyWith(),
             ),
           ],
         ),
@@ -130,74 +129,101 @@ class AboutMeScreen extends StatelessWidget {
   }
 
   Widget _buildGridItems(BuildContext context, AboutMe aboutMe) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: gridItems.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: AppConstants.defaultPadding,
-        mainAxisSpacing: AppConstants.defaultPadding,
-        childAspectRatio: 1.0,
-      ),
-      itemBuilder: (context, index) {
-        return GridItem(
-          title: gridItems[index]['title'],
-          screen: gridItems[index]['screen'],
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.secondary,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return SizedBox(
+      height: 180,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
+                  children: [
+                    GoogleMap(
+                      mapType: MapType.terrain,
+                      trafficEnabled: true,
+                      compassEnabled: true,
+                      buildingsEnabled: true,
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(aboutMe.latitude, aboutMe.longitude),
+                        zoom: 15,
+                      ),
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId('institute'),
+                          position: LatLng(aboutMe.latitude, aboutMe.longitude),
+                          infoWindow:
+                              const InfoWindow(title: 'Institute Location'),
+                        ),
+                      },
+                      zoomControlsEnabled: false,
+                      mapToolbarEnabled: false,
+                      myLocationButtonEnabled: false,
+                      onTap: (_) => _launchMaps(
+                          context, aboutMe.latitude, aboutMe.longitude),
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Tap to open in Maps',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-          lottieUrl: gridItems[index]['lottieUrl'],
-          onTap: () => _handleGridItemTap(context, index, aboutMe),
-          fallbackIcon: getFallbackIcon(gridItems[index]['title']),
-        );
-      },
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 1,
+            child: GridItem(
+              title: 'YouTube Channel',
+              screen: YouTubeChannelScreen(url: aboutMe.youtubeChannelLink),
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.secondary,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              lottieUrl: AppLotties.youtube,
+              fallbackIcon: getFallbackIcon('YouTube Channel'),
+            ),
+          ),
+        ],
+      ),
     );
   }
-
-  void _handleGridItemTap(BuildContext context, int index, AboutMe aboutMe) {
-    switch (gridItems[index]['title']) {
-      case 'Institute Location':
-        _launchMaps(context, aboutMe.latitude, aboutMe.longitude);
-        break;
-      case 'YouTube Channel':
-        Navigations.push(
-          context,
-          YouTubeChannelScreen(url: aboutMe.youtubeChannelLink),
-        );
-        break;
-    }
-  }
-
-  // Widget _buildMapSection(AboutMe aboutMe) {
-  //   return Container(
-  //     height: 200,
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(12.0),
-  //       border: Border.all(color: Colors.grey),
-  //     ),
-  //     child: ClipRRect(
-  //       borderRadius: BorderRadius.circular(12.0),
-  //       child: GoogleMap(
-  //         initialCameraPosition: CameraPosition(
-  //           target: LatLng(aboutMe.latitude, aboutMe.longitude),
-  //           zoom: 15,
-  //         ),
-  //         markers: {
-  //           Marker(
-  //             markerId: const MarkerId('institute'),
-  //             position: LatLng(aboutMe.latitude, aboutMe.longitude),
-  //           ),
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildResumeSection(AboutMe aboutMe, BuildContext context) {
     return Card(
@@ -270,7 +296,6 @@ class AboutMeScreen extends StatelessWidget {
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
-      // ignore: use_build_context_synchronously
       TopSnackbar.error(context, "Could not open the map");
     }
   }
