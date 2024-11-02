@@ -110,3 +110,4 @@ This project is licensed under the [MIT License](LICENSE).
 ---
 
 Developed with ❤️ by Sairatec-Solutions
+# qr_code_app_nartec
