@@ -311,11 +311,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 // Theme Switch and Profile
-                Row(
+                Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    ClipOval(
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: user?.photoURL ??
+                              'https://via.placeholder.com/150',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.person),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     BlocBuilder<ThemeCubit, ThemeState>(
                       builder: (context, state) {
                         return IconButton(
+                          constraints:
+                              const BoxConstraints(minWidth: 40, minHeight: 40),
                           icon: Icon(
                             state.themeMode == ThemeMode.light
                                 ? Icons.dark_mode
@@ -326,13 +348,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           },
                         );
                       },
-                    ),
-                    const SizedBox(width: 8),
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage: CachedNetworkImageProvider(
-                        user?.photoURL ?? 'https://via.placeholder.com/150',
-                      ),
                     ),
                   ],
                 ),

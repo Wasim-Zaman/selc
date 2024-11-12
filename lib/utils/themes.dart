@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:selc/utils/constants.dart';
 
 class AppThemes {
@@ -13,6 +14,11 @@ class AppThemes {
       scrolledUnderElevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: AppColors.primary),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
     ),
     buttonTheme: ButtonThemeData(
       buttonColor: AppColors.primary,
@@ -71,6 +77,11 @@ class AppThemes {
       scrolledUnderElevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: AppColors.primary),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
     ),
     buttonTheme: ButtonThemeData(
       buttonColor: AppColors.primary,
