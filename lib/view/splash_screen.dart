@@ -32,7 +32,9 @@ class SplashScreenState extends State<SplashScreen>
     ));
 
     Future.delayed(const Duration(seconds: 3), () {
-      AppNavigation.pushReplacement(context, AppRoutes.kDashboardRoute);
+      if (mounted) {
+        AppNavigation.pushReplacement(context, AppRoutes.kDashboardRoute);
+      }
     });
   }
 
