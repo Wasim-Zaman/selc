@@ -6,11 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/about_me.dart';
+import 'package:selc/router/app_navigation.dart';
+import 'package:selc/router/app_routes.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
 import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/screens/user/dashboard/about_me/full_screen_resume_screen.dart';
-import 'package:selc/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -207,7 +206,14 @@ class AboutMeScreen extends StatelessWidget {
             flex: 1,
             child: GridItem(
               title: 'YouTube Channel',
-              screen: YouTubeChannelScreen(url: aboutMe.youtubeChannelLink),
+              routeName: AppRoutes.kYouTubeChannelRoute,
+              onTap: () {
+                AppNavigation.push(
+                  context,
+                  AppRoutes.kYouTubeChannelRoute,
+                  extra: aboutMe.youtubeChannelLink,
+                );
+              },
               gradient: LinearGradient(
                 colors: [
                   Theme.of(context).colorScheme.primary,
@@ -283,9 +289,10 @@ class AboutMeScreen extends StatelessWidget {
   }
 
   void _openFullScreenResume(BuildContext context, String resumeUrl) {
-    Navigations.push(
+    AppNavigation.push(
       context,
-      FullScreenResumeScreen(resumeUrl: resumeUrl),
+      AppRoutes.kFullScreenResumeRoute,
+      extra: resumeUrl,
     );
   }
 

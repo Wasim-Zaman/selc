@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:selc/router/app_navigation.dart';
+import 'package:selc/router/app_routes.dart';
 import 'package:selc/services/notes/notes_service.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
-import 'package:selc/view/screens/user/dashboard/notes/notes_screen.dart';
 import 'package:selc/view/widgets/placeholder_widget.dart';
 
 class NotesCategoriesScreen extends StatelessWidget {
@@ -83,11 +83,7 @@ class CategoryCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(15),
           onTap: () {
-            Navigations.push(
-                context,
-                NotesScreen(
-                  category: category,
-                ));
+            AppNavigation.push(context, AppRoutes.kNotesRoute, extra: category);
           },
           child: Center(
             child: Padding(

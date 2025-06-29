@@ -5,18 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:marquee/marquee.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
+import 'package:selc/router/app_navigation.dart';
+import 'package:selc/router/app_routes.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
-import 'package:selc/view/screens/admin/dashboard/about_me/manage_about_me_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/admissions/admin_admissions.dart';
-import 'package:selc/view/screens/admin/dashboard/banner/manage_banner_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/courses_outlines/manage_courses_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/enroll_students_management_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/playlists/playlists_management_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/updates/updates_management_screen.dart';
-import 'package:selc/view/screens/user/auth/login_screen.dart';
-import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -36,7 +27,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': AdminNotesCategoriesScreen(),
+        'routeName': AppRoutes.kAdminNotesCategoriesRoute,
       },
       {
         'title': 'Manage Playlists',
@@ -46,7 +37,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': const PlaylistsManagementScreen(),
+        'routeName': AppRoutes.kPlaylistsManagementRoute,
       },
       {
         'title': 'Manage Courses',
@@ -56,7 +47,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': const ManageCoursesScreen(),
+        'routeName': AppRoutes.kManageCoursesRoute,
       },
       {
         'title': 'Manage Updates',
@@ -66,7 +57,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': const UpdatesManagementScreen(),
+        'routeName': AppRoutes.kUpdatesManagementRoute,
       },
       {
         'title': 'Manage Admissions',
@@ -76,7 +67,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': const AdminAdmissionsScreen(),
+        'routeName': AppRoutes.kAdminAdmissionsRoute,
       },
       {
         'title': 'Manage About Me',
@@ -86,7 +77,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': const ManageAboutMeScreen(),
+        'routeName': AppRoutes.kManageAboutMeRoute,
       },
       {
         'title': 'Manage Banner',
@@ -96,7 +87,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': const ManageBannerScreen(),
+        'routeName': AppRoutes.kManageBannerRoute,
       },
       {
         'title': 'Manage Enrollment',
@@ -106,7 +97,7 @@ class AdminDashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        'screen': EnrollStudentsManagementScreen(),
+        'routeName': AppRoutes.kEnrollStudentsManagementRoute,
       },
     ];
     IconData getFallbackIcon(String title) {
@@ -170,17 +161,15 @@ class AdminDashboardScreen extends StatelessWidget {
             ListTile(
               title: const Text('User App'),
               onTap: () {
-                Navigations.pushAndRemoveUntil(
-                  context,
-                  const DashboardScreen(),
-                );
+                AppNavigation.goAndClearStack(
+                    context, AppRoutes.kDashboardRoute);
               },
             ),
             ListTile(
               title: const Text('Logout'),
               onTap: () async {
                 await context.read<AuthCubit>().logout();
-                Navigations.pushAndRemoveUntil(context, const LoginScreen());
+                AppNavigation.goAndClearStack(context, AppRoutes.kLoginRoute);
               },
             ),
           ],
@@ -286,7 +275,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   return GridItem(
                     title: adminServices[index]['title'],
                     gradient: adminServices[index]['gradient'],
-                    screen: adminServices[index]['screen'],
+                    routeName: adminServices[index]['routeName'],
                     lottieUrl: adminServices[index]['lottieUrl'],
                     fallbackIcon: getFallbackIcon(
                       adminServices[index]['title'],

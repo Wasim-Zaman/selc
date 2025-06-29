@@ -10,21 +10,11 @@ import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/banner/banner_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
 import 'package:selc/models/enrolled_students.dart';
+import 'package:selc/router/app_navigation.dart';
+import 'package:selc/router/app_routes.dart';
 import 'package:selc/services/analytics/analytics_service.dart';
 import 'package:selc/services/auth/auth_service.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
-import 'package:selc/view/screens/admin/auth/admin_login_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/admin_dashboard_screen.dart';
-import 'package:selc/view/screens/user/auth/login_screen.dart';
-import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
-import 'package:selc/view/screens/user/dashboard/admissions/admissions_screen.dart';
-import 'package:selc/view/screens/user/dashboard/courses_outlines/courses_outlines_screen.dart';
-import 'package:selc/view/screens/user/dashboard/enrolled_students/enrolled_students_screen.dart';
-import 'package:selc/view/screens/user/dashboard/notes/notes_categories_screen.dart';
-import 'package:selc/view/screens/user/dashboard/playlists/playlists_screen.dart';
-import 'package:selc/view/screens/user/dashboard/terms_and_conditions_screen.dart';
-import 'package:selc/view/screens/user/dashboard/updates/updates_screen.dart';
 import 'package:selc/view/widgets/banner_slider.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 import 'package:selc/view/widgets/learning_resources_section.dart';
@@ -63,7 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      'screen': NotesCategoriesScreen(),
+      'routeName': AppRoutes.kNotesCategoriesRoute,
     },
     {
       'title': 'Playlists',
@@ -73,7 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      'screen': const PlaylistsScreen(),
+      'routeName': AppRoutes.kPlaylistsRoute,
     },
     {
       'title': 'Courses &\nOutlines',
@@ -83,7 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      'screen': const CoursesOutlinesScreen(),
+      'routeName': AppRoutes.kCoursesOutlinesRoute,
     },
     {
       'title': 'Updates',
@@ -93,7 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      'screen': const UpdatesScreen(),
+      'routeName': AppRoutes.kUpdatesRoute,
     },
     {
       'title': 'Admissions',
@@ -103,7 +93,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      'screen': const AdmissionsScreen(),
+      'routeName': AppRoutes.kAdmissionsRoute,
     },
     {
       'title': 'Enrolled\nStudents',
@@ -113,7 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      'screen': EnrolledStudentsScreen(),
+      'routeName': AppRoutes.kEnrolledStudentsRoute,
     },
     {
       'title': 'About Me',
@@ -123,7 +113,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      'screen': const AboutMeScreen(),
+      'routeName': AppRoutes.kAboutMeRoute,
     },
     {
       'title': 'Terms &\nConditions',
@@ -133,7 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      'screen': const TermsAndConditionsScreen(),
+      'routeName': AppRoutes.kTermsAndConditionsRoute,
     },
   ];
 
@@ -194,10 +184,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onTap: () {
               Navigator.pop(context);
               if (_isAdminLoggedIn) {
-                Navigations.pushReplacement(
-                    context, const AdminDashboardScreen());
+                AppNavigation.pushReplacement(
+                    context, AppRoutes.kAdminDashboardRoute);
               } else {
-                Navigations.push(context, const AdminLoginScreen());
+                AppNavigation.push(context, AppRoutes.kAdminLoginRoute);
               }
             },
           ),
@@ -225,7 +215,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onTap: () async {
               Navigator.pop(context);
               await context.read<AuthCubit>().logout();
-              Navigations.pushAndRemoveUntil(context, const LoginScreen());
+              AppNavigation.goAndClearStack(context, AppRoutes.kLoginRoute);
             },
           ),
         ],
@@ -360,7 +350,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: const Text('Switch to Admin Dashboard'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
-                  Navigations.pushReplacement(context, AdminDashboardScreen());
+                  AppNavigation.pushReplacement(
+                      context, AppRoutes.kAdminDashboardRoute);
                 },
               ),
             ],
@@ -421,7 +412,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     title: informationSupport[index]['title'],
                     lottieUrl: informationSupport[index]['lottieUrl'],
                     gradient: informationSupport[index]['gradient'],
-                    screen: informationSupport[index]['screen'],
+                    routeName: informationSupport[index]['routeName'],
                     fallbackIcon:
                         getFallbackIcon(informationSupport[index]['title']),
                   );

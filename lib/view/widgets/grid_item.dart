@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:selc/router/app_navigation.dart';
 import 'package:selc/services/analytics/analytics_service.dart';
-import 'package:selc/utils/navigation.dart';
 
 class GridItem extends StatelessWidget {
   final String title;
   final Gradient gradient;
-  final Widget? screen;
+  final String? routeName;
   final String lottieUrl;
   final IconData fallbackIcon;
   final Function? onTap;
@@ -15,7 +15,7 @@ class GridItem extends StatelessWidget {
     super.key,
     required this.title,
     required this.gradient,
-    this.screen,
+    this.routeName,
     required this.lottieUrl,
     required this.fallbackIcon,
     this.onTap,
@@ -25,11 +25,11 @@ class GridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        if (screen != null) {
+        if (routeName != null) {
           final AnalyticsService analyticsService = AnalyticsService();
           await analyticsService.logButtonClick(title);
           // ignore: use_build_context_synchronously
-          Navigations.push(context, screen!);
+          AppNavigation.push(context, routeName!);
         } else if (onTap != null) {
           onTap!();
         }

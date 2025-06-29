@@ -2,13 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:selc/models/enrolled_students.dart';
+import 'package:selc/router/app_navigation.dart';
+import 'package:selc/router/app_routes.dart';
 import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
 import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/add_student_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/edit_student_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/student_details_screen.dart';
 
 class StudentsListTab extends StatelessWidget {
   final EnrolledStudentsServices enrolledStudentsServices;
@@ -106,13 +104,12 @@ class StudentsListTab extends StatelessWidget {
   }
 
   void _editStudent(BuildContext context, EnrolledStudent student) async {
-    final result = await Navigations.pushForResult<bool>(
-      context,
-      EditStudentScreen(
-        student: student,
-        enrolledStudentsServices: enrolledStudentsServices,
-      ),
-    );
+    final result = await AppNavigation.pushForResult<bool>(
+        context, AppRoutes.kEditStudentRoute,
+        extra: {
+          'student': student,
+          'enrolledStudentsServices': enrolledStudentsServices,
+        });
 
     if (result == true) {
       TopSnackbar.success(context, 'Student updated successfully');
@@ -120,15 +117,13 @@ class StudentsListTab extends StatelessWidget {
   }
 
   void _showStudentDetails(BuildContext context, EnrolledStudent student) {
-    Navigations.push(context, StudentDetailsScreen(student: student));
+    AppNavigation.push(context, AppRoutes.kStudentDetailsRoute, extra: student);
   }
 
   void _addStudent(BuildContext context) async {
-    final result = await Navigations.pushForResult<bool>(
-        context,
-        AddStudentScreen(
-          enrolledStudentsServices: enrolledStudentsServices,
-        ));
+    final result = await AppNavigation.pushForResult<bool>(
+        context, AppRoutes.kAddStudentRoute,
+        extra: enrolledStudentsServices);
 
     if (result == true) {
       TopSnackbar.success(context, 'Student added successfully');

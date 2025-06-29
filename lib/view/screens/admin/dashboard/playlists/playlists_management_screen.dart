@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/playlist_model.dart';
+import 'package:selc/router/app_navigation.dart';
+import 'package:selc/router/app_routes.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
-import 'package:selc/view/screens/admin/dashboard/playlists/add_playlist_screen.dart';
 
 class PlaylistsManagementScreen extends StatelessWidget {
   const PlaylistsManagementScreen({super.key});
 
   void _navigateToAddPlaylist(BuildContext context) {
-    Navigations.push(context, const AddPlaylistScreen());
+    AppNavigation.push(context, AppRoutes.kAddPlaylistRoute);
   }
 
   void _navigateToEditPlaylist(BuildContext context, PlaylistModel playlist) {
-    Navigations.push(context, AddPlaylistScreen(playlist: playlist));
+    AppNavigation.push(context, AppRoutes.kAddPlaylistRoute, extra: playlist);
   }
 
   @override

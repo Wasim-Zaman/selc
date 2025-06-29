@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:selc/models/note.dart';
+import 'package:selc/router/app_navigation.dart';
+import 'package:selc/router/app_routes.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
-import 'package:selc/view/screens/user/dashboard/notes/pdf_viewer_screen.dart';
 
 class NoteCard extends StatelessWidget {
   final Note note;
@@ -76,9 +76,7 @@ class NoteCard extends StatelessWidget {
   }
 
   void _viewPdf(BuildContext context) {
-    Navigations.push(
-      context,
-      PdfViewerScreen(pdfUrl: note.url, title: note.title),
-    );
+    AppNavigation.push(context, AppRoutes.kPdfViewerRoute,
+        extra: {'pdfUrl': note.url, 'title': note.title});
   }
 }

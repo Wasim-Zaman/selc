@@ -1,5 +1,6 @@
-
 import 'package:flutter/material.dart';
+import 'package:selc/router/app_navigation.dart';
+import 'package:selc/router/app_routes.dart';
 import 'package:selc/utils/constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class SplashScreenState extends State<SplashScreen>
     ));
 
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacementNamed('/home');
+      AppNavigation.pushReplacement(context, AppRoutes.kDashboardRoute);
     });
   }
 

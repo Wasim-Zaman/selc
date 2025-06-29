@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/auth/auth_cubit.dart';
 import 'package:selc/cubits/theme/theme_cubit.dart';
+import 'package:selc/router/app_navigation.dart';
+import 'package:selc/router/app_routes.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
 import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -73,10 +73,7 @@ class _LoginScreenState extends State<LoginScreen>
       listener: (context, state) {
         if (state is AuthSuccess && !state.isAdmin) {
           TopSnackbar.success(context, 'Login successful');
-          Navigations.pushAndRemoveUntil(
-            context,
-            const DashboardScreen(),
-          );
+          AppNavigation.goAndClearStack(context, AppRoutes.kDashboardRoute);
         } else if (state is AuthFailure) {
           TopSnackbar.error(context, state.errorMessage);
         }

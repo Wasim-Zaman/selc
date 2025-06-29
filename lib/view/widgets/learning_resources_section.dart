@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:selc/utils/navigation.dart';
+import 'package:selc/router/app_navigation.dart';
 
 class LearningResourcesSection extends StatelessWidget {
   final List<Map<String, dynamic>> resources;
@@ -41,8 +41,8 @@ class LearningResourcesSection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: InkWell(
-                    onTap: () =>
-                        Navigations.push(context, resources[index]['screen']),
+                    onTap: () => AppNavigation.push(
+                        context, resources[index]['routeName']),
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
                       decoration: BoxDecoration(
