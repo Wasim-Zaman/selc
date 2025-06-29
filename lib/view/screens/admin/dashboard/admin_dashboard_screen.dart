@@ -199,7 +199,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       theme.primaryColor,
-                      theme.primaryColor.withOpacity(0.7)
+                      theme.primaryColor.withValues(alpha: 0.7)
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -207,7 +207,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: theme.primaryColor.withOpacity(0.3),
+                      color: theme.primaryColor.withValues(alpha: 0.3),
                       blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
@@ -226,7 +226,7 @@ class AdminDashboardScreen extends StatelessWidget {
                               'Welcome back,',
                               style: theme.textTheme.titleLarge?.copyWith(
                                 color: theme.colorScheme.onPrimary
-                                    .withOpacity(0.8),
+                                    .withValues(alpha: 0.8),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -242,7 +242,8 @@ class AdminDashboardScreen extends StatelessWidget {
                         Icon(
                           Icons.admin_panel_settings,
                           size: 48,
-                          color: theme.colorScheme.onPrimary.withOpacity(0.8),
+                          color: theme.colorScheme.onPrimary
+                              .withValues(alpha: 0.8),
                         ),
                       ],
                     ),

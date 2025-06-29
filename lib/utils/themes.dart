@@ -39,17 +39,12 @@ class AppThemes {
       bodySmall:
           TextStyle(fontSize: 12, color: AppColors.lightBodyTextSecondary),
     ),
-    cardTheme: CardTheme(
-      color: AppColors.lightCard,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
     inputDecorationTheme: InputDecorationTheme(
       fillColor: AppColors.lightScaffoldBackground,
       filled: true,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.primary.withOpacity(0.5)),
+        borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.5)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -102,17 +97,12 @@ class AppThemes {
       bodySmall:
           TextStyle(fontSize: 12, color: AppColors.darkBodyTextSecondary),
     ),
-    cardTheme: CardTheme(
-      color: AppColors.darkCard,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
     inputDecorationTheme: InputDecorationTheme(
       fillColor: AppColors.darkScaffoldBackground,
       filled: true,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.primary.withOpacity(0.5)),
+        borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.5)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),

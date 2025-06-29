@@ -81,8 +81,8 @@ class BannerSlider extends StatelessWidget {
                                   colors: [
                                     Colors.transparent,
                                     isDark
-                                        ? Colors.black.withOpacity(0.3)
-                                        : Colors.black.withOpacity(0.1),
+                                        ? Colors.black.withValues(alpha: 0.3)
+                                        : Colors.black.withValues(alpha: 0.1),
                                   ],
                                 ),
                               ),

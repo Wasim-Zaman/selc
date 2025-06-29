@@ -58,8 +58,8 @@ class CategoryCard extends StatelessWidget {
     final baseColor = colors[random.nextInt(colors.length)];
     return LinearGradient(
       colors: [
-        baseColor.withOpacity(0.7),
-        baseColor.withOpacity(0.9),
+        baseColor.withValues(alpha: 0.7),
+        baseColor.withValues(alpha: 0.9),
         baseColor,
       ],
       begin: Alignment.topLeft,

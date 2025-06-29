@@ -1,4 +1,5 @@
 {
   //   "dart.flutterSdkPath": ".fvm/versions/3.24.3"
-"dart.flutterSdkPath": "/Users/wasimzaman/development/flutter/bin"
+  "dart.flutterSdkPath": "/Users/wasimzaman/.puro/envs/stable/flutter",
+    "dart.sdkPath": "/Users/wasimzaman/.puro/envs/stable/flutter/bin/cache/dart-sdk"
 }

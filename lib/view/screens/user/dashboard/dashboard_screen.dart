@@ -303,7 +303,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           'Welcome to SELC!',
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: theme.textTheme.bodyLarge?.color
-                                ?.withOpacity(0.7),
+                                ?.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -569,7 +569,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             color: (isDark
                                     ? AppColors.darkDivider
                                     : AppColors.lightDivider)
-                                .withOpacity(0.2),
+                                .withValues(alpha: 0.2),
                             strokeWidth: 1,
                           );
                         },
@@ -585,7 +585,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 colors: [
                                   Theme.of(context)
                                       .primaryColor
-                                      .withOpacity(0.7),
+                                      .withValues(alpha: 0.7),
                                   Theme.of(context).primaryColor,
                                 ],
                                 begin: Alignment.bottomCenter,

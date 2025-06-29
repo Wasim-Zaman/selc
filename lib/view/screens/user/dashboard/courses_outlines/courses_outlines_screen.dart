@@ -54,8 +54,8 @@ class CourseExpansionPanel extends StatelessWidget {
         AppColors.randomColors[random.nextInt(AppColors.randomColors.length)];
     return LinearGradient(
       colors: [
-        baseColor.withOpacity(0.7),
-        baseColor.withOpacity(0.9),
+        baseColor.withValues(alpha: 0.7),
+        baseColor.withValues(alpha: 0.9),
       ],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,

@@ -1,10 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:selc/cubits/admin/admin_cubit.dart';
 import 'package:selc/models/admission_announcement.dart';
 import 'package:selc/utils/constants.dart';
-import 'dart:math';
-
 import 'package:selc/view/widgets/placeholder_widget.dart';
 
 class AdmissionsScreen extends StatelessWidget {
@@ -129,8 +129,8 @@ class _AnnouncementCardState extends State<AnnouncementCard>
     final baseColor = colors[random.nextInt(colors.length)];
     return LinearGradient(
       colors: [
-        baseColor.withOpacity(0.7),
-        baseColor.withOpacity(0.9),
+        baseColor.withValues(alpha: 0.7),
+        baseColor.withValues(alpha: 0.9),
       ],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
