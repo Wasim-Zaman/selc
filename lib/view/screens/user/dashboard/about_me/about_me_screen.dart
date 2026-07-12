@@ -10,7 +10,6 @@ import 'package:selc/utils/constants.dart';
 import 'package:selc/utils/navigation.dart';
 import 'package:selc/utils/snackbars.dart';
 import 'package:selc/view/screens/user/dashboard/about_me/full_screen_resume_screen.dart';
-import 'package:selc/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
 import 'package:selc/view/widgets/grid_item.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -207,7 +206,7 @@ class AboutMeScreen extends StatelessWidget {
             flex: 1,
             child: GridItem(
               title: 'YouTube Channel',
-              screen: YouTubeChannelScreen(url: aboutMe.youtubeChannelLink),
+              onTap: () => _launchYouTubeChannel(context, aboutMe.youtubeChannelLink),
               gradient: LinearGradient(
                 colors: [
                   Theme.of(context).colorScheme.primary,
@@ -297,6 +296,19 @@ class AboutMeScreen extends StatelessWidget {
       await launchUrl(url);
     } else {
       TopSnackbar.error(context, "Could not open the map");
+    }
+  }
+
+  void _launchYouTubeChannel(BuildContext context, String url) async {
+    if (url.isEmpty) {
+      TopSnackbar.error(context, "YouTube channel link not available");
+      return;
+    }
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      TopSnackbar.error(context, "Could not open the YouTube channel");
     }
   }
 }

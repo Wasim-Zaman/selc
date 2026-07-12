@@ -10,7 +10,9 @@
 .history
 .svn/
 .swiftpm/
-migrate_working_dir/
+migrate_working_dir/ 
+.vscode/code-counter/
+.lh/
 
 # IntelliJ related
 *.iml

@@ -1,92 +1,67 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:selc/models/playlist_model.dart';
 import 'package:selc/utils/constants.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class PlaylistDetailScreen extends StatefulWidget {
+class PlaylistDetailScreen extends StatelessWidget {
   final PlaylistModel playlist;
 
   const PlaylistDetailScreen({super.key, required this.playlist});
 
-  @override
-  State<PlaylistDetailScreen> createState() => _PlaylistDetailScreenState();
-}
-
-class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
-  late YoutubePlayerController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = YoutubePlayerController(
-      initialVideoId:
-          YoutubePlayer.convertUrlToId(widget.playlist.videos.first.link)!,
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-      ),
-    );
+  Future<void> _launchVideo(String url, BuildContext context) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open the video')),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return YoutubePlayerBuilder(
-      onExitFullScreen: () {
-        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-      },
-      player: YoutubePlayer(
-        controller: _controller,
-        showVideoProgressIndicator: true,
-        progressIndicatorColor: AppColors.primary,
-        progressColors: const ProgressBarColors(
-          playedColor: AppColors.primary,
-          handleColor: AppColors.secondary,
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(playlist.name,
+            style: Theme.of(context).textTheme.headlineSmall),
+        elevation: 0,
       ),
-      builder: (context, player) => Scaffold(
-        appBar: AppBar(
-          title: Text(widget.playlist.name,
-              style: Theme.of(context).textTheme.headlineSmall),
-          elevation: 0,
-        ),
-        body: Column(
-          children: [
-            player,
-            const SizedBox(height: 10),
-            Text(
-                "${widget.playlist.name} - ${widget.playlist.videos.length} videos"),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: widget.playlist.videos.length,
-                itemBuilder: (context, index) {
-                  final video = widget.playlist.videos[index];
-                  return ListTile(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            child: Text(
+              "${playlist.name} - ${playlist.videos.length} videos",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              itemCount: playlist.videos.length,
+              itemBuilder: (context, index) {
+                final video = playlist.videos[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: AppConstants.defaultPadding),
+                  child: ListTile(
                     title: Text(video.title),
                     leading: const Icon(
                       Icons.play_circle_outline,
                       size: AppConstants.defaultIconSize,
+                      color: AppColors.primary,
                     ),
-                    onTap: () {
-                      final videoId = YoutubePlayer.convertUrlToId(video.link);
-                      if (videoId != null) {
-                        _controller.load(videoId);
-                      }
-                    },
-                  );
-                },
-              ),
+                    trailing: const Icon(Icons.open_in_new),
+                    onTap: () => _launchVideo(video.link, context),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
