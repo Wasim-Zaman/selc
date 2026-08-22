@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/admission_announcement.dart';
+import 'package:gep/models/admission_announcement.dart';
 
 class AdmissionsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

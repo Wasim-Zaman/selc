@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/updates.dart';
+import 'package:gep/models/updates.dart';
 
 class UpdatesServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

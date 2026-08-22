@@ -4,10 +4,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/models/about_me.dart';
-import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/widgets/text_field_widget.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/models/about_me.dart';
+import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
 
 class ManageAboutMeScreen extends StatefulWidget {
   const ManageAboutMeScreen({super.key});

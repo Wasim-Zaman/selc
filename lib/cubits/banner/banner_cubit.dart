@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/banner/banner_state.dart';
-import 'package:selc/models/banner.dart';
+import 'package:gep/cubits/banner/banner_state.dart';
+import 'package:gep/models/banner.dart';
 
 class BannerCubit extends Cubit<BannerState> {
   final Stream<List<BannerModel>> bannersStream;

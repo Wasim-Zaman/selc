@@ -1,7 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:equatable/equatable.dart';
-import 'package:selc/models/banner.dart';
+import 'package:gep/models/banner.dart';
 
 abstract class BannerState extends Equatable {
   const BannerState();

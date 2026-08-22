@@ -1,23 +1,22 @@
-// ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/cubits/auth/auth_cubit.dart';
-import 'package:selc/cubits/banner/banner_cubit.dart';
-import 'package:selc/cubits/theme/theme_cubit.dart';
-import 'package:selc/models/enrolled_students.dart';
-import 'package:selc/router/app_navigation.dart';
-import 'package:selc/router/app_routes.dart';
-import 'package:selc/services/analytics/analytics_service.dart';
-import 'package:selc/services/auth/auth_service.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/view/widgets/banner_slider.dart';
-import 'package:selc/view/widgets/grid_item.dart';
-import 'package:selc/view/widgets/learning_resources_section.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/cubits/auth/auth_cubit.dart';
+import 'package:gep/cubits/banner/banner_cubit.dart';
+import 'package:gep/cubits/theme/theme_cubit.dart';
+import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/services/analytics/analytics_service.dart';
+import 'package:gep/services/auth/auth_service.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/view/widgets/banner_slider.dart';
+import 'package:gep/view/widgets/grid_item.dart';
+import 'package:gep/view/widgets/learning_resources_section.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -40,6 +39,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> init() async {
     await _analyticsService.logScreenView('Dashboard');
+    if (!mounted) return;
     _isAdminLoggedIn = await context.read<AuthCubit>().isAdminLoggedIn();
   }
 
@@ -54,16 +54,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         end: Alignment.bottomRight,
       ),
       'routeName': AppRoutes.kNotesCategoriesRoute,
-    },
-    {
-      'title': 'Playlists',
-      'lottieUrl': AppLotties.playlist,
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFFF7043), Color(0xFFE91E63)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      'routeName': AppRoutes.kPlaylistsRoute,
     },
     {
       'title': 'Courses &\nOutlines',
@@ -131,8 +121,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     switch (title) {
       case 'Notes':
         return Icons.note;
-      case 'Playlists':
-        return Icons.playlist_play;
       case 'Courses &\nOutlines':
         return Icons.book;
       case 'Updates':
@@ -213,8 +201,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
             onTap: () async {
-              Navigator.pop(context);
+              context.pop();
               await context.read<AuthCubit>().logout();
+              if (!mounted) return;
               AppNavigation.goAndClearStack(context, AppRoutes.kLoginRoute);
             },
           ),
@@ -290,7 +279,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         Text(
-                          'Welcome to SELC!',
+                          'Welcome to GEP!',
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: theme.textTheme.bodyLarge?.color
                                 ?.withValues(alpha: 0.7),
@@ -365,17 +354,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Learning Resources section
     final learningResources = [
       services[0], // Notes
-      services[1], // Playlists
-      services[2], // Courses & Outlines
-      services[3], // Updates
+      services[1], // Courses & Outlines
+      services[2], // Updates
     ];
 
     // Information & Support section
     final informationSupport = [
-      services[4], // Admissions
-      services[5], // Enrolled Students
-      services[6], // About Me
-      services[7], // Terms & Conditions
+      services[3], // Admissions
+      services[4], // Enrolled Students
+      services[5], // About Me
+      services[6], // Terms & Conditions
     ];
 
     return Column(

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/models/note.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/view/widgets/note_card.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/models/note.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/view/widgets/note_card.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class NotesScreen extends StatelessWidget {
   final String category;

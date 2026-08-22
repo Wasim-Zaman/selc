@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/about_me.dart';
+import 'package:gep/models/about_me.dart';
 
 class AboutMeService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

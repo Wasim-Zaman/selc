@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/models/banner.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/snackbars.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/models/banner.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/utils/snackbars.dart';
 
 class ManageBannerScreen extends StatelessWidget {
   const ManageBannerScreen({super.key});

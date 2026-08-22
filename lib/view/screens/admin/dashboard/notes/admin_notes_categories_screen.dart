@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/router/app_navigation.dart';
-import 'package:selc/router/app_routes.dart';
-import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
-import 'package:selc/view/widgets/text_field_widget.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
 
 class AdminNotesCategoriesScreen extends StatelessWidget {
   AdminNotesCategoriesScreen({super.key});

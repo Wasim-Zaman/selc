@@ -4,8 +4,8 @@ import 'dart:developer';
 import 'dart:math' as Math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/enrolled_students.dart';
-import 'package:selc/services/analytics/analytics_service.dart';
+import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/services/analytics/analytics_service.dart';
 
 class EnrolledStudentsServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

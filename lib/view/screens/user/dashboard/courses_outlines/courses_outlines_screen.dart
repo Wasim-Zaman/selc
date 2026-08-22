@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/models/course_outline.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/models/course_outline.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class CoursesOutlinesScreen extends StatelessWidget {
   const CoursesOutlinesScreen({super.key});

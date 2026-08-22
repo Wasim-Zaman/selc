@@ -2,12 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/auth/auth_cubit.dart';
-import 'package:selc/cubits/theme/theme_cubit.dart';
-import 'package:selc/router/app_navigation.dart';
-import 'package:selc/router/app_routes.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/snackbars.dart';
+import 'package:gep/cubits/auth/auth_cubit.dart';
+import 'package:gep/cubits/theme/theme_cubit.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/utils/snackbars.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen>
                       Hero(
                         tag: 'app_logo',
                         child: Image.asset(
-                          AppIcons.selcLogo,
+                          AppIcons.gepLogo,
                           height: 200,
                           width: 200,
                         ),
