@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:selc/router/app_navigation.dart';
-import 'package:selc/services/analytics/analytics_service.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/services/analytics/analytics_service.dart';
 
 class GridItem extends StatelessWidget {
   final String title;

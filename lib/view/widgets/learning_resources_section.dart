@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:selc/router/app_navigation.dart';
+import 'package:gep/router/app_navigation.dart';
 
 class LearningResourcesSection extends StatelessWidget {
   final List<Map<String, dynamic>> resources;

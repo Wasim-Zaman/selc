@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/models/course_outline.dart';
-import 'package:selc/router/app_navigation.dart';
-import 'package:selc/router/app_routes.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/models/course_outline.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class ManageCoursesScreen extends StatelessWidget {
   const ManageCoursesScreen({super.key});

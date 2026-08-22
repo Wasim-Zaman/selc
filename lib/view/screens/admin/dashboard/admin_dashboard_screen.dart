@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gep/cubits/auth/auth_cubit.dart';
+import 'package:gep/cubits/theme/theme_cubit.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/view/widgets/grid_item.dart';
 import 'package:marquee/marquee.dart';
-import 'package:selc/cubits/auth/auth_cubit.dart';
-import 'package:selc/cubits/theme/theme_cubit.dart';
-import 'package:selc/router/app_navigation.dart';
-import 'package:selc/router/app_routes.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/view/widgets/grid_item.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -28,16 +28,6 @@ class AdminDashboardScreen extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         'routeName': AppRoutes.kAdminNotesCategoriesRoute,
-      },
-      {
-        'title': 'Manage Playlists',
-        'lottieUrl': AppLotties.playlist,
-        'gradient': const LinearGradient(
-          colors: [Color(0xFFFF7043), Color(0xFFE91E63)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        'routeName': AppRoutes.kPlaylistsManagementRoute,
       },
       {
         'title': 'Manage Courses',
@@ -104,8 +94,6 @@ class AdminDashboardScreen extends StatelessWidget {
       switch (title) {
         case 'Manage Notes':
           return Icons.note;
-        case 'Manage Playlists':
-          return Icons.playlist_play;
         case 'Manage Courses':
           return Icons.school;
         case 'Manage Updates':

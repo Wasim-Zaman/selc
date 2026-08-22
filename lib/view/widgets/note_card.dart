@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:selc/models/note.dart';
-import 'package:selc/router/app_navigation.dart';
-import 'package:selc/router/app_routes.dart';
-import 'package:selc/utils/constants.dart';
+import 'package:gep/models/note.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/core/constants/constants.dart';
 
 class NoteCard extends StatelessWidget {
   final Note note;

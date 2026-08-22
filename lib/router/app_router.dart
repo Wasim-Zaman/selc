@@ -1,43 +1,38 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gep/models/course_outline.dart';
+import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
+import 'package:gep/view/screens/admin/auth/admin_login_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/about_me/manage_about_me_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/admin_dashboard_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/admissions/admin_admissions.dart';
+import 'package:gep/view/screens/admin/dashboard/banner/manage_banner_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/courses_outlines/add_course_outline_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/courses_outlines/manage_courses_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/enrolled_students/add_student_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/enrolled_students/edit_student_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/enrolled_students/enroll_students_management_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/enrolled_students/student_details_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/notes/add_notes_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
+import 'package:gep/view/screens/admin/dashboard/updates/updates_management_screen.dart';
+import 'package:gep/view/screens/user/auth/login_screen.dart';
+import 'package:gep/view/screens/user/dashboard/about_me/about_me_screen.dart';
+import 'package:gep/view/screens/user/dashboard/about_me/full_screen_resume_screen.dart';
+import 'package:gep/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
+import 'package:gep/view/screens/user/dashboard/admissions/admissions_screen.dart';
+import 'package:gep/view/screens/user/dashboard/courses_outlines/courses_outlines_screen.dart';
+import 'package:gep/view/screens/user/dashboard/dashboard_screen.dart';
+import 'package:gep/view/screens/user/dashboard/enrolled_students/enrolled_students_screen.dart';
+import 'package:gep/view/screens/user/dashboard/notes/notes_categories_screen.dart';
+import 'package:gep/view/screens/user/dashboard/notes/notes_screen.dart';
+import 'package:gep/view/screens/user/dashboard/notes/pdf_viewer_screen.dart';
+import 'package:gep/view/screens/user/dashboard/terms_and_conditions_screen.dart';
+import 'package:gep/view/screens/user/dashboard/updates/updates_screen.dart';
+import 'package:gep/view/splash_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:selc/models/course_outline.dart';
-import 'package:selc/models/enrolled_students.dart';
-import 'package:selc/models/playlist_model.dart';
-import 'package:selc/router/app_routes.dart';
-import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
-import 'package:selc/view/screens/admin/auth/admin_login_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/about_me/manage_about_me_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/admin_dashboard_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/admissions/admin_admissions.dart';
-import 'package:selc/view/screens/admin/dashboard/banner/manage_banner_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/courses_outlines/add_course_outline_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/courses_outlines/manage_courses_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/add_student_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/edit_student_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/enroll_students_management_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/enrolled_students/student_details_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/notes/add_notes_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/notes/admin_notes_categories_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/playlists/add_playlist_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/playlists/playlists_management_screen.dart';
-import 'package:selc/view/screens/admin/dashboard/updates/updates_management_screen.dart';
-import 'package:selc/view/screens/user/auth/login_screen.dart';
-import 'package:selc/view/screens/user/dashboard/about_me/about_me_screen.dart';
-import 'package:selc/view/screens/user/dashboard/about_me/full_screen_resume_screen.dart';
-import 'package:selc/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
-import 'package:selc/view/screens/user/dashboard/admissions/admissions_screen.dart';
-import 'package:selc/view/screens/user/dashboard/courses_outlines/courses_outlines_screen.dart';
-import 'package:selc/view/screens/user/dashboard/dashboard_screen.dart';
-import 'package:selc/view/screens/user/dashboard/enrolled_students/enrolled_students_screen.dart';
-import 'package:selc/view/screens/user/dashboard/notes/notes_categories_screen.dart';
-import 'package:selc/view/screens/user/dashboard/notes/notes_screen.dart';
-import 'package:selc/view/screens/user/dashboard/notes/pdf_viewer_screen.dart';
-import 'package:selc/view/screens/user/dashboard/playlists/playlist_details_screen.dart';
-import 'package:selc/view/screens/user/dashboard/playlists/playlists_screen.dart';
-import 'package:selc/view/screens/user/dashboard/terms_and_conditions_screen.dart';
-import 'package:selc/view/screens/user/dashboard/updates/updates_screen.dart';
-import 'package:selc/view/splash_screen.dart';
 
 class AppRouter {
   static final GoRouter _router = GoRouter(
@@ -45,6 +40,8 @@ class AppRouter {
     redirect: (context, state) {
       final user = FirebaseAuth.instance.currentUser;
       final location = state.uri.path;
+
+      return AppRoutes.kDashboardRoutePath;
 
       // If user is on splash screen, redirect based on auth state
       if (location == AppRoutes.kSplashRoutePath) {
@@ -132,12 +129,6 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: AppRoutes.kPlaylistsRoutePath,
-        name: AppRoutes.kPlaylistsRoute,
-        builder: (context, state) => const PlaylistsScreen(),
-      ),
-
-      GoRoute(
         path: AppRoutes.kUpdatesRoutePath,
         name: AppRoutes.kUpdatesRoute,
         builder: (context, state) => const UpdatesScreen(),
@@ -176,21 +167,6 @@ class AppRouter {
         builder: (context, state) {
           final url = state.uri.queryParameters['url'] ?? '';
           return YouTubeChannelScreen(url: url);
-        },
-      ),
-
-      // Playlist detail
-      GoRoute(
-        path: AppRoutes.kPlaylistDetailRoutePath,
-        name: AppRoutes.kPlaylistDetailRoute,
-        builder: (context, state) {
-          final playlist = state.extra as PlaylistModel?;
-          if (playlist == null) {
-            return const Scaffold(
-              body: Center(child: Text('Playlist not found')),
-            );
-          }
-          return PlaylistDetailScreen(playlist: playlist);
         },
       ),
 
@@ -298,21 +274,6 @@ class AppRouter {
         builder: (context, state) {
           final category = state.uri.queryParameters['category'] ?? '';
           return AddNotesScreen(category: category);
-        },
-      ),
-
-      GoRoute(
-        path: AppRoutes.kPlaylistsManagementRoutePath,
-        name: AppRoutes.kPlaylistsManagementRoute,
-        builder: (context, state) => const PlaylistsManagementScreen(),
-      ),
-
-      GoRoute(
-        path: AppRoutes.kAddPlaylistRoutePath,
-        name: AppRoutes.kAddPlaylistRoute,
-        builder: (context, state) {
-          final playlist = state.extra as PlaylistModel?;
-          return AddPlaylistScreen(playlist: playlist);
         },
       ),
 

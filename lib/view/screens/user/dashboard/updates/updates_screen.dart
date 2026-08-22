@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/updates.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
+import 'package:gep/models/updates.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class UpdatesScreen extends StatelessWidget {
   const UpdatesScreen({super.key});

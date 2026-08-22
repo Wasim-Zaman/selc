@@ -5,11 +5,11 @@ import 'dart:developer';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:selc/models/enrolled_students.dart';
-import 'package:selc/router/app_navigation.dart';
-import 'package:selc/router/app_routes.dart';
-import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
+import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class StudentsStatsTab extends StatelessWidget {
   final EnrolledStudentsServices enrolledStudentsServices;

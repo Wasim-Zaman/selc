@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/banner.dart';
+import 'package:gep/models/banner.dart';
 
 class BannerService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

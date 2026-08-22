@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/course_outline.dart';
+import 'package:gep/models/course_outline.dart';
 
 class CoursesOutlineService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

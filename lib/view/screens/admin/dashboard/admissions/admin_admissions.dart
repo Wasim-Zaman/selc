@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/models/admission_announcement.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/snackbars.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/models/admission_announcement.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/utils/snackbars.dart';
 
 class AdminAdmissionsScreen extends StatelessWidget {
   const AdminAdmissionsScreen({super.key});
