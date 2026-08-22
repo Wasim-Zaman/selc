@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/auth/auth_cubit.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
-import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/screens/admin/dashboard/admin_dashboard_screen.dart';
-import 'package:selc/view/widgets/text_field_widget.dart';
+import 'package:gep/cubits/auth/auth_cubit.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
 
 class AdminLoginScreen extends StatelessWidget {
   const AdminLoginScreen({super.key});
@@ -20,8 +20,8 @@ class AdminLoginScreen extends StatelessWidget {
           listener: (context, state) {
             if (state is AuthSuccess && state.isAdmin) {
               TopSnackbar.success(context, 'Login successful');
-              Navigations.pushAndRemoveUntil(
-                  context, const AdminDashboardScreen());
+              AppNavigation.goAndClearStack(
+                  context, AppRoutes.kAdminDashboardRoute);
             } else if (state is AuthFailure) {
               TopSnackbar.error(context, state.errorMessage);
             }
@@ -40,7 +40,7 @@ class AdminLoginScreen extends StatelessWidget {
                     children: <Widget>[
                       const SizedBox(height: 80),
                       Image.asset(
-                        AppIcons.selcLogo,
+                        AppIcons.gepLogo,
                         height: 200,
                         width: 200,
                       ),
@@ -76,10 +76,8 @@ class AdminLoginScreen extends StatelessWidget {
                       BlocConsumer<AuthCubit, AuthState>(
                         listener: (context, state) {
                           if (state is AuthSuccess) {
-                            Navigations.push(
-                              context,
-                              const AdminDashboardScreen(),
-                            );
+                            AppNavigation.push(
+                                context, AppRoutes.kAdminDashboardRoute);
                           }
                         },
                         builder: (context, state) {

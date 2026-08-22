@@ -1,18 +1,5 @@
 {
   //   "dart.flutterSdkPath": ".fvm/versions/3.24.3"
-  "dart.flutterSdkPath": "/Users/faysalzaman/.puro/envs/stable/flutter",
-    "dart.sdkPath": "/Users/faysalzaman/.puro/envs/stable/flutter/bin/cache/dart-sdk",
-    "workbench.colorCustomizations": {
-      "activityBar.background": "#223204",
-      "titleBar.activeBackground": "#2F4706",
-      "titleBar.activeForeground": "#F5FDE5",
-      "titleBar.inactiveBackground": "#223204",
-      "titleBar.inactiveForeground": "#F5FDE5",
-      "statusBar.background": "#223204",
-      "statusBar.foreground": "#F5FDE5",
-      "statusBar.debuggingBackground": "#223204",
-      "statusBar.debuggingForeground": "#F5FDE5",
-      "statusBar.noFolderBackground": "#223204",
-      "statusBar.noFolderForeground": "#F5FDE5"
-    }
+  "dart.flutterSdkPath": "/Users/wasimzaman/.puro/envs/3.47.0/flutter",
+    "dart.sdkPath": "/Users/wasimzaman/.puro/envs/3.47.0/flutter/bin/cache/dart-sdk"
 }

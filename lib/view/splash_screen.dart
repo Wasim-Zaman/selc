@@ -1,6 +1,7 @@
-
 import 'package:flutter/material.dart';
-import 'package:selc/utils/constants.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/core/constants/constants.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -31,7 +32,9 @@ class SplashScreenState extends State<SplashScreen>
     ));
 
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacementNamed('/home');
+      if (mounted) {
+        AppNavigation.pushReplacement(context, AppRoutes.kDashboardRoute);
+      }
     });
   }
 
@@ -52,7 +55,7 @@ class SplashScreenState extends State<SplashScreen>
                 position: _animation,
                 child: Image.asset(
                   fit: BoxFit.cover,
-                  AppIcons.selcLogo,
+                  AppIcons.gepLogo,
                   width: MediaQuery.of(context).size.width * 0.5,
                   height: MediaQuery.of(context).size.height * 0.5,
                 ),

@@ -2,9 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/banner/banner_cubit.dart';
-import 'package:selc/cubits/banner/banner_state.dart';
-import 'package:selc/utils/constants.dart';
+import 'package:gep/cubits/banner/banner_cubit.dart';
+import 'package:gep/cubits/banner/banner_state.dart';
+import 'package:gep/core/constants/constants.dart';
 
 class BannerSlider extends StatelessWidget {
   const BannerSlider({super.key});

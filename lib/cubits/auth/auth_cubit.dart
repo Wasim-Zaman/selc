@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/services/auth/auth_admin_service.dart';
-import 'package:selc/services/auth/auth_service.dart';
+import 'package:gep/services/auth/auth_admin_service.dart';
+import 'package:gep/services/auth/auth_service.dart';
 
 part 'auth_states.dart';
 

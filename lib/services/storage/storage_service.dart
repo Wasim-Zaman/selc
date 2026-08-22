@@ -1,34 +1,55 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StorageService {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final SupabaseClient _supabase = Supabase.instance.client;
+  static const String bucket = 'app-storage';
 
   Future<String> uploadFile(String path, File file) async {
-    Reference storageRef = _storage.ref().child(path);
-    UploadTask uploadTask = storageRef.putFile(file);
-    TaskSnapshot taskSnapshot = await uploadTask;
-    return await taskSnapshot.ref.getDownloadURL();
+    await _supabase.storage.from(bucket).upload(
+          path,
+          file,
+          fileOptions: const FileOptions(upsert: true),
+        );
+    return _supabase.storage.from(bucket).getPublicUrl(path);
   }
 
   Future<void> deleteFolder(String folderPath) async {
-    final ref = _storage.ref(folderPath);
-    final result = await ref.listAll();
-
-    await Future.wait(result.items.map((item) => item.delete()));
-    await Future.wait(
-        result.prefixes.map((prefix) => deleteFolder(prefix.fullPath)));
+    try {
+      final files =
+          await _supabase.storage.from(bucket).list(path: folderPath);
+      final paths = files.map((f) => '$folderPath/${f.name}').toList();
+      if (paths.isNotEmpty) {
+        await _supabase.storage.from(bucket).remove(paths);
+      }
+    } catch (e) {
+      log('Error deleting folder: $e');
+      rethrow;
+    }
   }
 
   Future<void> deleteFile(String fileUrl) async {
     try {
-      Reference ref = _storage.refFromURL(fileUrl);
-      await ref.delete();
+      final path = _extractPathFromUrl(fileUrl);
+      if (path == null || path.isEmpty) return;
+      await _supabase.storage.from(bucket).remove([path]);
     } catch (e) {
       log('Error deleting file: $e');
       rethrow;
     }
+  }
+
+  // Public URL format: https://<ref>.supabase.co/storage/v1/object/public/<bucket>/<path>
+  String? _extractPathFromUrl(String fileUrl) {
+    final uri = Uri.tryParse(fileUrl);
+    if (uri == null) return null;
+
+    final segments = uri.pathSegments;
+    final publicIndex = segments.indexOf('public');
+    if (publicIndex == -1 || publicIndex + 2 >= segments.length) return null;
+
+    return segments.sublist(publicIndex + 2).join('/');
   }
 }

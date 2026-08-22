@@ -2,11 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:selc/models/enrolled_students.dart';
-import 'package:selc/services/analytics/analytics_service.dart';
-import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
+import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/services/analytics/analytics_service.dart';
+import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class EnrolledStudentsScreen extends StatelessWidget {
   final EnrolledStudentsServices _enrolledStudentsServices =

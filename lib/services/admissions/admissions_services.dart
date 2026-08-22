@@ -1,14 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/admission_announcement.dart';
+import 'package:gep/models/admission_announcement.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AdmissionsService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _collection = 'admission_announcements';
+  final SupabaseClient _supabase = Supabase.instance.client;
+  final String _table = 'admission_announcements';
 
   // Create
   Future<void> addAnnouncement(AdmissionAnnouncement announcement) async {
     try {
-      await _firestore.collection(_collection).add(announcement.toMap());
+      await _supabase.from(_table).insert(_toRow(announcement));
     } catch (e) {
       throw Exception('Failed to add announcement: $e');
     }
@@ -16,22 +16,26 @@ class AdmissionsService {
 
   // Read
   Stream<List<AdmissionAnnouncement>> getAnnouncementsStream() {
-    return _firestore.collection(_collection).snapshots().map(
-      (snapshot) {
-        return snapshot.docs
-            .map((doc) => AdmissionAnnouncement.fromFirestore(doc))
-            .toList();
-      },
-    );
+    return _supabase.from(_table).stream(primaryKey: ['id']).map((rows) {
+      return rows
+          .map((row) => AdmissionAnnouncement.fromMap({
+                'id': row['id'],
+                'title': row['title'],
+                'startDate': row['start_date'],
+                'endDate': row['end_date'],
+                'details': row['details'],
+              }))
+          .toList();
+    });
   }
 
   // Update
   Future<void> updateAnnouncement(AdmissionAnnouncement announcement) async {
     try {
-      await _firestore
-          .collection(_collection)
-          .doc(announcement.id)
-          .update(announcement.toMap());
+      await _supabase
+          .from(_table)
+          .update(_toRow(announcement))
+          .eq('id', announcement.id);
     } catch (e) {
       throw Exception('Failed to update announcement: $e');
     }
@@ -40,9 +44,16 @@ class AdmissionsService {
   // Delete
   Future<void> deleteAnnouncement(String id) async {
     try {
-      await _firestore.collection(_collection).doc(id).delete();
+      await _supabase.from(_table).delete().eq('id', id);
     } catch (e) {
       throw Exception('Failed to delete announcement: $e');
     }
   }
+
+  Map<String, dynamic> _toRow(AdmissionAnnouncement announcement) => {
+        'title': announcement.title,
+        'start_date': announcement.startDate.toIso8601String(),
+        'end_date': announcement.endDate.toIso8601String(),
+        'details': announcement.details,
+      };
 }

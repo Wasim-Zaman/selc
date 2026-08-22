@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class AdmissionAnnouncement {
   final String id;
   final String title;
@@ -15,22 +13,27 @@ class AdmissionAnnouncement {
     required this.details,
   });
 
-  factory AdmissionAnnouncement.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map<String, dynamic>;
+  factory AdmissionAnnouncement.fromMap(Map<String, dynamic> map) {
     return AdmissionAnnouncement(
-      id: doc.id,
-      title: data['title'] ?? '',
-      startDate: (data['startDate'] as Timestamp).toDate(),
-      endDate: (data['endDate'] as Timestamp).toDate(),
-      details: data['details'] ?? '',
+      id: map['id'] ?? '',
+      title: map['title'] ?? '',
+      startDate: _parseDate(map['startDate']),
+      endDate: _parseDate(map['endDate']),
+      details: map['details'] ?? '',
     );
+  }
+
+  static DateTime _parseDate(dynamic value) {
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.parse(value);
+    return DateTime.now();
   }
 
   Map<String, dynamic> toMap() {
     return {
       'title': title,
-      'startDate': Timestamp.fromDate(startDate),
-      'endDate': Timestamp.fromDate(endDate),
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
       'details': details,
     };
   }

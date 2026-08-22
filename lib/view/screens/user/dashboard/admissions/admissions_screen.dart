@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/models/admission_announcement.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/models/admission_announcement.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class AdmissionsScreen extends StatelessWidget {
   const AdmissionsScreen({super.key});

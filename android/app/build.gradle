@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.sairatec.selc"
+    namespace = "com.sairatec.gep"
     compileSdkVersion 34
     ndkVersion = "25.1.8937393"
 
@@ -29,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.sairatec.selc"
+        applicationId "com.sairatec.gep"
         minSdkVersion 23
         targetSdkVersion 34
         versionCode 3

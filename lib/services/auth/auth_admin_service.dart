@@ -1,41 +1,40 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AdminAuthService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _adminCollection = 'admins';
-  final String _adminDocId = 'admin';
+  final SupabaseClient _supabase = Supabase.instance.client;
+  final String _table = 'admins';
+  final String _adminId = 'admin';
 
   static const String _isAdminLoggedInKey = 'isAdminLoggedIn';
 
   Future<bool> signInAdmin(String phoneNumber, String password) async {
     try {
-      DocumentSnapshot adminDoc =
-          await _firestore.collection(_adminCollection).doc(_adminDocId).get();
+      var adminData = await _supabase
+          .from(_table)
+          .select()
+          .eq('id', _adminId)
+          .maybeSingle();
 
-      if (!adminDoc.exists) {
-        // Create admin document if it doesn't exist
-        await _firestore.collection(_adminCollection).doc(_adminDocId).set({
-          'phoneNumber': dotenv.env['ADMIN_PHONE_NUMBER'],
+      // Create admin record if it doesn't exist
+      if (adminData == null) {
+        await _supabase.from(_table).insert({
+          'id': _adminId,
+          'phone_number': dotenv.env['ADMIN_PHONE_NUMBER'],
           'password': dotenv.env['ADMIN_PASSWORD'],
         });
-        adminDoc = await _firestore
-            .collection(_adminCollection)
-            .doc(_adminDocId)
-            .get();
+        adminData = await _supabase
+            .from(_table)
+            .select()
+            .eq('id', _adminId)
+            .single();
       }
 
-      Map<String, dynamic> adminData = adminDoc.data() as Map<String, dynamic>;
-
-      if (adminData['phoneNumber'] == phoneNumber &&
-          adminData['password'] == password) {
-        return true;
-      }
-
-      return false;
+      return adminData['phone_number'] == phoneNumber &&
+          adminData['password'] == password;
     } catch (e) {
       log('Error signing in admin: $e');
       return false;

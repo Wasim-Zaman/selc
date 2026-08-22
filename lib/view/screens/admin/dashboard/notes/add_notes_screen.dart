@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/models/note.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/widgets/note_card.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
-import 'package:selc/view/widgets/text_field_widget.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/models/note.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/note_card.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
 
 class AddNotesScreen extends StatelessWidget {
   final String category;

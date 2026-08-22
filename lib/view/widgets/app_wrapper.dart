@@ -24,7 +24,7 @@ class _AppWrapperState extends State<AppWrapper> {
     if (await inAppReview.isAvailable()) {
       // You can add your own logic here to determine when to request a review
       // For example, you might want to do this after a certain number of app opens
-      inAppReview.requestReview();
+      // inAppReview.requestReview();
     }
   }
 

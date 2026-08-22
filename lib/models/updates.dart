@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class Updates {
@@ -21,21 +20,27 @@ class Updates {
   factory Updates.fromMap(Map<String, dynamic> map, String id) {
     return Updates(
       id: id,
-      title: map['title'],
-      description: map['description'],
-      date: (map['date'] as Timestamp).toDate(),
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      date: _parseDate(map['date']),
       type: UpdateType.values
           .firstWhere((e) => e.toString() == 'UpdateType.${map['type']}'),
     );
+  }
+
+  static DateTime _parseDate(dynamic value) {
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.parse(value);
+    return DateTime.now();
   }
 
   Map<String, dynamic> toMap() {
     return {
       'title': title,
       'description': description,
-      'date': Timestamp.fromDate(date),
+      'date': date.toIso8601String(),
       'type': type.toString().split('.').last,
-      'timestamp': FieldValue.serverTimestamp(),
+      'timestamp': DateTime.now().toIso8601String(),
     };
   }
 }

@@ -1,34 +1,29 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/updates.dart';
+import 'package:gep/models/updates.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UpdatesServices {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _collection = 'updates';
+  final SupabaseClient _supabase = Supabase.instance.client;
+  final String _table = 'updates';
 
   Stream<List<Updates>> getUpdatesStream() {
-    return _firestore
-        .collection(_collection)
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => Updates.fromMap(doc.data(), doc.id))
+    return _supabase.from(_table).stream(primaryKey: ['id']).map((rows) {
+      final updates = rows
+          .map((row) => Updates.fromMap(row, row['id'] as String))
           .toList();
+      updates.sort((a, b) => b.date.compareTo(a.date));
+      return updates;
     });
   }
 
   Future<void> addUpdate(Updates update) async {
-    await _firestore.collection(_collection).add(update.toMap());
+    await _supabase.from(_table).insert(update.toMap());
   }
 
   Future<void> updateUpdate(String updateId, Updates update) async {
-    await _firestore
-        .collection(_collection)
-        .doc(updateId)
-        .update(update.toMap());
+    await _supabase.from(_table).update(update.toMap()).eq('id', updateId);
   }
 
   Future<void> deleteUpdate(String updateId) async {
-    await _firestore.collection(_collection).doc(updateId).delete();
+    await _supabase.from(_table).delete().eq('id', updateId);
   }
 }

@@ -1,4 +1,4 @@
-package com.sairatec.selc
+package com.sairatec.gep
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:selc/services/notes/notes_service.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/navigation.dart';
-import 'package:selc/view/screens/user/dashboard/notes/notes_screen.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
+import 'package:gep/router/app_navigation.dart';
+import 'package:gep/router/app_routes.dart';
+import 'package:gep/services/notes/notes_service.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class NotesCategoriesScreen extends StatelessWidget {
   final NotesService _notesService = NotesService();
@@ -83,11 +83,7 @@ class CategoryCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(15),
           onTap: () {
-            Navigations.push(
-                context,
-                NotesScreen(
-                  category: category,
-                ));
+            AppNavigation.push(context, AppRoutes.kNotesRoute, extra: category);
           },
           child: Center(
             child: Padding(

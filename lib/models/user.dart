@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserModel {
   final String uid;
@@ -6,9 +6,8 @@ class UserModel {
   final String? email;
   final String? photoURL;
   final String? phoneNumber;
-  final String? role; // Custom field, e.g., for user roles (admin, user, etc.)
+  final String? role;
 
-  // Constructor
   UserModel({
     required this.uid,
     this.displayName,
@@ -18,18 +17,17 @@ class UserModel {
     this.role,
   });
 
-  // Factory constructor to create UserModel from Firebase User
-  factory UserModel.fromFirebaseUser(User user) {
+  factory UserModel.fromSupabaseUser(User user) {
+    final metadata = user.userMetadata;
     return UserModel(
-      uid: user.uid,
-      displayName: user.displayName,
+      uid: user.id,
+      displayName: metadata?['full_name'] ?? metadata?['name'],
       email: user.email,
-      photoURL: user.photoURL,
-      phoneNumber: user.phoneNumber,
+      photoURL: metadata?['avatar_url'] ?? metadata?['picture'],
+      phoneNumber: user.phone,
     );
   }
 
-  // Factory constructor to create UserModel from Firestore document
   factory UserModel.fromMap(Map<String, dynamic> data) {
     return UserModel(
       uid: data['uid'],
@@ -41,7 +39,6 @@ class UserModel {
     );
   }
 
-  // Method to convert UserModel to Firestore document
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,

@@ -60,3 +60,6 @@ app.*.map.json
 
 # Google services json file
 /android/app/google-services.json
+
+.vscode/
+.vscode/code-counter/

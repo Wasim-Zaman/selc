@@ -1,24 +1,23 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/course_outline.dart';
+import 'package:gep/models/course_outline.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CoursesOutlineService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _collection = 'courses_outlines';
+  final SupabaseClient _supabase = Supabase.instance.client;
+  final String _table = 'courses_outlines';
 
   Stream<List<Course>> getCoursesStream() {
-    return _firestore.collection(_collection).snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data();
-        List<Week> weeks = (data['weeks'] as List).map((weekData) {
+    return _supabase.from(_table).stream(primaryKey: ['id']).map((rows) {
+      return rows.map((row) {
+        List<Week> weeks = ((row['weeks'] as List?) ?? []).map((weekData) {
           return Week(
             title: weekData['title'],
-            topics: List<String>.from(weekData['topics']),
+            topics: List<String>.from(weekData['topics'] ?? []),
           );
         }).toList();
 
         return Course(
-          id: doc.id,
-          title: data['title'],
+          id: row['id'] as String,
+          title: row['title'],
           weeks: weeks,
         );
       }).toList();
@@ -26,30 +25,24 @@ class CoursesOutlineService {
   }
 
   Future<void> addCourse(Course course) async {
-    await _firestore.collection(_collection).add({
-      'title': course.title,
-      'weeks': course.weeks
-          .map((week) => {
-                'title': week.title,
-                'topics': week.topics,
-              })
-          .toList(),
-    });
+    await _supabase.from(_table).insert(_toRow(course));
   }
 
   Future<void> updateCourse(String courseId, Course course) async {
-    await _firestore.collection(_collection).doc(courseId).update({
-      'title': course.title,
-      'weeks': course.weeks
-          .map((week) => {
-                'title': week.title,
-                'topics': week.topics,
-              })
-          .toList(),
-    });
+    await _supabase.from(_table).update(_toRow(course)).eq('id', courseId);
   }
 
   Future<void> deleteCourse(String courseId) async {
-    await _firestore.collection(_collection).doc(courseId).delete();
+    await _supabase.from(_table).delete().eq('id', courseId);
   }
+
+  Map<String, dynamic> _toRow(Course course) => {
+        'title': course.title,
+        'weeks': course.weeks
+            .map((week) => {
+                  'title': week.title,
+                  'topics': week.topics,
+                })
+            .toList(),
+      };
 }

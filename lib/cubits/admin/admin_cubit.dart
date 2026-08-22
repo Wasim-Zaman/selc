@@ -1,23 +1,21 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/models/about_me.dart';
-import 'package:selc/models/admission_announcement.dart';
-import 'package:selc/models/banner.dart';
-import 'package:selc/models/course_outline.dart';
-import 'package:selc/models/enrolled_students.dart';
-import 'package:selc/models/note.dart';
-import 'package:selc/models/playlist_model.dart';
-import 'package:selc/models/updates.dart';
-import 'package:selc/services/about_me/about_me_service.dart';
-import 'package:selc/services/admissions/admissions_services.dart';
-import 'package:selc/services/banner/banner_service.dart';
-import 'package:selc/services/courses_outline/courses_outline_service.dart';
-import 'package:selc/services/enrolled_students/enrolled_students_services.dart';
-import 'package:selc/services/notes/notes_service.dart';
-import 'package:selc/services/playlists/playlist_service.dart';
-import 'package:selc/services/storage/storage_service.dart';
-import 'package:selc/services/updates/updates_services.dart';
+import 'package:gep/models/about_me.dart';
+import 'package:gep/models/admission_announcement.dart';
+import 'package:gep/models/banner.dart';
+import 'package:gep/models/course_outline.dart';
+import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/models/note.dart';
+import 'package:gep/models/updates.dart';
+import 'package:gep/services/about_me/about_me_service.dart';
+import 'package:gep/services/admissions/admissions_services.dart';
+import 'package:gep/services/banner/banner_service.dart';
+import 'package:gep/services/courses_outline/courses_outline_service.dart';
+import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
+import 'package:gep/services/notes/notes_service.dart';
+import 'package:gep/services/storage/storage_service.dart';
+import 'package:gep/services/updates/updates_services.dart';
 
 part 'admin_states.dart';
 
@@ -26,7 +24,6 @@ class AdminCubit extends Cubit<AdminState> {
   final StorageService _storageService;
   final CoursesOutlineService _coursesOutlineService;
   final AdmissionsService _admissionsService;
-  final PlaylistService _playlistService;
   final BannerService _bannerService;
   final AboutMeService _aboutMeService;
   final UpdatesServices _updatesService;
@@ -37,7 +34,6 @@ class AdminCubit extends Cubit<AdminState> {
     this._storageService,
     this._coursesOutlineService,
     this._admissionsService,
-    this._playlistService,
     this._bannerService,
     this._aboutMeService,
     this._updatesService,
@@ -57,10 +53,10 @@ class AdminCubit extends Cubit<AdminState> {
   Future<void> deleteCategory(String category) async {
     emit(AdminLoading());
     try {
-      // Delete the category and all associated notes from Firestore
+      // Delete the category and all associated notes from Supabase
       await _notesService.deleteCategory(category);
 
-      // Delete the entire folder for the category from Firebase Storage
+      // Delete the entire folder for the category from Supabase Storage
       await _storageService.deleteFolder('notes/$category');
 
       emit(AdminSuccess(
@@ -176,61 +172,8 @@ class AdminCubit extends Cubit<AdminState> {
     }
   }
 
-  // Playlists
-  Stream<List<PlaylistModel>> getPlaylistsStream() {
-    return _playlistService.getPlaylistsStream();
-  }
 
-  Future<void> addPlaylist(PlaylistModel playlist) async {
-    emit(AdminLoading());
-    try {
-      await _playlistService.addPlaylist(playlist);
-      emit(AdminSuccess('Playlist added successfully'));
-    } catch (e) {
-      emit(AdminFailure(e.toString()));
-    }
-  }
 
-  Future<void> updatePlaylist(String playlistId, PlaylistModel playlist) async {
-    emit(AdminLoading());
-    try {
-      await _playlistService.updatePlaylist(playlistId, playlist);
-      emit(AdminSuccess('Playlist updated successfully'));
-    } catch (e) {
-      emit(AdminFailure(e.toString()));
-    }
-  }
-
-  Future<void> deletePlaylist(String playlistId) async {
-    emit(AdminLoading());
-    try {
-      await _playlistService.deletePlaylist(playlistId);
-      emit(AdminSuccess('Playlist deleted successfully'));
-    } catch (e) {
-      emit(AdminFailure(e.toString()));
-    }
-  }
-
-  Future<void> addVideoToPlaylist(String playlistId, VideoModel video) async {
-    emit(AdminLoading());
-    try {
-      await _playlistService.addVideoToPlaylist(playlistId, video);
-      emit(AdminSuccess('Video added to playlist successfully'));
-    } catch (e) {
-      emit(AdminFailure(e.toString()));
-    }
-  }
-
-  Future<void> removeVideoFromPlaylist(
-      String playlistId, String videoId) async {
-    emit(AdminLoading());
-    try {
-      await _playlistService.removeVideoFromPlaylist(playlistId, videoId);
-      emit(AdminSuccess('Video removed from playlist successfully'));
-    } catch (e) {
-      emit(AdminFailure(e.toString()));
-    }
-  }
 
   // Banner management methods
   Stream<List<BannerModel>> getBannersStream() {

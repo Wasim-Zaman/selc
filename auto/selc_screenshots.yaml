@@ -1,4 +1,4 @@
-appId: com.sairatec.selc
+appId: com.sairatec.gep
 ---
 - launchApp
 - assertVisible: Version 1.0.0

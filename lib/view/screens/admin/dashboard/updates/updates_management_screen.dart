@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:selc/cubits/admin/admin_cubit.dart';
-import 'package:selc/models/updates.dart';
-import 'package:selc/utils/constants.dart';
-import 'package:selc/utils/snackbars.dart';
-import 'package:selc/view/widgets/text_field_widget.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/models/updates.dart';
+import 'package:gep/core/constants/constants.dart';
+import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
 
 class UpdatesManagementScreen extends StatefulWidget {
   const UpdatesManagementScreen({super.key});
@@ -195,7 +195,7 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
                   ),
                   const SizedBox(height: AppConstants.defaultPadding),
                   DropdownButtonFormField<UpdateType>(
-                    value: _selectedType,
+                    initialValue: _selectedType,
                     decoration: const InputDecoration(labelText: 'Type'),
                     items: UpdateType.values.map((UpdateType type) {
                       return DropdownMenuItem<UpdateType>(

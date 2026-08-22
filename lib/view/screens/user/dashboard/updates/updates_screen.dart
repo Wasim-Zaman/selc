@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:selc/models/updates.dart';
-import 'package:selc/view/widgets/placeholder_widget.dart';
+import 'package:gep/models/updates.dart';
+import 'package:gep/services/updates/updates_services.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class UpdatesScreen extends StatelessWidget {
   const UpdatesScreen({super.key});
@@ -11,8 +11,8 @@ class UpdatesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('English Course Updates')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('updates').snapshots(),
+      body: StreamBuilder<List<Updates>>(
+        stream: UpdatesServices().getUpdatesStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return PlaceholderWidgets.listPlaceholder(itemCount: 5);
@@ -22,14 +22,11 @@ class UpdatesScreen extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No updates available'));
           }
 
-          final updates = snapshot.data!.docs
-              .map((doc) =>
-                  Updates.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-              .toList();
+          final updates = snapshot.data!;
 
           return ListView.builder(
             itemCount: updates.length,
