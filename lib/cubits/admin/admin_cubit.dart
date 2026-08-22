@@ -53,10 +53,10 @@ class AdminCubit extends Cubit<AdminState> {
   Future<void> deleteCategory(String category) async {
     emit(AdminLoading());
     try {
-      // Delete the category and all associated notes from Firestore
+      // Delete the category and all associated notes from Supabase
       await _notesService.deleteCategory(category);
 
-      // Delete the entire folder for the category from Firebase Storage
+      // Delete the entire folder for the category from Supabase Storage
       await _storageService.deleteFolder('notes/$category');
 
       emit(AdminSuccess(

@@ -1,36 +1,45 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gep/models/banner.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BannerService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _collection = 'banners';
+  final SupabaseClient _supabase = Supabase.instance.client;
+  final String _table = 'banners';
 
   Stream<List<BannerModel>> getBannersStream() {
-    return _firestore.collection(_collection).snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => BannerModel.fromMap(doc.data(), doc.id))
+    return _supabase.from(_table).stream(primaryKey: ['id']).map((rows) {
+      return rows
+          .map((row) => BannerModel.fromMap(_mapRow(row), row['id'] as String))
           .toList();
     });
   }
 
   Future<void> addBanner(BannerModel banner) async {
-    await _firestore.collection(_collection).add(banner.toMap());
+    await _supabase.from(_table).insert(_toRow(banner));
   }
 
   Future<void> updateBanner(String id, BannerModel banner) async {
-    await _firestore.collection(_collection).doc(id).update(banner.toMap());
+    await _supabase.from(_table).update(_toRow(banner)).eq('id', id);
   }
 
   Future<void> deleteBanner(String id) async {
-    await _firestore.collection(_collection).doc(id).delete();
+    await _supabase.from(_table).delete().eq('id', id);
   }
 
   Future<BannerModel> getBanner(String id) async {
-    DocumentSnapshot doc =
-        await _firestore.collection(_collection).doc(id).get();
-    if (!doc.exists) {
+    final data = await _supabase.from(_table).select().eq('id', id).single();
+    if (data.isEmpty) {
       throw Exception('Banner not found');
     }
-    return BannerModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+    return BannerModel.fromMap(_mapRow(data), data['id'] as String);
   }
+
+  Map<String, dynamic> _toRow(BannerModel banner) => {
+        'title': banner.title,
+        'image_url': banner.imageUrl,
+      };
+
+  Map<String, dynamic> _mapRow(Map<String, dynamic> row) => {
+        'title': row['title'],
+        'imageUrl': row['image_url'],
+      };
 }

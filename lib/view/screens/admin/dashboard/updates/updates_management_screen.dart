@@ -195,7 +195,7 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
                   ),
                   const SizedBox(height: AppConstants.defaultPadding),
                   DropdownButtonFormField<UpdateType>(
-                    value: _selectedType,
+                    initialValue: _selectedType,
                     decoration: const InputDecoration(labelText: 'Type'),
                     items: UpdateType.values.map((UpdateType type) {
                       return DropdownMenuItem<UpdateType>(

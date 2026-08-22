@@ -41,13 +41,13 @@ class AppRouter {
       final user = FirebaseAuth.instance.currentUser;
       final location = state.uri.path;
 
-      return AppRoutes.kDashboardRoutePath;
-
       // If user is on splash screen, redirect based on auth state
       if (location == AppRoutes.kSplashRoutePath) {
         if (user != null) {
           return AppRoutes.kDashboardRoutePath;
         } else {
+          return AppRoutes.kDashboardRoutePath;
+
           return AppRoutes.kLoginRoutePath;
         }
       }

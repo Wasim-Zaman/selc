@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class EnrolledStudent {
   final String id;
   final String name;
@@ -37,10 +35,18 @@ class EnrolledStudent {
       contactNumber: data['contact_number'] ?? '',
       fatherContactNumber: data['father_contact_number'] ?? '',
       address: data['address'] ?? '',
-      dateOfBirth: (data['date_of_birth'] as Timestamp).toDate(),
+      dateOfBirth: _parseDate(data['date_of_birth']),
       gender: data['gender'] ?? '',
-      enrollmentDate: DateTime.parse(data['enrollmentDate']),
+      enrollmentDate: data['enrollmentDate'] is DateTime
+          ? data['enrollmentDate'] as DateTime
+          : DateTime.parse(data['enrollmentDate'] as String),
     );
+  }
+
+  static DateTime _parseDate(dynamic value) {
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.parse(value);
+    return DateTime.now();
   }
 
   Map<String, dynamic> toMap() {
@@ -52,7 +58,7 @@ class EnrolledStudent {
       'contact_number': contactNumber,
       'father_contact_number': fatherContactNumber,
       'address': address,
-      'date_of_birth': Timestamp.fromDate(dateOfBirth),
+      'date_of_birth': dateOfBirth.toIso8601String(),
       'gender': gender,
       'enrollmentDate': enrollmentDate.toIso8601String(),
     };

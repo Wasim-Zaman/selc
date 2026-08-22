@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
           child: MaterialApp.router(
             title: 'Gramora English Planet',
             debugShowCheckedModeBanner: false,
-            theme: AppThemes.lightTheme,
+            theme: AppThemes.darkTheme,
             darkTheme: AppThemes.darkTheme,
             themeMode: state.themeMode,
             routerConfig: AppRouter.router,

@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Note {
   final String id;
   final String title;
@@ -20,16 +18,22 @@ class Note {
       id: id,
       title: map['title'] ?? '',
       url: map['url'] ?? '',
-      timestamp: (map['timestamp'] as Timestamp).toDate(),
+      timestamp: _parseDate(map['timestamp']),
       accessGranted: map['accessGranted'] ?? false,
     );
+  }
+
+  static DateTime _parseDate(dynamic value) {
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.parse(value);
+    return DateTime.now();
   }
 
   Map<String, dynamic> toMap() {
     return {
       'title': title,
       'url': url,
-      'timestamp': timestamp,
+      'timestamp': timestamp.toIso8601String(),
       'accessGranted': accessGranted,
     };
   }

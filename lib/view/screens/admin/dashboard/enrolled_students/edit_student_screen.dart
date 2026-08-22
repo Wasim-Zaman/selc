@@ -169,7 +169,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                     ),
                     const SizedBox(height: AppConstants.defaultPadding),
                     DropdownButtonFormField<String>(
-                      value: _gender,
+                      initialValue: _gender,
                       decoration: const InputDecoration(labelText: 'Gender'),
                       items: ['Male', 'Female', 'Other']
                           .map((label) => DropdownMenuItem(

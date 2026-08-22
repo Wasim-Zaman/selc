@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/auth/auth_cubit.dart';
 import 'package:gep/cubits/theme/theme_cubit.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
-import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 
 class LoginScreen extends StatefulWidget {

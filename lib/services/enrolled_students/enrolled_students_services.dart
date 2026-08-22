@@ -1,40 +1,28 @@
-// ignore_for_file: library_prefixes, depend_on_referenced_packages, unused_import
-
 import 'dart:developer';
-import 'dart:math' as Math;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gep/models/enrolled_students.dart';
 import 'package:gep/services/analytics/analytics_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EnrolledStudentsServices {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _collection = 'enrolled_students';
-  final String _statsCollection = 'stats';
-  final String _totalDocId = 'total_students';
+  final SupabaseClient _supabase = Supabase.instance.client;
+  final String _table = 'enrolled_students';
   final AnalyticsService _analyticsService;
 
   EnrolledStudentsServices(this._analyticsService);
 
   Stream<List<EnrolledStudent>> getEnrolledStudentsStream() {
-    return _firestore
-        .collection(_collection)
-        .orderBy('name')
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => EnrolledStudent.fromMap(doc.data(), doc.id))
-          .toList();
+    return _supabase.from(_table).stream(primaryKey: ['id']).map((rows) {
+      final students =
+          rows.map((row) => _fromRow(row, row['id'] as String)).toList();
+      students.sort((a, b) => a.name.compareTo(b.name));
+      return students;
     });
   }
 
   Future<void> addStudent(EnrolledStudent student) async {
     try {
-      // First, get a new document reference
-      final docRef = _firestore.collection('enrolled_students').doc();
-
-      // Then, set the data for this document
-      await docRef.set(student.toMap()..['id'] = docRef.id);
+      await _supabase.from(_table).insert(_toRow(student));
 
       // Log the student enrollment
       await _analyticsService.logStudentEnrollment(
@@ -46,29 +34,33 @@ class EnrolledStudentsServices {
   }
 
   Future<void> updateStudent(String studentId, EnrolledStudent student) async {
-    await _firestore
-        .collection(_collection)
-        .doc(studentId)
-        .update(student.toMap());
+    try {
+      await _supabase.from(_table).update(_toRow(student)).eq('id', studentId);
 
-    // Log the student update
-    await _analyticsService.logStudentUpdate(student.name, student.fatherName);
+      // Log the student update
+      await _analyticsService.logStudentUpdate(
+          student.name, student.fatherName);
+    } catch (e) {
+      log('Error updating student: $e');
+      rethrow;
+    }
   }
 
   Future<void> deleteStudent(String studentId) async {
     try {
       // Get the student data before deletion
-      DocumentSnapshot studentDoc =
-          await _firestore.collection('enrolled_students').doc(studentId).get();
-      Map<String, dynamic> studentData =
-          studentDoc.data() as Map<String, dynamic>;
+      final studentData = await _supabase
+          .from(_table)
+          .select('name, father_name')
+          .eq('id', studentId)
+          .single();
 
       // Delete the student
-      await _firestore.collection('enrolled_students').doc(studentId).delete();
+      await _supabase.from(_table).delete().eq('id', studentId);
 
       // Log the student deletion
       await _analyticsService.logStudentDeletion(
-          studentData['name'], studentData['father_name']);
+          studentData['name'] as String, studentData['father_name'] as String);
     } catch (e) {
       log('Error deleting student: $e');
       rethrow;
@@ -76,96 +68,68 @@ class EnrolledStudentsServices {
   }
 
   Future<EnrolledStudent?> getStudentById(String studentId) async {
-    DocumentSnapshot doc =
-        await _firestore.collection(_collection).doc(studentId).get();
-    if (doc.exists) {
-      return EnrolledStudent.fromMap(
-          doc.data() as Map<String, dynamic>, doc.id);
+    final data =
+        await _supabase.from(_table).select().eq('id', studentId).maybeSingle();
+    if (data != null) {
+      return _fromRow(data, data['id'] as String);
     }
     return null;
   }
 
   Future<List<EnrolledStudent>> getStudentsByLevel(String level) async {
-    QuerySnapshot snapshot = await _firestore
-        .collection(_collection)
-        .where('level', isEqualTo: level)
-        .get();
-    return snapshot.docs
-        .map((doc) =>
-            EnrolledStudent.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-        .toList();
+    final data = await _supabase.from(_table).select().eq('level', level);
+    return data.map((row) => _fromRow(row, row['id'] as String)).toList();
   }
 
   Future<int> getTotalStudents() async {
-    DocumentSnapshot totalSnapshot = await _firestore
-        .collection(_collection)
-        .doc(_totalDocId)
-        .collection(_statsCollection)
-        .doc(_totalDocId)
-        .get();
-    if (totalSnapshot.exists) {
-      return totalSnapshot.get('count') as int;
-    }
-    return 0;
+    final response =
+        await _supabase.from(_table).select().count(CountOption.exact);
+    return response.count;
   }
 
   Future<List<EnrolledStudent>> getStudentsByYear(int year) async {
-    QuerySnapshot snapshot = await _firestore
-        .collection(_collection)
-        .where('enrollmentDate',
-            isGreaterThanOrEqualTo: DateTime(year, 1, 1).toIso8601String())
-        .where('enrollmentDate',
-            isLessThan: DateTime(year + 1, 1, 1).toIso8601String())
-        .get();
-    return snapshot.docs
-        .map((doc) =>
-            EnrolledStudent.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-        .toList();
+    final data = await _supabase
+        .from(_table)
+        .select()
+        .gte('enrollment_date', DateTime(year, 1, 1).toIso8601String())
+        .lt('enrollment_date', DateTime(year + 1, 1, 1).toIso8601String());
+    return data.map((row) => _fromRow(row, row['id'] as String)).toList();
   }
 
   Future<int> getStudentCountByYear(int year) async {
-    DocumentSnapshot yearSnapshot = await _firestore
-        .collection(_collection)
-        .doc(_totalDocId)
-        .collection(_statsCollection)
-        .doc(year.toString())
-        .get();
-    if (yearSnapshot.exists) {
-      return yearSnapshot.get('count') as int;
-    }
-    return 0;
+    final response = await _supabase
+        .from(_table)
+        .select()
+        .gte('enrollment_date', DateTime(year, 1, 1).toIso8601String())
+        .lt('enrollment_date', DateTime(year + 1, 1, 1).toIso8601String())
+        .count(CountOption.exact);
+    return response.count;
   }
 
-  // Future<void> _updateTotalCount(Transaction transaction, int increment) async {
-  //   DocumentReference totalRef = _firestore
-  //       .collection(_collection)
-  //       .doc(_totalDocId)
-  //       .collection(_statsCollection)
-  //       .doc(_totalDocId);
-  //   DocumentSnapshot totalSnapshot = await transaction.get(totalRef);
+  Map<String, dynamic> _toRow(EnrolledStudent student) => {
+        'name': student.name,
+        'email': student.email,
+        'father_name': student.fatherName,
+        'level': student.level,
+        'contact_number': student.contactNumber,
+        'father_contact_number': student.fatherContactNumber,
+        'address': student.address,
+        'date_of_birth': student.dateOfBirth.toIso8601String(),
+        'gender': student.gender,
+        'enrollment_date': student.enrollmentDate.toIso8601String(),
+      };
 
-  //   if (totalSnapshot.exists) {
-  //     int currentTotal = totalSnapshot.get('count') as int;
-  //     transaction.update(totalRef, {'count': currentTotal + increment});
-  //   } else {
-  //     transaction.set(totalRef, {'count': increment});
-  //   }
-  // }
-
-  // Future<void> _updateYearCount(
-  //     Transaction transaction, int year, int increment) async {
-  //   DocumentReference yearRef = _firestore
-  //       .collection(_collection)
-  //       .doc(_totalDocId)
-  //       .collection(_statsCollection)
-  //       .doc(year.toString());
-  //   DocumentSnapshot yearSnapshot = await transaction.get(yearRef);
-
-  //   if (yearSnapshot.exists) {
-  //     int currentCount = yearSnapshot.get('count') as int;
-  //     transaction.update(yearRef, {'count': currentCount + increment});
-  //   } else {
-  //     transaction.set(yearRef, {'count': increment});
-  //   }
-  // }
+  EnrolledStudent _fromRow(Map<String, dynamic> row, String id) =>
+      EnrolledStudent.fromMap({
+        'name': row['name'],
+        'email': row['email'],
+        'father_name': row['father_name'],
+        'level': row['level'],
+        'contact_number': row['contact_number'],
+        'father_contact_number': row['father_contact_number'],
+        'address': row['address'],
+        'date_of_birth': row['date_of_birth'],
+        'gender': row['gender'],
+        'enrollment_date': row['enrollment_date'],
+      }, id);
 }
