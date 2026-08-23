@@ -5,32 +5,47 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  // 1. Use singleton instance (Unnamed constructor was removed in v7)
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+
+  bool _isInitialized = false;
+
+  // 2. Explicit initialization is required before performing auth calls
+  Future<void> _ensureInitialized() async {
+    if (!_isInitialized) {
+      await _googleSignIn.initialize();
+      _isInitialized = true;
+    }
+  }
 
   // Method to handle Google Sign-In
   Future<User?> signInWithGoogle() async {
     try {
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      await _ensureInitialized();
+
+      // 3. authenticate() replaces signIn() and opens the native account picker
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
 
       log('Google User: $googleUser');
 
-      // If the user cancels the sign-in flow, return null
-      if (googleUser == null) {
-        return null;
-      }
+      // 4. Retrieve ID token synchronously from account authentication
+      final String? idToken = googleUser.authentication.idToken;
 
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      // 5. Explicitly authorize scopes to obtain the Access Token
+      final authorizationClient = googleUser.authorizationClient;
+      final authorization = await authorizationClient.authorizeScopes([
+        'email',
+        'profile',
+      ]);
 
-      // Create a new credential for Firebase
+      // 6. Construct Firebase OAuthCredential with both retrieved tokens
       final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        idToken: idToken,
+        accessToken: authorization.accessToken,
       );
 
-      // Sign in to Firebase with the Google credential
+      // 7. Sign in to Firebase with the Google credential
       final UserCredential userCredential =
           await _firebaseAuth.signInWithCredential(credential);
 

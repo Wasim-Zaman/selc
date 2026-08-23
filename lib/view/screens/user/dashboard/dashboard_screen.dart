@@ -3,20 +3,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gep/core/constants/constants.dart';
-import 'package:gep/cubits/admin/admin_cubit.dart';
-import 'package:gep/cubits/auth/auth_cubit.dart';
-import 'package:gep/cubits/banner/banner_cubit.dart';
-import 'package:gep/cubits/theme/theme_cubit.dart';
-import 'package:gep/models/enrolled_students.dart';
-import 'package:gep/router/app_navigation.dart';
-import 'package:gep/router/app_routes.dart';
-import 'package:gep/services/analytics/analytics_service.dart';
-import 'package:gep/services/auth/auth_service.dart';
-import 'package:gep/view/widgets/banner_slider.dart';
-import 'package:gep/view/widgets/grid_item.dart';
-import 'package:gep/view/widgets/learning_resources_section.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../../../core/constants/constants.dart';
+import '../../../../cubits/admin/admin_cubit.dart';
+import '../../../../cubits/auth/auth_cubit.dart';
+import '../../../../cubits/banner/banner_cubit.dart';
+import '../../../../cubits/theme/theme_cubit.dart';
+import '../../../../models/enrolled_students.dart';
+import '../../../../router/app_navigation.dart';
+import '../../../../router/app_routes.dart';
+import '../../../../services/analytics/analytics_service.dart';
+import '../../../../services/auth/auth_service.dart';
+import '../../../widgets/app_drawer.dart';
+import '../../../widgets/banner_slider.dart';
+import '../../../widgets/grid_item.dart';
+import '../../../widgets/learning_resources_section.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -40,7 +41,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> init() async {
     await _analyticsService.logScreenView('Dashboard');
     if (!mounted) return;
-    _isAdminLoggedIn = await context.read<AuthCubit>().isAdminLoggedIn();
+    final isAdminLoggedIn = await context.read<AuthCubit>().isAdminLoggedIn();
+    if (!mounted) return;
+    setState(() => _isAdminLoggedIn = isAdminLoggedIn);
   }
 
   // Services data with icons and gradients
@@ -138,80 +141,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Widget _buildDrawer() {
-    final user = AuthService().getCurrentUser();
-    final theme = Theme.of(context);
-
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          UserAccountsDrawerHeader(
-            accountName: Text(user?.displayName ?? 'Guest'),
-            accountEmail: Text(user?.email ?? ''),
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(
-                user?.photoURL ?? 'https://via.placeholder.com/150',
-              ),
-            ),
-            decoration: BoxDecoration(
-              color: theme.primaryColor,
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
-            onTap: () {
-              Navigator.pop(context);
-              // Add profile navigation
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.admin_panel_settings),
-            title: const Text('Admin Panel'),
-            onTap: () {
-              Navigator.pop(context);
-              if (_isAdminLoggedIn) {
-                AppNavigation.pushReplacement(
-                    context, AppRoutes.kAdminDashboardRoute);
-              } else {
-                AppNavigation.push(context, AppRoutes.kAdminLoginRoute);
-              }
-            },
-          ),
-          BlocBuilder<ThemeCubit, ThemeState>(
-            builder: (context, themeMode) {
-              return ListTile(
-                leading: Icon(
-                  themeMode == ThemeMode.dark
-                      ? Icons.light_mode
-                      : Icons.dark_mode,
-                ),
-                title: Text(
-                  themeMode == ThemeMode.dark ? 'Light Mode' : 'Dark Mode',
-                ),
-                onTap: () {
-                  context.read<ThemeCubit>().toggleTheme();
-                },
-              );
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
-            onTap: () async {
-              context.pop();
-              await context.read<AuthCubit>().logout();
-              if (!mounted) return;
-              AppNavigation.goAndClearStack(context, AppRoutes.kLoginRoute);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -219,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      drawer: _buildDrawer(),
+      drawer: AppDrawer(isAdminLoggedIn: _isAdminLoggedIn),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

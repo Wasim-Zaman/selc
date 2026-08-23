@@ -21,7 +21,6 @@ import 'package:gep/view/screens/admin/dashboard/updates/updates_management_scre
 import 'package:gep/view/screens/user/auth/login_screen.dart';
 import 'package:gep/view/screens/user/dashboard/about_me/about_me_screen.dart';
 import 'package:gep/view/screens/user/dashboard/about_me/full_screen_resume_screen.dart';
-import 'package:gep/view/screens/user/dashboard/about_me/youtube_channel_screen.dart';
 import 'package:gep/view/screens/user/dashboard/admissions/admissions_screen.dart';
 import 'package:gep/view/screens/user/dashboard/courses_outlines/courses_outlines_screen.dart';
 import 'package:gep/view/screens/user/dashboard/dashboard_screen.dart';
@@ -158,15 +157,6 @@ class AppRouter {
         builder: (context, state) {
           final resumeUrl = state.uri.queryParameters['resumeUrl'] ?? '';
           return FullScreenResumeScreen(resumeUrl: resumeUrl);
-        },
-      ),
-
-      GoRoute(
-        path: AppRoutes.kYouTubeChannelRoutePath,
-        name: AppRoutes.kYouTubeChannelRoute,
-        builder: (context, state) {
-          final url = state.uri.queryParameters['url'] ?? '';
-          return YouTubeChannelScreen(url: url);
         },
       ),
 

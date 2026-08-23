@@ -1,14 +1,14 @@
 import 'dart:io';
-import 'dart:ui' as ui;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/admin/admin_cubit.dart';
 import 'package:gep/models/banner.dart';
-import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
+
+import '../../../../../cubits/banner/banner_image_cubit.dart';
 
 class ManageBannerScreen extends StatelessWidget {
   const ManageBannerScreen({super.key});
@@ -77,17 +77,25 @@ class ManageBannerScreen extends StatelessWidget {
     );
   }
 
-  void _showAddEditDialog(BuildContext context, AdminCubit adminCubit,
-      {BannerModel? banner}) {
+  void _showAddEditDialog(
+    BuildContext context,
+    AdminCubit adminCubit, {
+    BannerModel? banner,
+  }) {
     showDialog(
       context: context,
-      builder: (context) =>
-          AddEditBannerDialog(adminCubit: adminCubit, banner: banner),
+      builder: (context) => BlocProvider(
+        create: (_) => BannerImageCubit(),
+        child: AddEditBannerDialog(adminCubit: adminCubit, banner: banner),
+      ),
     );
   }
 
   void _deleteBanner(
-      BuildContext context, AdminCubit adminCubit, String bannerId) {
+    BuildContext context,
+    AdminCubit adminCubit,
+    String bannerId,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -128,11 +136,14 @@ class BannerCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: ListTile(
-        leading: Image.network(
-          banner.imageUrl,
-          width: 50,
-          height: 50,
-          fit: BoxFit.cover,
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: CachedNetworkImage(
+            imageUrl: banner.imageUrl,
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+          ),
         ),
         title: Text(banner.title),
         trailing: Row(
@@ -153,88 +164,30 @@ class BannerCard extends StatelessWidget {
   }
 }
 
-class AddEditBannerDialog extends StatefulWidget {
+class AddEditBannerDialog extends StatelessWidget {
   final AdminCubit adminCubit;
   final BannerModel? banner;
+  final TextEditingController _titleController;
 
-  const AddEditBannerDialog({super.key, required this.adminCubit, this.banner});
+  AddEditBannerDialog({
+    super.key,
+    required this.adminCubit,
+    this.banner,
+  }) : _titleController = TextEditingController(text: banner?.title ?? '');
 
-  @override
-  State<AddEditBannerDialog> createState() => _AddEditBannerDialogState();
-}
-
-class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
-  late TextEditingController _titleController;
-  File? _imageFile;
-
-  @override
-  void initState() {
-    super.initState();
-    _titleController = TextEditingController(text: widget.banner?.title ?? '');
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      // Load the image file
-      final File imageFile = File(pickedFile.path);
-      final img = await decodeImageFromList(await imageFile.readAsBytes());
-
-      // Create an image with the desired resolution
-      final ui.Image resizedImage = await _resizeImage(img, 1200, 480);
-
-      // Convert to bytes and create a new file
-      final byteData =
-          await resizedImage.toByteData(format: ui.ImageByteFormat.png);
-      final buffer = byteData!.buffer;
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/resized_banner.png');
-      await tempFile.writeAsBytes(
-        buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
-      );
-
-      setState(() {
-        _imageFile = tempFile;
-      });
-    }
-  }
-
-  Future<ui.Image> _resizeImage(
-      ui.Image image, int targetWidth, int targetHeight) async {
-    final pictureRecorder = ui.PictureRecorder();
-    final canvas = Canvas(pictureRecorder);
-
-    canvas.drawImageRect(
-      image,
-      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-      Rect.fromLTWH(0, 0, targetWidth.toDouble(), targetHeight.toDouble()),
-      Paint()..filterQuality = FilterQuality.high,
-    );
-
-    final picture = pictureRecorder.endRecording();
-    return picture.toImage(targetWidth, targetHeight);
-  }
-
-  void _saveBanner() {
+  void _saveBanner(BuildContext context, File? selectedImageFile) {
     if (_titleController.text.isEmpty ||
-        (_imageFile == null && widget.banner == null)) {
+        (selectedImageFile == null && banner == null)) {
       TopSnackbar.error(context, 'Please fill all fields');
       return;
     }
 
-    if (widget.banner == null) {
-      widget.adminCubit.addBanner(_titleController.text, _imageFile!);
+    if (banner == null) {
+      adminCubit.addBanner(_titleController.text, selectedImageFile!);
     } else {
-      widget.adminCubit.updateBanner(
-        widget.banner!.copyWith(title: _titleController.text),
-        _imageFile,
+      adminCubit.updateBanner(
+        banner!.copyWith(title: _titleController.text),
+        selectedImageFile,
       );
     }
 
@@ -243,8 +196,10 @@ class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final imageCubit = context.read<BannerImageCubit>();
+
     return AlertDialog(
-      title: Text(widget.banner == null ? 'Add Banner' : 'Edit Banner'),
+      title: Text(banner == null ? 'Add Banner' : 'Edit Banner'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -262,17 +217,65 @@ class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: _pickImage,
-              child: const Text('Pick Image'),
+            const SizedBox(height: 12),
+            BlocBuilder<BannerImageCubit, BannerImageState>(
+              builder: (context, state) {
+                final isProcessing = state is BannerImageProcessing;
+                return ElevatedButton.icon(
+                  onPressed: isProcessing
+                      ? null
+                      : () => imageCubit.pickAndProcessBanner(),
+                  icon: isProcessing
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.image_search),
+                  label: Text(
+                    isProcessing ? 'Processing...' : 'Pick Image',
+                  ),
+                );
+              },
             ),
-            if (_imageFile != null)
-              Image.file(_imageFile!,
-                  height: 100, width: 100, fit: BoxFit.cover)
-            else if (widget.banner != null)
-              Image.network(widget.banner!.imageUrl,
-                  height: 100, width: 100, fit: BoxFit.cover),
+            const SizedBox(height: 12),
+            BlocBuilder<BannerImageCubit, BannerImageState>(
+              builder: (context, state) {
+                if (state is BannerImageSuccess) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      state.imageFile,
+                      height: 100,
+                      width: 250,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                }
+
+                if (banner != null) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      banner!.imageUrl,
+                      height: 100,
+                      width: 250,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 100,
+                        width: 250,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        child: const Icon(Icons.broken_image, size: 40),
+                      ),
+                    ),
+                  );
+                }
+
+                return const SizedBox.shrink();
+              },
+            ),
           ],
         ),
       ),
@@ -281,9 +284,19 @@ class _AddEditBannerDialogState extends State<AddEditBannerDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        TextButton(
-          onPressed: _saveBanner,
-          child: const Text('Save'),
+        BlocBuilder<BannerImageCubit, BannerImageState>(
+          builder: (context, state) {
+            final File? selectedFile =
+                state is BannerImageSuccess ? state.imageFile : null;
+            final isProcessing = state is BannerImageProcessing;
+
+            return ElevatedButton(
+              onPressed: isProcessing
+                  ? null
+                  : () => _saveBanner(context, selectedFile),
+              child: const Text('Save'),
+            );
+          },
         ),
       ],
     );

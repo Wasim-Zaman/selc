@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/admin/admin_cubit.dart';
 import 'package:gep/models/note.dart';
-import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/note_card.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
@@ -100,14 +100,16 @@ class AddNotesScreen extends StatelessWidget {
   }
 
   void _pickAndUploadFile(BuildContext context) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    // Single file picking using updated file_picker v12+ API
+    final PlatformFile? platformFile = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
 
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      // ignore: use_build_context_synchronously
+    if (platformFile != null && platformFile.path != null) {
+      if (!context.mounted) return;
+
+      final File file = File(platformFile.path!);
       context.read<AdminCubit>().uploadNote(
             category,
             _titleController.text,

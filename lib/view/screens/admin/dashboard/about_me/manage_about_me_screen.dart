@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:gep/cubits/admin/admin_cubit.dart';
 import 'package:gep/models/about_me.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ManageAboutMeScreen extends StatefulWidget {
   const ManageAboutMeScreen({super.key});
@@ -105,18 +105,20 @@ class _ManageAboutMeScreenState extends State<ManageAboutMeScreen> {
         Text('Profile Picture', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         if (_profileImageFile != null || aboutMe.profileImageUrl != null)
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                fit: BoxFit.cover,
-                image: _profileImageFile != null
-                    ? FileImage(_profileImageFile!) as ImageProvider
-                    : NetworkImage(aboutMe.profileImageUrl!),
-              ),
-            ),
+          ClipOval(
+            child: _profileImageFile != null
+                ? Image.file(
+                    _profileImageFile!,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  )
+                : Image.network(
+                    aboutMe.profileImageUrl!,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
           ),
         ElevatedButton(
           onPressed: _pickImage,
@@ -153,13 +155,15 @@ class _ManageAboutMeScreenState extends State<ManageAboutMeScreen> {
   }
 
   Future<void> _pickResume() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    // Modern single-file API in file_picker v12+
+    final PlatformFile? file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
-    if (result != null) {
+
+    if (file != null && file.path != null) {
       setState(() {
-        _resumeFile = File(result.files.single.path!);
+        _resumeFile = File(file.path!);
       });
     }
   }
