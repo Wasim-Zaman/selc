@@ -10,16 +10,8 @@ import 'package:gep/router/app_routes.dart';
 import 'package:gep/services/auth/auth_service.dart';
 import 'package:go_router/go_router.dart';
 
-/// Reusable, animated navigation drawer used across the app.
-///
-/// [isAdminLoggedIn] is passed in rather than resolved internally,
-/// since the caller already knows how to check that (e.g. via a
-/// FutureBuilder / cubit call in initState).
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({
-    super.key,
-    required this.isAdminLoggedIn,
-  });
+  const AppDrawer({super.key, required this.isAdminLoggedIn});
 
   final bool isAdminLoggedIn;
 
@@ -27,18 +19,25 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = AuthService().getCurrentUser();
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Drawer(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(24)),
+      ),
       child: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _DrawerHeader(user: user, theme: theme),
-            const SizedBox(height: 8),
+            _DrawerHeader(user: user, isAdminLoggedIn: isAdminLoggedIn),
+            const SizedBox(height: 12),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 children: [
+                  const _SectionHeader(label: 'Account'),
                   _DrawerTile(
                     icon: Icons.person_outline_rounded,
                     label: 'Profile',
@@ -60,20 +59,19 @@ class AppDrawer extends StatelessWidget {
                           AppRoutes.kAdminDashboardRoute,
                         );
                       } else {
-                        AppNavigation.push(
-                          context,
-                          AppRoutes.kAdminLoginRoute,
-                        );
+                        AppNavigation.push(context, AppRoutes.kAdminLoginRoute);
                       }
                     },
                   ),
+                  const SizedBox(height: 16),
+                  const _SectionHeader(label: 'Preferences'),
                   BlocBuilder<ThemeCubit, ThemeState>(
                     builder: (context, themeMode) {
                       final isDark = themeMode == ThemeMode.dark;
                       return _DrawerTile(
                         icon: isDark
-                            ? Icons.light_mode_outlined
-                            : Icons.dark_mode_outlined,
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
                         label: isDark ? 'Light Mode' : 'Dark Mode',
                         index: 2,
                         onTap: () => context.read<ThemeCubit>().toggleTheme(),
@@ -83,23 +81,15 @@ class AppDrawer extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(height: 1),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: _DrawerTile(
-                icon: Icons.logout_rounded,
-                label: 'Logout',
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: _LogoutTile(
                 index: 3,
-                iconColor: theme.colorScheme.error,
-                textColor: theme.colorScheme.error,
                 onTap: () async {
                   context.pop();
                   await context.read<AuthCubit>().logout();
                   if (!context.mounted) return;
-                  AppNavigation.goAndClearStack(
-                    context,
-                    AppRoutes.kLoginRoute,
-                  );
+                  AppNavigation.goAndClearStack(context, AppRoutes.kLoginRoute);
                 },
               ),
             ),
@@ -111,74 +101,144 @@ class AppDrawer extends StatelessWidget {
 }
 
 class _DrawerHeader extends StatelessWidget {
-  const _DrawerHeader({required this.user, required this.theme});
+  const _DrawerHeader({required this.user, required this.isAdminLoggedIn});
 
   final User? user;
-  final ThemeData theme;
+  final bool isAdminLoggedIn;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final displayName = user?.displayName ?? 'Guest User';
+    final email = user?.email ?? 'Sign in to continue';
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            theme.primaryColor,
-            theme.primaryColor.withValues(alpha: 0.75),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest
+            : colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-            child: ClipOval(
-              child: CachedNetworkImage(
-                imageUrl: user?.photoURL ?? 'https://via.placeholder.com/150',
-                fit: BoxFit.cover,
-                placeholder: (context, url) => const Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: colorScheme.primaryContainer,
+                  border: Border.all(color: colorScheme.primary, width: 1.5),
                 ),
-                errorWidget: (context, url, error) => const Icon(
-                  Icons.person,
-                  color: Colors.white,
-                  size: 36,
+                child: ClipOval(
+                  child: user?.photoURL != null
+                      ? CachedNetworkImage(
+                          imageUrl: user!.photoURL!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Icon(
+                            Icons.person_rounded,
+                            color: colorScheme.onPrimaryContainer,
+                            size: 30,
+                          ),
+                        )
+                      : Icon(
+                          Icons.person_rounded,
+                          size: 30,
+                          color: isDark
+                              ? colorScheme.onSurfaceVariant
+                              : colorScheme.onPrimaryContainer,
+                        ),
                 ),
               ),
-            ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: isAdminLoggedIn
+                      ? colorScheme.primary
+                      : colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  isAdminLoggedIn ? 'Admin' : 'Member',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isDark
+                        ? colorScheme.onSurfaceVariant
+                        : colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
-            user?.displayName ?? 'Guest',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
+            displayName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            user?.email ?? '',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.85),
-              fontSize: 13,
+          if (email.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              email,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
-          ),
+          ],
         ],
       ),
-    ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0);
+    ).animate().fadeIn(duration: 250.ms).slideY(begin: -0.05, end: 0);
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, bottom: 6, top: 4),
+      child: Text(
+        label.toUpperCase(),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
   }
 }
 
@@ -188,44 +248,86 @@ class _DrawerTile extends StatelessWidget {
     required this.label,
     required this.index,
     required this.onTap,
-    this.iconColor,
-    this.textColor,
   });
 
   final IconData icon;
   final String label;
   final int index;
   final VoidCallback onTap;
-  final Color? iconColor;
-  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        child: ListTile(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 2,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            leading: Icon(icon, size: 22, color: colorScheme.secondary),
+            title: Text(
+              label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            trailing: Icon(
+              Icons.chevron_right_rounded,
+              size: 18,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            onTap: onTap,
           ),
-          leading: Icon(icon, color: iconColor ?? theme.iconTheme.color),
-          title: Text(
-            label,
-            style: TextStyle(
-              color: textColor ?? theme.textTheme.bodyLarge?.color,
-              fontWeight: FontWeight.w500,
+        )
+        .animate()
+        .fadeIn(delay: (60 * index).ms, duration: 250.ms)
+        .slideX(begin: 0.04, end: 0);
+  }
+}
+
+class _LogoutTile extends StatelessWidget {
+  const _LogoutTile({required this.index, required this.onTap});
+
+  final int index;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Material(
+          color: colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  Icon(Icons.logout_rounded, size: 20),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Logout',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          onTap: onTap,
-        ),
-      ),
-    )
+        )
         .animate()
-        .fadeIn(delay: (80 * index).ms, duration: 300.ms)
-        .slideX(begin: 0.05, end: 0);
+        .fadeIn(delay: (60 * index).ms, duration: 250.ms)
+        .slideY(begin: 0.1, end: 0);
   }
 }

@@ -9,10 +9,7 @@ import 'view/widgets/app_wrapper.dart';
 
 class MyApp extends StatelessWidget {
   final FirebaseAnalyticsObserver observer;
-  const MyApp({
-    super.key,
-    required this.observer,
-  });
+  const MyApp({super.key, required this.observer});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +19,7 @@ class MyApp extends StatelessWidget {
           child: MaterialApp.router(
             title: 'Gramora English Planet',
             debugShowCheckedModeBanner: false,
-            theme: AppThemes.darkTheme,
+            theme: AppThemes.lightTheme,
             darkTheme: AppThemes.darkTheme,
             themeMode: state.themeMode,
             routerConfig: AppRouter.router,
