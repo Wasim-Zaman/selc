@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen>
                       Hero(
                         tag: 'app_logo',
                         child: Image.asset(
-                          AppIcons.gepLogo,
+                          isDark ? AppIcons.gepLogoDark : AppIcons.gepLogoLight,
                           height: 200,
                           width: 200,
                         ),

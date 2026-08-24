@@ -46,6 +46,7 @@ class SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Column(
         children: [
@@ -55,7 +56,7 @@ class SplashScreenState extends State<SplashScreen>
                 position: _animation,
                 child: Image.asset(
                   fit: BoxFit.cover,
-                  AppIcons.gepLogo,
+                  isDark ? AppIcons.gepLogoDark : AppIcons.gepLogoLight,
                   width: MediaQuery.of(context).size.width * 0.5,
                   height: MediaQuery.of(context).size.height * 0.5,
                 ),

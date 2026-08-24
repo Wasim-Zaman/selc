@@ -7,7 +7,8 @@ class Images {
 }
 
 class AppIcons {
-  static const gepLogo = "assets/icons/selc_logo.png";
+  static const gepLogoLight = "assets/icons/icon_navy.png";
+  static const gepLogoDark = "assets/icons/icon_black.png";
   static const siginLight = "assets/icons/signin_light.png";
   static const signinDark = "assets/icons/signin_dark.png";
 }
@@ -30,7 +31,7 @@ class AppLotties {
 
 class AppColors {
   // Primary Colors
-  static const Color primary = Color(0xFF1E88E5); // Deep blue
+  static const Color primary = Color(0xFF0A2137); // Navy (brand color)
   static const Color secondary = Color(0xFF26A69A); // Teal
   static const Color accent = Color(0xFFFFC107); // Amber
 
@@ -49,8 +50,8 @@ class AppColors {
 
   // Dark Theme Colors
   static const Color darkScaffoldBackground =
-      Color(0xFF121212); // Very dark grey
-  static const Color darkAppBarBackground = Color(0xFF1E1E1E); // Dark grey
+      Color(0xFF000000); // Black (matches dark logo)
+  static const Color darkAppBarBackground = Color(0xFF0A0A0A); // Near black
   static const Color darkAppBarForeground = Color(0xFFFFFFFF); // White
   static const Color darkBodyText = Color(0xFFE0E0E0); // Very light grey
   static const Color darkBodyTextSecondary = Color(0xFF9E9E9E); // Medium grey
@@ -73,7 +74,7 @@ class AppColors {
 
   // Random Colors
   static const List<Color> randomColors = [
-    Color(0xFF1E88E5), // Deep blue
+    Color(0xFF0A2137), // Navy
     Color(0xFF26A69A), // Teal
     Color(0xFFF57C00), // Dark orange
     Color(0xFF7B1FA2), // Purple

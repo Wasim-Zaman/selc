@@ -1,0 +1,32 @@
+# Add this to your pubspec.yaml (or keep separate and run with
+# `dart run flutter_native_splash:create --path=config/flutter_native_splash.yaml`)
+#
+# Package: flutter_native_splash
+# dev_dependencies:
+#   flutter_native_splash: ^2.4.1
+#
+# This is the part that actually gives you automatic light/dark switching —
+# Flutter reads the device theme at launch and picks the matching pair below.
+
+flutter_native_splash:
+  # Light theme (navy-on-... wait, pick whichever reads better on a light
+  # device background — swap these two if you want it the other way round)
+  color: "#0A2137"
+  image: assets/icons/splash_logo.png
+
+  # Dark theme
+  color_dark: "#000000"
+  image_dark: assets/icons/splash_logo.png
+
+  android_12:
+    color: "#0A2137"
+    image: assets/icons/splash_logo.png
+    color_dark: "#000000"
+    image_dark: assets/icons/splash_logo.png
+    icon_background_color: "#0A2137"
+    icon_background_color_dark: "#000000"
+
+  android: true
+  ios: true
+  web: false
+  fullscreen: true

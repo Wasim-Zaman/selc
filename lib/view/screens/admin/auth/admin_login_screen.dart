@@ -13,6 +13,7 @@ class AdminLoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Builder(
       builder: (context) {
         final authCubit = context.read<AuthCubit>();
@@ -40,7 +41,7 @@ class AdminLoginScreen extends StatelessWidget {
                     children: <Widget>[
                       const SizedBox(height: 80),
                       Image.asset(
-                        AppIcons.gepLogo,
+                        isDark ? AppIcons.gepLogoDark : AppIcons.gepLogoLight,
                         height: 200,
                         width: 200,
                       ),

@@ -1,0 +1,40 @@
+# Add this to your pubspec.yaml (or keep as a separate file and run with
+# `dart run flutter_launcher_icons -f config/flutter_launcher_icons.yaml`)
+#
+# Package: flutter_launcher_icons
+# dev_dependencies:
+#   flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  remove_alpha_ios: true          # App Store rejects icons with alpha
+
+  # --- Primary (non-adaptive) icon, used on iOS and as the Android fallback ---
+  # Pick ONE background color as your main app icon. Swap the path to
+  # icon_navy.png if you'd rather ship the navy version instead.
+  image_path: "assets/icons/icon_black.png"
+
+  # --- Android adaptive icon (Android 8+) ---
+  # foreground = transparent emblem, already padded to the safe zone
+  # background = solid color (no file needed) so the shape mask never clips it
+  adaptive_icon_background: "#000000"        # use "#0A2137" for the navy variant
+  adaptive_icon_foreground: "assets/icons/icon_foreground.png"
+
+  min_sdk_android: 21
+
+  # --- Optional: Android 13+ themed monochrome icon (Material You) ---
+  adaptive_icon_monochrome: "assets/icons/icon_foreground.png"
+
+# ---------------------------------------------------------------------------
+# If you want a genuinely different icon per color instead of picking one,
+# generate twice into two flavors, e.g.:
+#
+#   dart run flutter_launcher_icons -f config/flutter_launcher_icons.yaml   # black
+#   (duplicate this file as flutter_launcher_icons_navy.yaml with
+#    image_path: assets/icons/icon_navy.png and
+#    adaptive_icon_background: "#0A2137", then run it against that flavor's
+#    build target — iOS/Android don't switch the home-screen icon by system
+#    theme on their own, so "both colors" in practice means "two build
+#    flavors", not automatic light/dark switching like the splash screen below.)
+# ---------------------------------------------------------------------------
