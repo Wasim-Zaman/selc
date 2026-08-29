@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:gep/services/analytics/analytics_service.dart';
 import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
 import 'package:gep/view/screens/admin/dashboard/enrolled_students/students_list_tab_screen.dart';

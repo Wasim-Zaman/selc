@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:upgrader/upgrader.dart';
 
 import '../../../../core/constants/constants.dart';
 import '../../../../cubits/admin/admin_cubit.dart';
@@ -146,31 +147,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final theme = Theme.of(context);
     final user = AuthService().getCurrentUser();
 
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: AppDrawer(isAdminLoggedIn: _isAdminLoggedIn),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with Welcome Card and Controls
-              _buildHeader(user, theme),
+    return UpgradeAlert(
+      upgrader: Upgrader(
+        durationUntilAlertAgain: const Duration(days: 1),
+        debugDisplayAlways: true,
+        minAppVersion: '1.0.0',
+      ),
+      child: Scaffold(
+        key: _scaffoldKey,
+        drawer: AppDrawer(isAdminLoggedIn: _isAdminLoggedIn),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with Welcome Card and Controls
+                _buildHeader(user, theme),
 
-              // Banner Slider
-              BlocProvider(
-                create: (context) => BannerCubit(
-                  bannersStream: context.read<AdminCubit>().getBannersStream(),
+                // Banner Slider
+                BlocProvider(
+                  create: (context) => BannerCubit(
+                    bannersStream: context.read<AdminCubit>().getBannersStream(),
+                  ),
+                  child: const BannerSlider(),
                 ),
-                child: const BannerSlider(),
-              ),
 
-              // Activity Graph
-              _buildEnrollmentGraph(),
+                // Activity Graph
+                _buildEnrollmentGraph(),
 
-              // Services Grid
-              _buildServicesGrid(),
-            ],
+                // Services Grid
+                _buildServicesGrid(),
+              ],
+            ),
           ),
         ),
       ),

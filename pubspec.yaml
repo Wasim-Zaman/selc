@@ -71,6 +71,7 @@ dependencies:
   flutter_animate: ^4.5.2
  
 
+  material_ui: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

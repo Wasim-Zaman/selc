@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:gep/models/course_outline.dart';
 import 'package:gep/models/enrolled_students.dart';
 import 'package:gep/router/app_routes.dart';

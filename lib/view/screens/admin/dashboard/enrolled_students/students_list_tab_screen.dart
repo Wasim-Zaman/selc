@@ -1,6 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:gep/models/enrolled_students.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
