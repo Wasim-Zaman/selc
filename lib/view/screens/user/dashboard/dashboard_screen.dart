@@ -1,8 +1,12 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:upgrader/upgrader.dart';
 
 import '../../../../core/constants/constants.dart';
@@ -17,8 +21,6 @@ import '../../../../services/analytics/analytics_service.dart';
 import '../../../../services/auth/auth_service.dart';
 import '../../../widgets/app_drawer.dart';
 import '../../../widgets/banner_slider.dart';
-import '../../../widgets/grid_item.dart';
-import '../../../widgets/learning_resources_section.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -29,9 +31,57 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  bool _isAdminLoggedIn = false;
   final AnalyticsService _analyticsService = AnalyticsService();
+  bool _isAdminLoggedIn = false;
+
+  // First two entries are promoted to the "featured" quick-action cards;
+  // the rest render in the compact grid below.
+  static const List<_Service> _services = [
+    _Service(
+      'Notes',
+      AppLotties.notes,
+      AppRoutes.kNotesCategoriesRoute,
+      AppGradients.notes,
+      subtitle: 'Browse subject-wise notes',
+      icon: Icons.menu_book_rounded,
+    ),
+    _Service(
+      'Courses',
+      AppLotties.courses,
+      AppRoutes.kCoursesOutlinesRoute,
+      AppGradients.courses,
+      subtitle: 'Explore course outlines',
+      icon: Icons.school_rounded,
+    ),
+    _Service(
+      'Updates',
+      AppLotties.updates,
+      AppRoutes.kUpdatesRoute,
+      AppGradients.updates,
+      icon: Icons.campaign_rounded,
+    ),
+    _Service(
+      'Admissions',
+      AppLotties.admissions,
+      AppRoutes.kAdmissionsRoute,
+      AppGradients.admissions,
+      icon: Icons.badge_rounded,
+    ),
+    _Service(
+      'Students',
+      AppLotties.students,
+      AppRoutes.kEnrolledStudentsRoute,
+      AppGradients.students,
+      icon: Icons.groups_rounded,
+    ),
+    _Service(
+      'About',
+      AppLotties.aboutMe,
+      AppRoutes.kAboutMeRoute,
+      AppGradients.aboutMe,
+      icon: Icons.info_rounded,
+    ),
+  ];
 
   @override
   void initState() {
@@ -47,105 +97,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() => _isAdminLoggedIn = isAdminLoggedIn);
   }
 
-  // Services data with icons and gradients
-  final List<Map<String, dynamic>> services = [
-    {
-      'title': 'Notes',
-      'lottieUrl': AppLotties.notes,
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF6A1B9A), Color(0xFF1E88E5)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      'routeName': AppRoutes.kNotesCategoriesRoute,
-    },
-    {
-      'title': 'Courses &\nOutlines',
-      'lottieUrl': AppLotties.courses,
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF00BCD4), Color(0xFF3F51B5)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      'routeName': AppRoutes.kCoursesOutlinesRoute,
-    },
-    {
-      'title': 'Updates',
-      'lottieUrl': AppLotties.updates,
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF4CAF50), Color(0xFF009688)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      'routeName': AppRoutes.kUpdatesRoute,
-    },
-    {
-      'title': 'Admissions',
-      'lottieUrl': AppLotties.admissions,
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFFF4081), Color(0xFFFF5722)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      'routeName': AppRoutes.kAdmissionsRoute,
-    },
-    {
-      'title': 'Enrolled\nStudents',
-      'lottieUrl': AppLotties.students,
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFFFA000), Color(0xFFFF5722)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      'routeName': AppRoutes.kEnrolledStudentsRoute,
-    },
-    {
-      'title': 'About Me',
-      'lottieUrl': AppLotties.aboutMe,
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF3F51B5), Color(0xFF00BCD4)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      'routeName': AppRoutes.kAboutMeRoute,
-    },
-    {
-      'title': 'Terms &\nConditions',
-      'lottieUrl': AppLotties.terms,
-      'gradient': const LinearGradient(
-        colors: [Color(0xFF009688), Color(0xFF00BCD4)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      'routeName': AppRoutes.kTermsAndConditionsRoute,
-    },
-  ];
-
-  IconData getFallbackIcon(String title) {
-    switch (title) {
-      case 'Notes':
-        return Icons.note;
-      case 'Courses &\nOutlines':
-        return Icons.book;
-      case 'Updates':
-        return Icons.update;
-      case 'Admissions':
-        return Icons.person_add;
-      case 'About Me':
-        return Icons.person;
-      case 'Enrolled\nStudents':
-        return Icons.school;
-      case 'Terms &\nConditions':
-        return Icons.description;
-      default:
-        return Icons.dashboard;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final user = AuthService().getCurrentUser();
+    final featured = _services.take(2).toList();
+    final rest = _services.skip(2).toList();
 
     return UpgradeAlert(
       upgrader: Upgrader(
@@ -156,29 +113,93 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Scaffold(
         key: _scaffoldKey,
         drawer: AppDrawer(isAdminLoggedIn: _isAdminLoggedIn),
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header with Welcome Card and Controls
-                _buildHeader(user, theme),
+          bottom: false,
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            slivers: [
+              SliverToBoxAdapter(child: _buildHeader(user, theme)),
 
-                // Banner Slider
-                BlocProvider(
+              // Banner Slider
+              SliverToBoxAdapter(
+                child: BlocProvider(
                   create: (context) => BannerCubit(
-                    bannersStream: context.read<AdminCubit>().getBannersStream(),
+                    bannersStream: context
+                        .read<AdminCubit>()
+                        .getBannersStream(),
                   ),
                   child: const BannerSlider(),
+                ).animate().fadeIn(duration: 350.ms),
+              ),
+
+              // Quick Actions — featured
+              const SliverToBoxAdapter(
+                child: _SectionHeader(
+                  icon: Icons.bolt_rounded,
+                  title: 'Quick Actions',
                 ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < featured.length; i++) ...[
+                        if (i > 0) const SizedBox(width: 12),
+                        Expanded(
+                          child: _FeaturedActionCard(
+                            service: featured[i],
+                            index: i,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
 
-                // Activity Graph
-                _buildEnrollmentGraph(),
+              // Explore — remaining services
+              const SliverToBoxAdapter(
+                child: _SectionHeader(
+                  icon: Icons.apps_rounded,
+                  title: 'Explore',
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 96,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 14,
+                    childAspectRatio: 0.82,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) =>
+                        _ServiceTile(service: rest[index], index: index),
+                    childCount: rest.length,
+                  ),
+                ),
+              ),
 
-                // Services Grid
-                _buildServicesGrid(),
-              ],
-            ),
+              // Enrollment Insight
+              const SliverToBoxAdapter(
+                child: _SectionHeader(
+                  icon: Icons.insights_rounded,
+                  title: 'Enrollment Insight',
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: const _InsightCard()
+                    .animate()
+                    .fadeIn(delay: 200.ms)
+                    .slideY(begin: 0.05, end: 0),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 28)),
+            ],
           ),
         ),
       ),
@@ -186,362 +207,814 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeader(User? user, ThemeData theme) {
-    return Card(
-      margin: const EdgeInsets.all(16.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Menu and Title
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.menu),
-                      onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hi, ${user?.displayName ?? 'Guest'}',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Welcome to GEP!',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.textTheme.bodyLarge?.color
-                                ?.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final firstName =
+        (user?.displayName?.split(' ').first.trim().isNotEmpty ?? false)
+        ? user!.displayName!.split(' ').first
+        : 'Guest';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [const Color(0xFF00E5FF), const Color(0xFF7C4DFF)]
+                    : [colorScheme.primary, colorScheme.tertiary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(4),
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                child: const Icon(
+                  Icons.school_rounded,
+                  color: Colors.white,
+                  size: 20,
                 ),
-                // Theme Switch and Profile
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ClipOval(
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${_greeting()}, $firstName 👋',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'Welcome back to GEP',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, state) {
+              final isLight = state.themeMode == ThemeMode.light;
+              return _HeaderIconButton(
+                icon: isLight
+                    ? Icons.dark_mode_outlined
+                    : Icons.light_mode_outlined,
+                isDark: isDark,
+                onTap: () => context.read<ThemeCubit>().toggleTheme(),
+              );
+            },
+          ),
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: () => _scaffoldKey.currentState?.openDrawer(),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: isDark
+                          ? [const Color(0xFF00E5FF), const Color(0xFF7C4DFF)]
+                          : [colorScheme.primary, colorScheme.tertiary],
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 19,
+                    backgroundColor: colorScheme.secondaryContainer,
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: user?.photoURL ?? '',
+                        width: 38,
+                        height: 38,
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) => const Padding(
+                          padding: EdgeInsets.all(9.0),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                        child: CachedNetworkImage(
-                          imageUrl: user?.photoURL ??
-                              'https://via.placeholder.com/150',
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.person),
+                        errorWidget: (_, _, _) => Icon(
+                          Icons.person_outline,
+                          color: colorScheme.onSecondaryContainer,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    BlocBuilder<ThemeCubit, ThemeState>(
-                      builder: (context, state) {
-                        return IconButton(
-                          constraints:
-                              const BoxConstraints(minWidth: 40, minHeight: 40),
-                          icon: Icon(
-                            state.themeMode == ThemeMode.light
-                                ? Icons.dark_mode
-                                : Icons.light_mode,
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 11,
+                    height: 11,
+                    decoration: BoxDecoration(
+                      color: Colors.greenAccent.shade400,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: theme.scaffoldBackgroundColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
+  // Kept for admin-only entry point; surfaced inside the drawer/quick
+  // actions context rather than the old inline banner.
+  Widget adminSwitchBanner(BuildContext context, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    if (!_isAdminLoggedIn) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => AppNavigation.pushReplacement(
+            context,
+            AppRoutes.kAdminDashboardRoute,
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF7C4DFF).withValues(alpha: 0.12)
+                  : colorScheme.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isDark
+                    ? const Color(0xFF7C4DFF).withValues(alpha: 0.3)
+                    : Colors.transparent,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.admin_panel_settings_outlined,
+                  size: 20,
+                  color: isDark ? const Color(0xFF7C4DFF) : colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'Switch to Admin Dashboard',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: isDark
+                        ? const Color(0xFF7C4DFF)
+                        : colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: isDark ? const Color(0xFF7C4DFF) : colorScheme.primary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderIconButton extends StatelessWidget {
+  const _HeaderIconButton({
+    required this.icon,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.06)
+          : colorScheme.surfaceContainerHigh,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(9),
+          child: Icon(icon, size: 19),
+        ),
+      ),
+    );
+  }
+}
+
+class _Service {
+  const _Service(
+    this.title,
+    this.lottie,
+    this.route,
+    this.gradient, {
+    this.subtitle,
+    required this.icon,
+  });
+
+  final String title;
+  final String lottie;
+  final String route;
+  final Gradient gradient;
+  final String? subtitle;
+  final IconData icon;
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.icon, required this.title});
+
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: theme.colorScheme.primary),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Large gradient "hero" action card — mirrors the two-up quick-action
+/// layout, with a frosted circular chevron button and a Lottie glyph
+/// tucked into the corner.
+class _FeaturedActionCard extends StatelessWidget {
+  const _FeaturedActionCard({required this.service, required this.index});
+
+  final _Service service;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return GestureDetector(
+          onTap: () async {
+            await AnalyticsService().logButtonClick(service.title);
+            if (context.mounted) AppNavigation.push(context, service.route);
+          },
+          child: Container(
+            height: 148,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: service.gradient,
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.18),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -18,
+                  bottom: -18,
+                  child: Opacity(
+                    opacity: 0.35,
+                    child: SizedBox(
+                      width: 96,
+                      height: 96,
+                      child: Lottie.asset(
+                        service.lottie,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => Icon(
+                          service.icon,
+                          size: 72,
+                          color: Colors.white.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(999),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                          child: Container(
+                            padding: const EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.22),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_outward_rounded,
+                              size: 15,
+                              color: Colors.white,
+                            ),
                           ),
-                          onPressed: () {
-                            context.read<ThemeCubit>().toggleTheme();
-                          },
-                        );
-                      },
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      service.title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      service.subtitle ?? 'Open $service.title',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.85),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
-            if (_isAdminLoggedIn) ...[
-              const Divider(height: 24),
-              ListTile(
-                leading: const Icon(Icons.admin_panel_settings),
-                title: const Text('Switch to Admin Dashboard'),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  AppNavigation.pushReplacement(
-                      context, AppRoutes.kAdminDashboardRoute);
-                },
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
+          ),
+        )
+        .animate()
+        .fadeIn(delay: (index * 80).ms)
+        .slideX(begin: index.isEven ? -0.06 : 0.06, end: 0);
   }
+}
 
-  Widget _buildServicesGrid() {
-    // Learning Resources section
-    final learningResources = [
-      services[0], // Notes
-      services[1], // Courses & Outlines
-      services[2], // Updates
-    ];
+class _ServiceTile extends StatelessWidget {
+  const _ServiceTile({required this.service, required this.index});
 
-    // Information & Support section
-    final informationSupport = [
-      services[3], // Admissions
-      services[4], // Enrolled Students
-      services[5], // About Me
-      services[6], // Terms & Conditions
-    ];
+  final _Service service;
+  final int index;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Learning Resources Section with horizontal scroll
-        LearningResourcesSection(resources: learningResources),
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-        // Information & Support Section
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Information & Support',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 16),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: informationSupport.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16.0,
-                  mainAxisSpacing: 16.0,
-                  childAspectRatio: 1.3,
+    return GestureDetector(
+      onTap: () async {
+        await AnalyticsService().logButtonClick(service.title);
+        if (context.mounted) AppNavigation.push(context, service.route);
+      },
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: service.gradient,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.4),
                 ),
-                itemBuilder: (context, index) {
-                  return GridItem(
-                    title: informationSupport[index]['title'],
-                    lottieUrl: informationSupport[index]['lottieUrl'],
-                    gradient: informationSupport[index]['gradient'],
-                    routeName: informationSupport[index]['routeName'],
-                    fallbackIcon:
-                        getFallbackIcon(informationSupport[index]['title']),
-                  );
-                },
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? Colors.cyan.withValues(alpha: 0.15)
+                        : theme.colorScheme.primary.withValues(alpha: 0.12),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEnrollmentGraph() {
-    return Card(
-      margin: const EdgeInsets.all(16.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Theme.of(context).dividerColor),
-            left: BorderSide(color: Theme.of(context).dividerColor),
-            right: BorderSide(color: Theme.of(context).dividerColor),
-            bottom: BorderSide(color: Theme.of(context).dividerColor),
-          ),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Students Enrollment',
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Lottie.asset(
+                  service.lottie,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) =>
+                      Icon(service.icon, color: Colors.white),
+                ),
+              ),
             ),
-            SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.15,
-              child: StreamBuilder<List<EnrolledStudent>>(
-                stream: context.read<AdminCubit>().getEnrolledStudentsStream(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+          ),
+          const SizedBox(height: 8),
+          Text(
+            service.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: (80 + index * 40).ms).slideY(begin: 0.1, end: 0);
+  }
+}
 
-                  final enrollmentData = _getEnrollmentData(snapshot.data!);
-                  final maxY = enrollmentData
-                      .map((spot) => spot.y)
-                      .reduce((a, b) => a > b ? a : b);
+/// Overview-style card: a headline enrollment count, a change badge
+/// computed against last month, a sparkline, and three small stat chips
+/// (total / this month / monthly average) driven entirely by the real
+/// `EnrolledStudent` stream — no placeholder figures.
+class _InsightCard extends StatelessWidget {
+  const _InsightCard();
 
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
+  static const List<String> _months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+  ];
 
-                  return BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: maxY + 2,
-                      barTouchData: BarTouchData(
-                        enabled: true,
-                        touchTooltipData: BarTouchTooltipData(
-                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                            return BarTooltipItem(
-                              rod.toY.round().toString(),
-                              TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: isDark
-                                    ? AppColors.darkBodyText
-                                    : AppColors.lightBodyText,
-                              ),
-                            );
-                          },
-                        ),
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final accentColor = isDark ? const Color(0xFF00E5FF) : colorScheme.primary;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      elevation: 0,
+      color: isDark ? const Color(0xFF16162A) : colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: BorderSide(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : colorScheme.outlineVariant.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: StreamBuilder<List<EnrolledStudent>>(
+          stream: context.read<AdminCubit>().getEnrolledStudentsStream(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const SizedBox(
+                height: 180,
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              );
+            }
+
+            if (snapshot.hasError) {
+              return const SizedBox(
+                height: 180,
+                child: Center(
+                  child: Text('Unable to load enrollment data.'),
+                ),
+              );
+            }
+
+            final students = snapshot.data ?? [];
+            final now = DateTime.now();
+            final counts = List.filled(6, 0);
+            for (final student in students) {
+              if (student.enrollmentDate.year == now.year &&
+                  student.enrollmentDate.month <= 6) {
+                counts[student.enrollmentDate.month - 1]++;
+              }
+            }
+            final spots = List.generate(
+              6,
+              (i) => FlSpot(i.toDouble(), counts[i].toDouble()),
+            );
+            final maxCount = counts.reduce((a, b) => a > b ? a : b);
+            final maxY = (maxCount + 1).toDouble();
+
+            final thisMonthIndex = now.month - 1;
+            final thisMonthCount =
+                (thisMonthIndex >= 0 && thisMonthIndex < 6)
+                    ? counts[thisMonthIndex]
+                    : 0;
+            final lastMonthIndex = thisMonthIndex - 1;
+            final lastMonthCount =
+                (lastMonthIndex >= 0 && lastMonthIndex < 6)
+                    ? counts[lastMonthIndex]
+                    : 0;
+            final change = lastMonthCount == 0
+                ? (thisMonthCount == 0 ? 0.0 : 100.0)
+                : ((thisMonthCount - lastMonthCount) / lastMonthCount) * 100;
+            final monthsElapsed = now.month.clamp(1, 6);
+            final avgPerMonth = counts
+                    .take(monthsElapsed)
+                    .fold<int>(0, (a, b) => a + b) /
+                monthsElapsed;
+
+            if (students.isEmpty) {
+              return SizedBox(
+                height: 180,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.insights_outlined,
+                      size: 40,
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No enrollments yet',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
                       ),
-                      titlesData: FlTitlesData(
-                        show: true,
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 30,
-                            getTitlesWidget: (value, meta) {
-                              const months = [
-                                'Jan',
-                                'Feb',
-                                'Mar',
-                                'Apr',
-                                'May',
-                                'Jun',
-                                'Jul',
-                                'Aug',
-                                'Sep',
-                                'Oct',
-                                'Nov',
-                                'Dec'
-                              ];
-                              if (value.toInt() >= 0 &&
-                                  value.toInt() < months.length) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    months[value.toInt()],
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                      color: isDark
-                                          ? AppColors.darkBodyText
-                                          : AppColors.lightBodyText,
-                                    ),
-                                  ),
-                                );
-                              }
-                              return const Text('');
-                            },
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Student data will appear here',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'TOTAL ENROLLED',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              letterSpacing: 0.6,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 30,
-                            getTitlesWidget: (value, meta) {
-                              return Text(
-                                value.toInt().toString(),
-                                style: TextStyle(
+                          const SizedBox(height: 6),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '${students.length}',
+                                style: theme.textTheme.headlineMedium
+                                    ?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  color: isDark
-                                      ? AppColors.darkBodyText
-                                      : AppColors.lightBodyText,
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                        topTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                      ),
-                      gridData: FlGridData(
-                        show: true,
-                        drawVerticalLine: false,
-                        horizontalInterval: 1,
-                        getDrawingHorizontalLine: (value) {
-                          return FlLine(
-                            color: (isDark
-                                    ? AppColors.darkDivider
-                                    : AppColors.lightDivider)
-                                .withValues(alpha: 0.2),
-                            strokeWidth: 1,
-                          );
-                        },
-                      ),
-                      borderData: FlBorderData(show: false),
-                      barGroups: enrollmentData.asMap().entries.map((entry) {
-                        return BarChartGroupData(
-                          x: entry.key,
-                          barRods: [
-                            BarChartRodData(
-                              toY: entry.value.y,
-                              gradient: LinearGradient(
-                                colors: [
-                                  Theme.of(context)
-                                      .primaryColor
-                                      .withValues(alpha: 0.7),
-                                  Theme.of(context).primaryColor,
-                                ],
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
                               ),
-                              width: 20,
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(6),
+                              const SizedBox(width: 8),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      change >= 0
+                                          ? Icons.arrow_upward_rounded
+                                          : Icons.arrow_downward_rounded,
+                                      size: 14,
+                                      color: change >= 0
+                                          ? Colors.greenAccent.shade400
+                                          : Colors.redAccent.shade100,
+                                    ),
+                                    Text(
+                                      '${change.abs().toStringAsFixed(0)}%',
+                                      style: theme.textTheme.labelMedium
+                                          ?.copyWith(
+                                        color: change >= 0
+                                            ? Colors.greenAccent.shade400
+                                            : Colors.redAccent.shade100,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            'vs last month',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 120,
+                      height: 56,
+                      child: LineChart(
+                        LineChartData(
+                          gridData: const FlGridData(show: false),
+                          titlesData: const FlTitlesData(show: false),
+                          borderData: FlBorderData(show: false),
+                          minX: 0,
+                          maxX: 5,
+                          minY: 0,
+                          maxY: maxY,
+                          lineTouchData:
+                              const LineTouchData(enabled: false),
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: spots,
+                              isCurved: true,
+                              color: accentColor,
+                              barWidth: 2.5,
+                              dotData: const FlDotData(show: false),
+                              belowBarData: BarAreaData(
+                                show: true,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    accentColor.withValues(alpha: 0.25),
+                                    accentColor.withValues(alpha: 0.0),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
                               ),
                             ),
                           ],
-                        );
-                      }).toList(),
+                        ),
+                      ),
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _StatChip(
+                        label: 'This Month',
+                        value: '$thisMonthCount',
+                        progress:
+                            maxCount == 0 ? 0 : thisMonthCount / maxCount,
+                        color: accentColor,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatChip(
+                        label: 'Avg / Month',
+                        value: avgPerMonth.toStringAsFixed(1),
+                        progress:
+                            maxCount == 0 ? 0 : avgPerMonth / maxCount,
+                        color: isDark
+                            ? const Color(0xFF7C4DFF)
+                            : colorScheme.tertiary,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatChip(
+                        label: 'Peak Month',
+                        value: maxCount == 0
+                            ? '—'
+                            : _months[counts.indexOf(maxCount)],
+                        progress: 1,
+                        color: Colors.orangeAccent.shade200,
+                        showBar: false,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  height: 20,
+                  child: Row(
+                    children: List.generate(_months.length, (i) {
+                      final isCurrent = i == thisMonthIndex;
+                      return Expanded(
+                        child: Text(
+                          _months[i],
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: isCurrent
+                                ? accentColor
+                                : (isDark
+                                    ? Colors.white54
+                                    : colorScheme.onSurfaceVariant),
+                            fontWeight: isCurrent
+                                ? FontWeight.bold
+                                : FontWeight.w500,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
+}
 
-  List<FlSpot> _getEnrollmentData(List<EnrolledStudent> students) {
-    final enrollmentCounts = List.filled(6, 0);
-    final currentYear = DateTime.now().year;
+/// Small pill-style stat card used inside the Enrollment Insight card —
+/// mirrors the "Active / Approved / Rejected" chip row from the reference
+/// design, with an optional thin progress bar underneath.
+class _StatChip extends StatelessWidget {
+  const _StatChip({
+    required this.label,
+    required this.value,
+    required this.progress,
+    required this.color,
+    this.showBar = true,
+  });
 
-    for (var student in students) {
-      if (student.enrollmentDate.year == currentYear) {
-        final month = student.enrollmentDate.month - 1;
-        if (month < 6) {
-          enrollmentCounts[month]++;
-        }
-      }
-    }
+  final String label;
+  final String value;
+  final double progress;
+  final Color color;
+  final bool showBar;
 
-    return List.generate(
-      6,
-      (index) => FlSpot(index.toDouble(), enrollmentCounts[index].toDouble()),
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: isDark ? 0.10 : 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          if (showBar) ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: progress.clamp(0, 1).toDouble(),
+                minHeight: 4,
+                backgroundColor: color.withValues(alpha: 0.15),
+                valueColor: AlwaysStoppedAnimation(color),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

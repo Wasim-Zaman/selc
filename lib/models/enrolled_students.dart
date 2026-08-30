@@ -37,9 +37,7 @@ class EnrolledStudent {
       address: data['address'] ?? '',
       dateOfBirth: _parseDate(data['date_of_birth']),
       gender: data['gender'] ?? '',
-      enrollmentDate: data['enrollmentDate'] is DateTime
-          ? data['enrollmentDate'] as DateTime
-          : DateTime.parse(data['enrollmentDate'] as String),
+      enrollmentDate: _parseDate(data['enrollmentDate']),
     );
   }
 

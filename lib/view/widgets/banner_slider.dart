@@ -21,6 +21,8 @@ class BannerSlider extends StatelessWidget {
         // }
 
         if (state is BannerLoaded) {
+          if (state.banners.isEmpty) return const SizedBox.shrink();
+
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 16.0),
             decoration: BoxDecoration(

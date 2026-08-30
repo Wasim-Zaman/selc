@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:gep/models/course_outline.dart';
 import 'package:gep/models/enrolled_students.dart';
 import 'package:gep/router/app_routes.dart';
@@ -32,6 +31,7 @@ import 'package:gep/view/screens/user/dashboard/terms_and_conditions_screen.dart
 import 'package:gep/view/screens/user/dashboard/updates/updates_screen.dart';
 import 'package:gep/view/splash_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 class AppRouter {
   static final GoRouter _router = GoRouter(
@@ -45,8 +45,6 @@ class AppRouter {
         if (user != null) {
           return AppRoutes.kDashboardRoutePath;
         } else {
-          return AppRoutes.kDashboardRoutePath;
-
           return AppRoutes.kLoginRoutePath;
         }
       }
@@ -221,7 +219,8 @@ class AppRouter {
             );
           }
           return AddStudentScreen(
-              enrolledStudentsServices: enrolledStudentsServices);
+            enrolledStudentsServices: enrolledStudentsServices,
+          );
         },
       ),
 
@@ -232,17 +231,13 @@ class AppRouter {
           final Map<String, dynamic>? extras =
               state.extra as Map<String, dynamic>?;
           if (extras == null) {
-            return const Scaffold(
-              body: Center(child: Text('Invalid data')),
-            );
+            return const Scaffold(body: Center(child: Text('Invalid data')));
           }
           final student = extras['student'] as EnrolledStudent?;
           final service = extras['service'] as EnrolledStudentsServices?;
 
           if (student == null || service == null) {
-            return const Scaffold(
-              body: Center(child: Text('Invalid data')),
-            );
+            return const Scaffold(body: Center(child: Text('Invalid data')));
           }
 
           return EditStudentScreen(

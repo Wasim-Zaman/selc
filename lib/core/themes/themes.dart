@@ -53,6 +53,11 @@ class AppThemes {
     ),
     iconTheme: const IconThemeData(color: AppColors.lightIcon),
     dividerTheme: const DividerThemeData(color: AppColors.lightDivider),
+    cardTheme: CardThemeData(
+      elevation: 0,
+      color: AppColors.lightCard,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
       secondary: AppColors.secondary,
@@ -111,6 +116,11 @@ class AppThemes {
     ),
     iconTheme: const IconThemeData(color: AppColors.darkIcon),
     dividerTheme: const DividerThemeData(color: AppColors.darkDivider),
+    cardTheme: CardThemeData(
+      elevation: 0,
+      color: AppColors.darkCard,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primary,
       secondary: AppColors.secondary,

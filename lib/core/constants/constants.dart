@@ -36,11 +36,13 @@ class AppColors {
   static const Color accent = Color(0xFFFFC107); // Amber
 
   // Light Theme Colors
-  static const Color lightScaffoldBackground =
-      Color(0xFFF5F5F5); // Very light grey
+  static const Color lightScaffoldBackground = Color(
+    0xFFF5F5F5,
+  ); // Very light grey
   static const Color lightAppBarBackground = Color(0xFFFFFFFF); // White
-  static const Color lightAppBarForeground =
-      Color(0xFF212121); // Very dark grey
+  static const Color lightAppBarForeground = Color(
+    0xFF212121,
+  ); // Very dark grey
   static const Color lightBodyText = Color(0xFF212121); // Very dark grey
   static const Color lightBodyTextSecondary = Color(0xFF757575); // Medium grey
   static const Color lightCard = Color(0xFFFFFFFF); // White
@@ -49,8 +51,9 @@ class AppColors {
   static const Color lightDivider = Color(0xFFE0E0E0); // Very light grey
 
   // Dark Theme Colors
-  static const Color darkScaffoldBackground =
-      Color(0xFF000000); // Black (matches dark logo)
+  static const Color darkScaffoldBackground = Color(
+    0xFF000000,
+  ); // Black (matches dark logo)
   static const Color darkAppBarBackground = Color(0xFF0A0A0A); // Near black
   static const Color darkAppBarForeground = Color(0xFFFFFFFF); // White
   static const Color darkBodyText = Color(0xFFE0E0E0); // Very light grey
@@ -69,8 +72,9 @@ class AppColors {
   // Additional Colors
   static const Color lightNeutral = Color(0xFFF0F0F0); // Very light grey
   static const Color darkNeutral = Color(0xFF2C2C2C); // Dark grey
-  static const Color highlightYellow =
-      Color(0xFFFFF59D); // Light yellow for text highlighting
+  static const Color highlightYellow = Color(
+    0xFFFFF59D,
+  ); // Light yellow for text highlighting
 
   // Random Colors
   static const List<Color> randomColors = [
@@ -85,6 +89,51 @@ class AppColors {
     Color(0xFF455A64), // Blue grey
     Color(0xFF00796B), // Dark teal
   ];
+}
+
+// Gradients
+class AppGradients {
+  static const LinearGradient notes = LinearGradient(
+    colors: [Color(0xFF6A1B9A), Color(0xFF1E88E5)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient courses = LinearGradient(
+    colors: [Color(0xFF00BCD4), Color(0xFF3F51B5)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient updates = LinearGradient(
+    colors: [Color(0xFF4CAF50), Color(0xFF009688)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient admissions = LinearGradient(
+    colors: [Color(0xFFFF4081), Color(0xFFFF5722)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient students = LinearGradient(
+    colors: [Color(0xFFFFA000), Color(0xFFFF5722)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient aboutMe = LinearGradient(
+    colors: [Color(0xFF3F51B5), Color(0xFF00BCD4)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient terms = LinearGradient(
+    colors: [Color(0xFF009688), Color(0xFF00BCD4)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }
 
 class AppConstants {

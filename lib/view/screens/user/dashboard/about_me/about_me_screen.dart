@@ -1,318 +1,247 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/admin/admin_cubit.dart';
 import 'package:gep/models/about_me.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
 import 'package:gep/utils/snackbars.dart';
-import 'package:gep/view/widgets/grid_item.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutMeScreen extends StatelessWidget {
   const AboutMeScreen({super.key});
 
-  IconData getFallbackIcon(String title) {
-    switch (title) {
-      case 'Institute Location':
-        return Icons.location_on;
-      case 'YouTube Channel':
-        return Icons.play_circle;
-      default:
-        return Icons.dashboard;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('About Me', style: theme.textTheme.headlineSmall),
-      ),
-      body: BlocConsumer<AdminCubit, AdminState>(
-        listener: (context, state) {
-          if (state is AdminFailure) {
-            TopSnackbar.error(context, state.error);
-          }
-        },
-        builder: (context, state) {
-          return StreamBuilder<AboutMe>(
-            stream: context.read<AdminCubit>().getAboutMeStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
-              final aboutMe = snapshot.data ?? AboutMe();
-
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildProfileSection(context, aboutMe),
-                      const SizedBox(height: AppConstants.defaultPadding),
-                      _buildGridItems(context, aboutMe),
-                      const SizedBox(height: AppConstants.defaultPadding),
-                      _buildResumeSection(aboutMe, context),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildProfileSection(BuildContext context, AboutMe aboutMe) {
-    final theme = Theme.of(context);
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: [
-              theme.colorScheme.primary,
-              theme.colorScheme.secondary,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          children: [
-            Hero(
-              tag: 'profile_image',
-              child: CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.white,
-                child: CircleAvatar(
-                  radius: 55,
-                  backgroundImage: aboutMe.profileImageUrl != null
-                      ? CachedNetworkImageProvider(
-                          aboutMe.profileImageUrl ?? "")
-                      : const CachedNetworkImageProvider(
-                          "https://via.placeholder.com/150"),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppConstants.defaultPadding),
-            Text(
-              'Sana Ullah',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Instructor',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGridItems(BuildContext context, AboutMe aboutMe) {
-    return SizedBox(
-      height: 180,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Stack(
-                  children: [
-                    GoogleMap(
-                      mapType: MapType.terrain,
-                      trafficEnabled: true,
-                      compassEnabled: true,
-                      buildingsEnabled: true,
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(aboutMe.latitude, aboutMe.longitude),
-                        zoom: 15,
+    // Ensures Material localizations are always available even if parent context loses them
+    return Localizations(
+      locale: const Locale('en', 'US'),
+      delegates: const [
+        DefaultMaterialLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+      ],
+      child: Scaffold(
+        appBar: AppBar(title: const Text('About Me'), centerTitle: true),
+        body: BlocConsumer<AdminCubit, AdminState>(
+          listener: (context, state) {
+            if (state is AdminFailure) {
+              TopSnackbar.error(context, state.error);
+            }
+          },
+          builder: (context, state) {
+            return StreamBuilder<AboutMe>(
+              stream: context.read<AdminCubit>().getAboutMeStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Failed to load details',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
                       ),
-                      markers: {
-                        Marker(
-                          markerId: const MarkerId('institute'),
-                          position: LatLng(aboutMe.latitude, aboutMe.longitude),
-                          infoWindow:
-                              const InfoWindow(title: 'Institute Location'),
-                        ),
-                      },
-                      zoomControlsEnabled: false,
-                      mapToolbarEnabled: false,
-                      myLocationButtonEnabled: false,
-                      onTap: (_) => _launchMaps(
-                          context, aboutMe.latitude, aboutMe.longitude),
                     ),
-                    Positioned(
-                      bottom: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.location_on,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Tap to open in Maps',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(),
-                            ),
-                          ],
+                  );
+                }
+
+                final aboutMe = snapshot.data ?? AboutMe();
+                final colors = Theme.of(context).colorScheme;
+                final theme = Theme.of(context);
+
+                return ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(16.0),
+                  children: [
+                    // Profile Card
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: colors.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: colors.outlineVariant.withValues(alpha: 0.3),
                         ),
                       ),
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 46,
+                            backgroundColor: colors.primaryContainer,
+                            child: ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: aboutMe.profileImageUrl ?? '',
+                                width: 90,
+                                height: 90,
+                                fit: BoxFit.cover,
+                                placeholder: (_, _) =>
+                                    const CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                errorWidget: (_, _, _) => Icon(
+                                  Icons.person_rounded,
+                                  size: 48,
+                                  color: colors.onPrimaryContainer,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Sana Ullah',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colors.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colors.secondaryContainer,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Instructor',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: colors.onSecondaryContainer,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Map Action Tile
+                    _buildActionTile(
+                      context: context,
+                      icon: Icons.location_on_outlined,
+                      iconColor: Colors.redAccent,
+                      title: 'Institute Location',
+                      subtitle: 'Tap to view on Google Maps',
+                      onTap: () => _launchMaps(
+                        context,
+                        aboutMe.latitude,
+                        aboutMe.longitude,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Resume Action Tile
+                    _buildActionTile(
+                      context: context,
+                      icon: Icons.picture_as_pdf_outlined,
+                      iconColor: colors.primary,
+                      title: 'Resume / CV',
+                      subtitle: aboutMe.resumeUrl != null
+                          ? 'Tap to open document'
+                          : 'No document uploaded',
+                      onTap: aboutMe.resumeUrl != null
+                          ? () => AppNavigation.push(
+                              context,
+                              AppRoutes.kFullScreenResumeRoute,
+                              extra: aboutMe.resumeUrl!,
+                            )
+                          : null,
                     ),
                   ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 1,
-            child: GridItem(
-              title: 'YouTube Channel',
-              routeName: AppRoutes.kYouTubeChannelRoute,
-              onTap: () {
-                AppNavigation.push(
-                  context,
-                  AppRoutes.kYouTubeChannelRoute,
-                  extra: aboutMe.youtubeChannelLink,
                 );
               },
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.secondary,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              lottieUrl: AppLotties.youtube,
-              fallbackIcon: getFallbackIcon('YouTube Channel'),
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildResumeSection(AboutMe aboutMe, BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        height: 400,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: aboutMe.resumeUrl != null
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Resume',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.fullscreen),
-                          onPressed: () => _openFullScreenResume(
-                              context, aboutMe.resumeUrl!),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: SfPdfViewer.network(
-                      aboutMe.resumeUrl ?? "",
-                      scrollDirection: PdfScrollDirection.horizontal,
-                      interactionMode: PdfInteractionMode.pan,
-                      enableDoubleTapZooming: true,
-                    ),
-                  ),
-                ],
-              )
-            : Center(
+  Widget _buildActionTile({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    VoidCallback? onTap,
+  }) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final enabled = onTap != null;
+
+    return Material(
+      color: colors.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: colors.outlineVariant.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: iconColor, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.description, size: 48),
-                    const SizedBox(height: 16),
                     Text(
-                      'No resume available',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: enabled
+                            ? colors.onSurface
+                            : colors.onSurface.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
               ),
+              Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant),
+            ],
+          ),
+        ),
       ),
-    );
-  }
-
-  void _openFullScreenResume(BuildContext context, String resumeUrl) {
-    AppNavigation.push(
-      context,
-      AppRoutes.kFullScreenResumeRoute,
-      extra: resumeUrl,
     );
   }
 
   void _launchMaps(
-      BuildContext context, double latitude, double longitude) async {
+    BuildContext context,
+    double latitude,
+    double longitude,
+  ) async {
     final url = Uri.parse(
-        'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+      'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude',
+    );
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
-      TopSnackbar.error(context, "Could not open the map");
+      if (context.mounted) {
+        TopSnackbar.error(context, "Could not open the map");
+      }
     }
   }
 }
-
-final List<Map<String, dynamic>> gridItems = [
-  {
-    'title': 'Institute Location',
-    'lottieUrl': AppLotties.location,
-  },
-  {
-    'title': 'YouTube Channel',
-    'lottieUrl': AppLotties.youtube,
-  },
-];

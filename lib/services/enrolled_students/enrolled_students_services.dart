@@ -13,8 +13,10 @@ class EnrolledStudentsServices {
 
   Stream<List<EnrolledStudent>> getEnrolledStudentsStream() {
     return _supabase.from(_table).stream(primaryKey: ['id']).map((rows) {
-      final students =
-          rows.map((row) => _fromRow(row, row['id'] as String)).toList();
+      final students = rows.map((row) {
+        final id = row['id']?.toString() ?? '';
+        return _fromRow(row, id);
+      }).toList();
       students.sort((a, b) => a.name.compareTo(b.name));
       return students;
     });
@@ -130,6 +132,6 @@ class EnrolledStudentsServices {
         'address': row['address'],
         'date_of_birth': row['date_of_birth'],
         'gender': row['gender'],
-        'enrollment_date': row['enrollment_date'],
+        'enrollmentDate': row['enrollment_date'],
       }, id);
 }
