@@ -6,6 +6,7 @@ import 'package:gep/router/app_routes.dart';
 import 'package:gep/services/notes/notes_service.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class NotesCategoriesScreen extends StatelessWidget {
   final NotesService _notesService = NotesService();
@@ -15,10 +16,8 @@ class NotesCategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notes'),
-      ),
+    return AppScaffold(
+      title: 'Notes',
       body: StreamBuilder<List<String>>(
         stream: _notesService.getCategoriesStream(),
         builder: (context, snapshot) {

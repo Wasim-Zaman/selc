@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class PdfViewerScreen extends StatelessWidget {
   final String pdfUrl;
@@ -9,10 +10,8 @@ class PdfViewerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
+    return AppScaffold(
+      title: title,
       body: SfPdfViewer.network(
         pdfUrl,
         enableDoubleTapZooming: true,

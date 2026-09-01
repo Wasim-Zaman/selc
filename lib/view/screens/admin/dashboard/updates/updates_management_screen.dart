@@ -5,6 +5,7 @@ import 'package:gep/models/updates.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class UpdatesManagementScreen extends StatefulWidget {
   const UpdatesManagementScreen({super.key});
@@ -46,8 +47,8 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(title: const Text('Updates Management')),
+    return AppScaffold(
+      title: 'Updates Management',
       body: BlocConsumer<AdminCubit, AdminState>(
         listener: (context, state) {
           if (state is AdminSuccess) {

@@ -10,6 +10,7 @@ import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/note_card.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class AddNotesScreen extends StatelessWidget {
   final String category;
@@ -20,10 +21,8 @@ class AddNotesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Note to $category'),
-      ),
+    return AppScaffold(
+      title: 'Add Note to $category',
       body: Padding(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
         child: BlocConsumer<AdminCubit, AdminState>(

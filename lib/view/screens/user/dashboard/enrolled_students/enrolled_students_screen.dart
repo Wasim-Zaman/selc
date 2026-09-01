@@ -7,6 +7,7 @@ import 'package:gep/services/analytics/analytics_service.dart';
 import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class EnrolledStudentsScreen extends StatelessWidget {
   final EnrolledStudentsServices _enrolledStudentsServices =
@@ -16,8 +17,8 @@ class EnrolledStudentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Enrolled Students')),
+    return AppScaffold(
+      title: 'Enrolled Students',
       body: StreamBuilder<List<EnrolledStudent>>(
         stream: _enrolledStudentsServices.getEnrolledStudentsStream(),
         builder: (context, snapshot) {

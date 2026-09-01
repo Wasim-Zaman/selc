@@ -6,18 +6,15 @@ import 'package:gep/cubits/admin/admin_cubit.dart';
 import 'package:gep/models/course_outline.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class CoursesOutlinesScreen extends StatelessWidget {
   const CoursesOutlinesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Courses & Outlines',
-            style: Theme.of(context).textTheme.headlineSmall),
-        elevation: 0,
-      ),
+    return AppScaffold(
+      title: 'Courses & Outlines',
       body: StreamBuilder<List<Course>>(
         stream: context.read<AdminCubit>().getCoursesStream(),
         builder: (context, snapshot) {

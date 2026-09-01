@@ -5,6 +5,7 @@ import 'package:gep/models/note.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/view/widgets/note_card.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class NotesScreen extends StatelessWidget {
   final String category;
@@ -13,10 +14,8 @@ class NotesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Notes - $category'),
-      ),
+    return AppScaffold(
+      title: 'Notes - $category',
       body: StreamBuilder<List<Note>>(
         stream: context.read<AdminCubit>().getNotesStream(category),
         builder: (context, snapshot) {

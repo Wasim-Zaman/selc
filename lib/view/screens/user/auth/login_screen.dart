@@ -8,6 +8,7 @@ import 'package:gep/cubits/theme/theme_cubit.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
 import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -78,30 +79,26 @@ class _LoginScreenState extends State<LoginScreen>
           TopSnackbar.error(context, state.errorMessage);
         }
       },
-      child: Scaffold(
-        backgroundColor: theme.scaffoldBackgroundColor,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: const SizedBox.shrink(),
-          actions: [
-            BlocBuilder<ThemeCubit, ThemeState>(
-              builder: (context, state) {
-                return IconButton(
-                  icon: Icon(
-                    state.themeMode == ThemeMode.light
-                        ? Icons.dark_mode
-                        : Icons.light_mode,
-                  ),
-                  onPressed: () {
-                    context.read<ThemeCubit>().toggleTheme();
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-        body: Center(
+          child: AppScaffold(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            leading: const SizedBox.shrink(),
+            actions: [
+              BlocBuilder<ThemeCubit, ThemeState>(
+                builder: (context, state) {
+                  return IconButton(
+                    icon: Icon(
+                      state.themeMode == ThemeMode.light
+                          ? Icons.dark_mode
+                          : Icons.light_mode,
+                    ),
+                    onPressed: () {
+                      context.read<ThemeCubit>().toggleTheme();
+                    },
+                  );
+                },
+              ),
+            ],
+            body: Center(
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: SlideTransition(

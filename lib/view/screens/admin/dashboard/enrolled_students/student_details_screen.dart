@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class StudentDetailsScreen extends StatelessWidget {
   final EnrolledStudent student;
@@ -9,10 +10,8 @@ class StudentDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Student Details'),
-      ),
+    return AppScaffold(
+      title: 'Student Details',
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(

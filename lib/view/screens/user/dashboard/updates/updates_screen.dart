@@ -3,14 +3,15 @@ import 'package:intl/intl.dart';
 import 'package:gep/models/updates.dart';
 import 'package:gep/services/updates/updates_services.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class UpdatesScreen extends StatelessWidget {
   const UpdatesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('English Course Updates')),
+    return AppScaffold(
+      title: 'English Course Updates',
       body: StreamBuilder<List<Updates>>(
         stream: UpdatesServices().getUpdatesStream(),
         builder: (context, snapshot) {

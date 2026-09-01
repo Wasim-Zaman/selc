@@ -4,6 +4,7 @@ import 'package:gep/cubits/admin/admin_cubit.dart';
 import 'package:gep/models/admission_announcement.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class AdminAdmissionsScreen extends StatelessWidget {
   const AdminAdmissionsScreen({super.key});
@@ -13,16 +14,14 @@ class AdminAdmissionsScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final adminCubit = context.read<AdminCubit>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Manage Admissions', style: theme.textTheme.headlineSmall),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showAddEditDialog(context, adminCubit),
-          ),
-        ],
-      ),
+    return AppScaffold(
+      title: 'Manage Admissions',
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _showAddEditDialog(context, adminCubit),
+        ),
+      ],
       body: BlocConsumer<AdminCubit, AdminState>(
         listener: (context, state) {
           if (state is AdminSuccess) {

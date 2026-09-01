@@ -73,9 +73,6 @@ class AppRoutes {
   static const String kManageCoursesRoute = "manage-courses";
   static const String kManageCoursesRoutePath = "/admin/manage-courses";
 
-  static const String kAddCourseOutlineRoute = "add-course-outline";
-  static const String kAddCourseOutlineRoutePath = "/admin/add-course-outline";
-
   static const String kEnrollStudentsManagementRoute =
       "enroll-students-management";
   static const String kEnrollStudentsManagementRoutePath =

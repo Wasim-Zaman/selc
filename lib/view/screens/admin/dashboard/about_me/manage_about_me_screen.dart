@@ -8,6 +8,7 @@ import 'package:gep/models/about_me.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class ManageAboutMeScreen extends StatefulWidget {
   const ManageAboutMeScreen({super.key});
@@ -27,11 +28,8 @@ class _ManageAboutMeScreenState extends State<ManageAboutMeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Manage About Me',
-            style: Theme.of(context).textTheme.headlineSmall),
-      ),
+    return AppScaffold(
+      title: 'Manage About Me',
       body: BlocConsumer<AdminCubit, AdminState>(
         listener: (context, state) {
           if (state is AdminSuccess) {

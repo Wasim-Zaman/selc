@@ -6,6 +6,7 @@ import 'package:gep/cubits/admin/admin_cubit.dart';
 import 'package:gep/models/admission_announcement.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class AdmissionsScreen extends StatelessWidget {
   const AdmissionsScreen({super.key});
@@ -15,10 +16,8 @@ class AdmissionsScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final adminCubit = context.read<AdminCubit>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Admissions', style: theme.textTheme.headlineSmall),
-      ),
+    return AppScaffold(
+      title: 'Admissions',
       body: StreamBuilder<List<AdmissionAnnouncement>>(
         stream: adminCubit.getAdmissionAnnouncementsStream(),
         builder: (context, snapshot) {

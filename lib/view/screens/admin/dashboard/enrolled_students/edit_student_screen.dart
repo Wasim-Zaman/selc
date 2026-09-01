@@ -8,6 +8,7 @@ import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class EditStudentScreen extends StatefulWidget {
   final EnrolledStudent student;
@@ -67,17 +68,15 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Student'),
-        actions: [
-          IconButton(
-            icon:
-                Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
-            onPressed: _deleteStudent,
-          ),
-        ],
-      ),
+    return AppScaffold(
+      title: 'Edit Student',
+      actions: [
+        IconButton(
+          icon:
+              Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+          onPressed: _deleteStudent,
+        ),
+      ],
       body: _isLoading
           ? PlaceholderWidgets.editStudentScreenPlaceholder()
           : Form(

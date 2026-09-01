@@ -9,6 +9,7 @@ import 'package:gep/models/banner.dart';
 import 'package:gep/utils/snackbars.dart';
 
 import '../../../../../cubits/banner/banner_image_cubit.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class ManageBannerScreen extends StatelessWidget {
   const ManageBannerScreen({super.key});
@@ -18,16 +19,14 @@ class ManageBannerScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final adminCubit = context.read<AdminCubit>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Manage Banners', style: theme.textTheme.headlineSmall),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showAddEditDialog(context, adminCubit),
-          ),
-        ],
-      ),
+    return AppScaffold(
+      title: 'Manage Banners',
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _showAddEditDialog(context, adminCubit),
+        ),
+      ],
       body: BlocConsumer<AdminCubit, AdminState>(
         listener: (context, state) {
           if (state is AdminSuccess) {

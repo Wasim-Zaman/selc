@@ -7,6 +7,7 @@ import 'package:gep/router/app_routes.dart';
 import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class StudentsListTab extends StatelessWidget {
   final EnrolledStudentsServices enrolledStudentsServices;
@@ -48,7 +49,7 @@ class StudentsListTab extends StatelessWidget {
           );
         }
 
-        return Scaffold(
+        return AppScaffold(
           body: ListView.separated(
             itemCount: students.length,
             separatorBuilder: (context, index) => const Divider(),

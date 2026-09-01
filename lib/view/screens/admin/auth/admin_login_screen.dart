@@ -6,6 +6,7 @@ import 'package:gep/router/app_routes.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class AdminLoginScreen extends StatelessWidget {
   const AdminLoginScreen({super.key});
@@ -27,10 +28,8 @@ class AdminLoginScreen extends StatelessWidget {
               TopSnackbar.error(context, state.errorMessage);
             }
           },
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text('Admin Login', style: theme.textTheme.headlineSmall),
-            ),
+          child: AppScaffold(
+            title: 'Admin Login',
             body: SafeArea(
               child: SingleChildScrollView(
                 child: Padding(

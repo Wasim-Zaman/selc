@@ -8,6 +8,7 @@ import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class AddStudentScreen extends StatefulWidget {
   final EnrolledStudentsServices enrolledStudentsServices;
@@ -44,8 +45,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add New Student')),
+    return AppScaffold(
+      title: 'Add New Student',
       body: _isLoading
           ? PlaceholderWidgets.addStudentScreenPlaceholder()
           : Form(
