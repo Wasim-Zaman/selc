@@ -1,31 +1,31 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/admin/admin_cubit.dart';
 import 'package:gep/models/banner.dart';
 import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_text_button.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../../../cubits/banner/banner_image_cubit.dart';
-import 'package:gep/view/widgets/app_scaffold.dart';
-import 'package:gep/view/widgets/app_button.dart';
-import 'package:gep/view/widgets/app_text_button.dart';
 
 class ManageBannerScreen extends StatelessWidget {
   const ManageBannerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final adminCubit = context.read<AdminCubit>();
 
     return AppScaffold(
-      title: 'Manage Banners',
+      title: 'Banners',
       actions: [
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
+          tooltip: 'Add Banner',
           onPressed: () => _showAddEditDialog(context, adminCubit),
         ),
       ],
@@ -41,33 +41,49 @@ class ManageBannerScreen extends StatelessWidget {
           if (state is AdminLoading) {
             return const Center(child: CircularProgressIndicator());
           }
+
           return StreamBuilder<List<BannerModel>>(
             stream: adminCubit.getBannersStream(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No banners available'));
               }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        color: AppColors.error,
+                        size: 40,
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Error: ${snapshot.error}'),
+                    ],
+                  ),
+                );
+              }
+
+              final banners = snapshot.data ?? [];
+              if (banners.isEmpty) {
+                return _EmptyState(
+                  onAdd: () => _showAddEditDialog(context, adminCubit),
+                );
+              }
+
               return ListView.separated(
                 padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                itemCount: snapshot.data!.length,
-                separatorBuilder: (context, index) => const Divider(),
+                itemCount: banners.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 14),
                 itemBuilder: (context, index) {
-                  return BannerCard(
-                    banner: snapshot.data![index],
-                    onEdit: () => _showAddEditDialog(
-                      context,
-                      adminCubit,
-                      banner: snapshot.data![index],
-                    ),
-                    onDelete: () => _deleteBanner(
-                      context,
-                      adminCubit,
-                      snapshot.data![index].id,
-                    ),
+                  final banner = banners[index];
+                  return _BannerItemCard(
+                    banner: banner,
+                    onEdit: () =>
+                        _showAddEditDialog(context, adminCubit, banner: banner),
+                    onDelete: () =>
+                        _confirmDelete(context, adminCubit, banner.id),
                   );
                 },
               );
@@ -85,33 +101,30 @@ class ManageBannerScreen extends StatelessWidget {
   }) {
     showDialog(
       context: context,
-      builder: (context) => BlocProvider(
+      builder: (_) => BlocProvider(
         create: (_) => BannerImageCubit(),
         child: AddEditBannerDialog(adminCubit: adminCubit, banner: banner),
       ),
     );
   }
 
-  void _deleteBanner(
+  void _confirmDelete(
     BuildContext context,
     AdminCubit adminCubit,
     String bannerId,
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('Delete Banner'),
         content: const Text('Are you sure you want to delete this banner?'),
         actions: [
-          AppTextButton(
-            label: 'Cancel',
-            onPressed: () => Navigator.pop(context),
-          ),
+          AppTextButton(label: 'Cancel', onPressed: () => Navigator.pop(ctx)),
           AppTextButton(
             label: 'Delete',
             onPressed: () {
               adminCubit.deleteBanner(bannerId);
-              Navigator.pop(context);
+              Navigator.pop(ctx);
             },
           ),
         ],
@@ -120,13 +133,12 @@ class ManageBannerScreen extends StatelessWidget {
   }
 }
 
-class BannerCard extends StatelessWidget {
+class _BannerItemCard extends StatelessWidget {
   final BannerModel banner;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
-  const BannerCard({
-    super.key,
+  const _BannerItemCard({
     required this.banner,
     required this.onEdit,
     required this.onDelete,
@@ -135,31 +147,96 @@ class BannerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      child: ListTile(
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: CachedNetworkImage(
-            imageUrl: banner.imageUrl,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkNeutral : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 7,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(13),
+              ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: banner.imageUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(
+                      color: isDark ? Colors.white10 : Colors.black12,
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    errorWidget: (_, _, _) => Container(
+                      color: isDark ? Colors.white10 : Colors.black12,
+                      child: const Icon(
+                        Icons.broken_image_rounded,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            constraints: const BoxConstraints(),
+                            padding: const EdgeInsets.all(6),
+                            icon: const Icon(
+                              Icons.edit_outlined,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            onPressed: onEdit,
+                          ),
+                          IconButton(
+                            constraints: const BoxConstraints(),
+                            padding: const EdgeInsets.all(6),
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              color: AppColors.error,
+                              size: 18,
+                            ),
+                            onPressed: onDelete,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-        title: Text(banner.title),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.edit, color: theme.colorScheme.primary),
-              onPressed: onEdit,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: Text(
+              banner.title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            IconButton(
-              icon: Icon(Icons.delete, color: theme.colorScheme.error),
-              onPressed: onDelete,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -170,140 +247,167 @@ class AddEditBannerDialog extends StatelessWidget {
   final BannerModel? banner;
   final TextEditingController _titleController;
 
-  AddEditBannerDialog({
-    super.key,
-    required this.adminCubit,
-    this.banner,
-  }) : _titleController = TextEditingController(text: banner?.title ?? '');
+  AddEditBannerDialog({super.key, required this.adminCubit, this.banner})
+    : _titleController = TextEditingController(text: banner?.title ?? '');
 
-  void _saveBanner(BuildContext context, File? selectedImageFile) {
-    if (_titleController.text.isEmpty ||
-        (selectedImageFile == null && banner == null)) {
-      TopSnackbar.error(context, 'Please fill all fields');
+  void _save(BuildContext context, File? imageFile) {
+    final title = _titleController.text.trim();
+    if (title.isEmpty || (imageFile == null && banner == null)) {
+      TopSnackbar.error(context, 'Please provide title and image');
       return;
     }
 
     if (banner == null) {
-      adminCubit.addBanner(_titleController.text, selectedImageFile!);
+      adminCubit.addBanner(title, imageFile!);
     } else {
-      adminCubit.updateBanner(
-        banner!.copyWith(title: _titleController.text),
-        selectedImageFile,
-      );
+      adminCubit.updateBanner(banner!.copyWith(title: title), imageFile);
     }
-
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     final imageCubit = context.read<BannerImageCubit>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text(banner == null ? 'Add Banner' : 'Edit Banner'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              decoration: const InputDecoration(
+                labelText: 'Banner Title',
+                prefixIcon: Icon(Icons.title_rounded),
+              ),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Recommended image resolution: 1200x480 pixels\nImages will be automatically resized',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-                fontSize: 12,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
             BlocBuilder<BannerImageCubit, BannerImageState>(
               builder: (context, state) {
                 final isProcessing = state is BannerImageProcessing;
-                return AppButton(
-                  label: isProcessing
-                      ? 'Processing...'
-                      : 'Pick Image',
-                  onPressed: isProcessing
+                final File? pickedFile = state is BannerImageSuccess
+                    ? state.imageFile
+                    : null;
+
+                return InkWell(
+                  onTap: isProcessing
                       ? null
                       : () => imageCubit.pickAndProcessBanner(),
-                  icon: isProcessing
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.image_search),
-                  expanded: false,
-                  height: null,
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            BlocBuilder<BannerImageCubit, BannerImageState>(
-              builder: (context, state) {
-                if (state is BannerImageSuccess) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      state.imageFile,
-                      height: 100,
-                      width: 250,
-                      fit: BoxFit.cover,
-                    ),
-                  );
-                }
-
-                if (banner != null) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      banner!.imageUrl,
-                      height: 100,
-                      width: 250,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        height: 100,
-                        width: 250,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        child: const Icon(Icons.broken_image, size: 40),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: 130,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.darkNeutral
+                          : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : Colors.grey.shade300,
                       ),
                     ),
-                  );
-                }
-
-                return const SizedBox.shrink();
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: isProcessing
+                          ? const Center(child: CircularProgressIndicator())
+                          : pickedFile != null
+                          ? Image.file(pickedFile, fit: BoxFit.cover)
+                          : banner != null
+                          ? Image.network(banner!.imageUrl, fit: BoxFit.cover)
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.add_photo_alternate_outlined,
+                                  size: 32,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Select Image (1200x480)',
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                );
               },
             ),
           ],
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
+        AppTextButton(label: 'Cancel', onPressed: () => Navigator.pop(context)),
         BlocBuilder<BannerImageCubit, BannerImageState>(
           builder: (context, state) {
-            final File? selectedFile =
-                state is BannerImageSuccess ? state.imageFile : null;
-            final isProcessing = state is BannerImageProcessing;
-
+            final File? pickedFile = state is BannerImageSuccess
+                ? state.imageFile
+                : null;
             return AppButton(
               label: 'Save',
-              onPressed: isProcessing
-                  ? null
-                  : () => _saveBanner(context, selectedFile),
               expanded: false,
-              height: null,
+              height: 38,
+              onPressed: () => _save(context, pickedFile),
             );
           },
         ),
       ],
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final VoidCallback onAdd;
+
+  const _EmptyState({required this.onAdd});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.view_carousel_outlined,
+              size: 72,
+              color: theme.colorScheme.primary.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Banners Found',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Create display banners for promotions and announcements.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 20),
+            AppButton(
+              label: 'Add Banner',
+              icon: const Icon(Icons.add_rounded),
+              expanded: false,
+              onPressed: onAdd,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
