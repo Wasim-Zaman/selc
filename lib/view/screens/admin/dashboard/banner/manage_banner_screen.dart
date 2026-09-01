@@ -9,6 +9,7 @@ import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/app_button.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/app_text_button.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../../cubits/banner/banner_image_cubit.dart';
@@ -262,7 +263,7 @@ class AddEditBannerDialog extends StatelessWidget {
     } else {
       adminCubit.updateBanner(banner!.copyWith(title: title), imageFile);
     }
-    Navigator.pop(context);
+    context.pop();
   }
 
   @override
@@ -297,7 +298,7 @@ class AddEditBannerDialog extends StatelessWidget {
                 return InkWell(
                   onTap: isProcessing
                       ? null
-                      : () => imageCubit.pickAndProcessBanner(),
+                      : () => imageCubit.pickAndProcessBanner(context),
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     height: 130,
