@@ -6,6 +6,8 @@ import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_text_button.dart';
 
 class UpdatesManagementScreen extends StatefulWidget {
   const UpdatesManagementScreen({super.key});
@@ -80,9 +82,10 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
                         style: TextStyle(fontSize: 18),
                       ),
                       const SizedBox(height: 16),
-                      ElevatedButton(
+                      AppButton(
+                        label: 'Add New Update',
+                        expanded: false,
                         onPressed: () => _showUpdateDialog(context, null),
-                        child: const Text('Add New Update'),
                       ),
                     ],
                   ),
@@ -215,12 +218,13 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
             ),
           ),
           actions: [
-            TextButton(
-              child: const Text('Cancel'),
+            AppTextButton(
+              label: 'Cancel',
               onPressed: () => Navigator.of(context).pop(),
             ),
-            ElevatedButton(
-              child: Text(update == null ? 'Add' : 'Update'),
+            AppButton(
+              label: update == null ? 'Add' : 'Update',
+              expanded: false,
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   final newUpdate = Updates(
@@ -255,12 +259,13 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
           title: const Text('Confirm Delete'),
           content: const Text('Are you sure you want to delete this update?'),
           actions: [
-            TextButton(
-              child: const Text('Cancel'),
+            AppTextButton(
+              label: 'Cancel',
               onPressed: () => Navigator.of(context).pop(false),
             ),
-            ElevatedButton(
-              child: const Text('Delete'),
+            AppButton(
+              label: 'Delete',
+              expanded: false,
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],

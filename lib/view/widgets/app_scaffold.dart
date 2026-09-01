@@ -55,7 +55,12 @@ class AppScaffold extends StatelessWidget {
           : Brightness.dark,
     );
 
-    final hasAppBar = title != null || titleWidget != null || leading != null || actions != null || bottom != null;
+    final hasAppBar =
+        title != null ||
+        titleWidget != null ||
+        leading != null ||
+        actions != null ||
+        bottom != null;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: systemUiOverlay,
@@ -63,6 +68,7 @@ class AppScaffold extends StatelessWidget {
         key: scaffoldKey,
         backgroundColor: backgroundColor ?? defaultBg,
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        drawerEdgeDragWidth: 0,
         drawer: drawer,
         appBar: hasAppBar
             ? AppBar(

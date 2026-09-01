@@ -5,6 +5,7 @@ import 'package:gep/models/admission_announcement.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_text_button.dart';
 
 class AdminAdmissionsScreen extends StatelessWidget {
   const AdminAdmissionsScreen({super.key});
@@ -91,16 +92,16 @@ class AdminAdmissionsScreen extends StatelessWidget {
         content:
             const Text('Are you sure you want to delete this announcement?'),
         actions: [
-          TextButton(
+          AppTextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
-          TextButton(
+          AppTextButton(
             onPressed: () {
               adminCubit.deleteAdmissionAnnouncement(id);
               Navigator.pop(context);
             },
-            child: const Text('Delete'),
+            label: 'Delete',
           ),
         ],
       ),
@@ -217,15 +218,15 @@ class _AddEditAnnouncementDialogState extends State<AddEditAnnouncementDialog> {
             Row(
               children: [
                 Expanded(
-                  child: TextButton(
+                  child: AppTextButton(
                     onPressed: () => _selectDate(context, isStartDate: true),
-                    child: Text('Start Date: ${_formatDate(_startDate)}'),
+                    label: 'Start Date: ${_formatDate(_startDate)}',
                   ),
                 ),
                 Expanded(
-                  child: TextButton(
+                  child: AppTextButton(
                     onPressed: () => _selectDate(context, isStartDate: false),
-                    child: Text('End Date: ${_formatDate(_endDate)}'),
+                    label: 'End Date: ${_formatDate(_endDate)}',
                   ),
                 ),
               ],
@@ -234,13 +235,13 @@ class _AddEditAnnouncementDialogState extends State<AddEditAnnouncementDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        AppTextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          label: 'Cancel',
         ),
-        TextButton(
+        AppTextButton(
           onPressed: _saveAnnouncement,
-          child: const Text('Save'),
+          label: 'Save',
         ),
       ],
     );

@@ -9,6 +9,8 @@ import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_text_button.dart';
 
 class EditStudentScreen extends StatefulWidget {
   final EnrolledStudent student;
@@ -199,9 +201,9 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       },
                     ),
                     const SizedBox(height: AppConstants.defaultPadding * 2),
-                    ElevatedButton(
+                    AppButton(
                       onPressed: _updateStudent,
-                      child: const Text('Update Student'),
+                      label: 'Update Student',
                     ),
                   ],
                 ),
@@ -256,12 +258,12 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         title: const Text('Confirm Deletion'),
         content: const Text('Are you sure you want to delete this student?'),
         actions: [
-          TextButton(
-            child: const Text('Cancel'),
+          AppTextButton(
+            label: 'Cancel',
             onPressed: () => Navigator.of(context).pop(false),
           ),
-          TextButton(
-            child: const Text('Delete'),
+          AppTextButton(
+            label: 'Delete',
             onPressed: () => Navigator.of(context).pop(true),
           ),
         ],

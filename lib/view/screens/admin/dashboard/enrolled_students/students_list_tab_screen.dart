@@ -8,6 +8,9 @@ import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_text_button.dart';
+import 'package:gep/view/widgets/app_delete_button.dart';
 
 class StudentsListTab extends StatelessWidget {
   final EnrolledStudentsServices enrolledStudentsServices;
@@ -40,9 +43,9 @@ class StudentsListTab extends StatelessWidget {
                   style: TextStyle(fontSize: 18),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
+                AppButton(
                   onPressed: () => _addStudent(context),
-                  child: const Text('Add New Student'),
+                  label: 'Add New Student',
                 ),
               ],
             ),
@@ -139,12 +142,12 @@ class StudentsListTab extends StatelessWidget {
           title: const Text('Confirm Delete'),
           content: const Text('Are you sure you want to delete this student?'),
           actions: [
-            TextButton(
-              child: const Text('Cancel'),
+            AppTextButton(
+              label: 'Cancel',
               onPressed: () => Navigator.of(context).pop(false),
             ),
-            ElevatedButton(
-              child: const Text('Delete'),
+            AppDeleteButton(
+              label: 'Delete',
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],

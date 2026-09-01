@@ -3,17 +3,16 @@
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gep/core/constants/constants.dart';
-import 'package:gep/cubits/auth/auth_cubit.dart';
 import 'package:gep/cubits/theme/theme_cubit.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
 import 'package:gep/services/analytics/analytics_service.dart';
+import 'package:gep/view/widgets/app_drawer.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/grid_item.dart';
 import 'package:lottie/lottie.dart';
 import 'package:marquee/marquee.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:gep/view/widgets/app_drawer.dart';
-import 'package:gep/view/widgets/app_scaffold.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -85,7 +84,6 @@ class AdminDashboardScreen extends StatelessWidget {
     ];
 
     return AppScaffold(
-      backgroundColor: backgroundColor,
       drawer: const AppDrawer(isAdminLoggedIn: true, isAdminDashboard: true),
       safeAreaBottom: false,
       body: CustomScrollView(
@@ -457,5 +455,3 @@ class _AdminPrimaryCard extends StatelessWidget {
         .slideX(begin: index.isEven ? -0.05 : 0.05, end: 0);
   }
 }
-
-

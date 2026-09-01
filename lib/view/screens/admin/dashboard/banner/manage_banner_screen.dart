@@ -10,6 +10,8 @@ import 'package:gep/utils/snackbars.dart';
 
 import '../../../../../cubits/banner/banner_image_cubit.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_text_button.dart';
 
 class ManageBannerScreen extends StatelessWidget {
   const ManageBannerScreen({super.key});
@@ -101,16 +103,16 @@ class ManageBannerScreen extends StatelessWidget {
         title: const Text('Delete Banner'),
         content: const Text('Are you sure you want to delete this banner?'),
         actions: [
-          TextButton(
+          AppTextButton(
+            label: 'Cancel',
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
           ),
-          TextButton(
+          AppTextButton(
+            label: 'Delete',
             onPressed: () {
               adminCubit.deleteBanner(bannerId);
               Navigator.pop(context);
             },
-            child: const Text('Delete'),
           ),
         ],
       ),
@@ -220,7 +222,10 @@ class AddEditBannerDialog extends StatelessWidget {
             BlocBuilder<BannerImageCubit, BannerImageState>(
               builder: (context, state) {
                 final isProcessing = state is BannerImageProcessing;
-                return ElevatedButton.icon(
+                return AppButton(
+                  label: isProcessing
+                      ? 'Processing...'
+                      : 'Pick Image',
                   onPressed: isProcessing
                       ? null
                       : () => imageCubit.pickAndProcessBanner(),
@@ -231,9 +236,8 @@ class AddEditBannerDialog extends StatelessWidget {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.image_search),
-                  label: Text(
-                    isProcessing ? 'Processing...' : 'Pick Image',
-                  ),
+                  expanded: false,
+                  height: null,
                 );
               },
             ),
@@ -289,11 +293,13 @@ class AddEditBannerDialog extends StatelessWidget {
                 state is BannerImageSuccess ? state.imageFile : null;
             final isProcessing = state is BannerImageProcessing;
 
-            return ElevatedButton(
+            return AppButton(
+              label: 'Save',
               onPressed: isProcessing
                   ? null
                   : () => _saveBanner(context, selectedFile),
-              child: const Text('Save'),
+              expanded: false,
+              height: null,
             );
           },
         ),

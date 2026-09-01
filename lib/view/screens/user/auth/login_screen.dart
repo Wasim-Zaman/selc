@@ -9,6 +9,7 @@ import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -143,7 +144,8 @@ class _LoginScreenState extends State<LoginScreen>
                             duration: const Duration(milliseconds: 300),
                             transform: Matrix4.identity()
                               ..scale(state is AuthLoading ? 0.95 : 1.0),
-                            child: ElevatedButton(
+                            child: AppButton(
+                              label: 'Sign in with Google',
                               onPressed: state is AuthLoading
                                   ? null
                                   : () async {
@@ -151,42 +153,17 @@ class _LoginScreenState extends State<LoginScreen>
                                           .read<AuthCubit>()
                                           .signInWithGoogle();
                                     },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: theme.primaryColor,
-                                foregroundColor: theme.colorScheme.onPrimary,
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                elevation: 3,
+                              isLoading: state is AuthLoading,
+                              icon: Image.asset(
+                                isDark
+                                    ? AppIcons.signinDark
+                                    : AppIcons.siginLight,
+                                height: 24.0,
+                                width: 24.0,
                               ),
-                              child: state is AuthLoading
-                                  ? const SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Image.asset(
-                                          isDark
-                                              ? AppIcons.signinDark
-                                              : AppIcons.siginLight,
-                                          height: 24.0,
-                                          width: 24.0,
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Text(
-                                          'Sign in with Google',
-                                          style: theme.textTheme.bodyLarge
-                                              ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                              backgroundColor: theme.primaryColor,
+                              foregroundColor: theme.colorScheme.onPrimary,
+                              borderRadius: 8,
                             ),
                           );
                         },

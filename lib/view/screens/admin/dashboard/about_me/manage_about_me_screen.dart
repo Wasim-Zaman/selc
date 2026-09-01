@@ -9,6 +9,7 @@ import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_button.dart';
 
 class ManageAboutMeScreen extends StatefulWidget {
   const ManageAboutMeScreen({super.key});
@@ -81,9 +82,9 @@ class _ManageAboutMeScreenState extends State<ManageAboutMeScreen> {
                       const SizedBox(height: 16),
                       _buildResumeSection(aboutMe),
                       const SizedBox(height: 24),
-                      ElevatedButton(
+                      AppButton(
+                        label: 'Save Changes',
                         onPressed: () => _saveAboutMe(context),
-                        child: const Text('Save Changes'),
                       ),
                     ],
                   ),
@@ -118,9 +119,10 @@ class _ManageAboutMeScreenState extends State<ManageAboutMeScreen> {
                     fit: BoxFit.cover,
                   ),
           ),
-        ElevatedButton(
+        AppButton(
+          label: 'Pick Image',
+          expanded: false,
           onPressed: _pickImage,
-          child: const Text('Pick Image'),
         ),
       ],
     );
@@ -134,9 +136,10 @@ class _ManageAboutMeScreenState extends State<ManageAboutMeScreen> {
         const SizedBox(height: 8),
         if (_resumeFile != null || aboutMe.resumeUrl != null)
           Text(_resumeFile != null ? 'New resume selected' : 'Resume uploaded'),
-        ElevatedButton(
+        AppButton(
+          label: 'Pick Resume',
+          expanded: false,
           onPressed: _pickResume,
-          child: const Text('Pick Resume'),
         ),
       ],
     );

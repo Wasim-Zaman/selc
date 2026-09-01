@@ -4,7 +4,10 @@ import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/admin/admin_cubit.dart';
 import 'package:gep/models/course_outline.dart';
 import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_delete_button.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_text_button.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:material_ui/material_ui.dart';
@@ -190,10 +193,7 @@ class ManageCoursesScreen extends StatelessWidget {
                         horizontal: AppConstants.defaultPadding,
                       ),
                       sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate((
-                          context,
-                          index,
-                        ) {
+                        delegate: SliverChildBuilderDelegate((context, index) {
                           final course = courses[index];
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
@@ -216,10 +216,8 @@ class ManageCoursesScreen extends StatelessWidget {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(20),
-                                  onTap: () => _showCourseSheet(
-                                    context,
-                                    course: course,
-                                  ),
+                                  onTap: () =>
+                                      _showCourseSheet(context, course: course),
                                   child: Padding(
                                     padding: const EdgeInsets.all(14),
                                     child: Row(
@@ -230,8 +228,9 @@ class ManageCoursesScreen extends StatelessWidget {
                                             color: isDark
                                                 ? AppColors.darkNeutral
                                                 : AppColors.lightNeutral,
-                                            borderRadius:
-                                                BorderRadius.circular(14),
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
                                           ),
                                           child: Icon(
                                             Icons.auto_stories_rounded,
@@ -258,8 +257,7 @@ class ManageCoursesScreen extends StatelessWidget {
                                                       fontSize: 15,
                                                     ),
                                                 maxLines: 1,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                               const SizedBox(height: 2),
                                               Row(
@@ -317,9 +315,7 @@ class ManageCoursesScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            ).animate().fadeIn(
-                              delay: (30 + index * 20).ms,
-                            ).slideY(begin: 0.05, end: 0),
+                            ).animate().fadeIn(delay: (30 + index * 20).ms).slideY(begin: 0.05, end: 0),
                           );
                         }, childCount: courses.length),
                       ),
@@ -337,9 +333,9 @@ class ManageCoursesScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         onPressed: () => _showCourseSheet(context),
         icon: const Icon(Icons.add_rounded, size: 22),
-        label: const Text(
+        label: Text(
           'Add Course',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
         ),
       ),
     );
@@ -350,7 +346,11 @@ class ManageCoursesScreen extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _CourseSheet(course: course),
+      // take 60 percent of the screen height
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.9,
+        child: _CourseSheet(course: course),
+      ),
     );
   }
 
@@ -397,29 +397,19 @@ class ManageCoursesScreen extends StatelessWidget {
             vertical: 12,
           ),
           actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Cancel'),
+            AppTextButton(
+              label: 'Cancel',
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Delete'),
+            AppDeleteButton(
+              label: 'Delete',
               onPressed: () {
                 context.read<AdminCubit>().deleteCourse(course.id!);
                 Navigator.of(dialogContext).pop();
               },
+              expanded: false,
+              height: null,
+              borderRadius: 12,
             ),
           ],
         );
@@ -484,13 +474,9 @@ class _CourseSheetState extends State<_CourseSheet> {
     return Container(
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(28),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      margin: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 24,
-      ),
+      margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 24),
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         child: Scaffold(
@@ -533,22 +519,13 @@ class _CourseSheetState extends State<_CourseSheet> {
                   onTap: _addWeek,
                 ),
                 const SizedBox(height: AppConstants.defaultPadding * 2),
-                ElevatedButton(
+                AppButton(
+                  label: widget.course == null
+                      ? 'Create Course'
+                      : 'Save Changes',
                   onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    widget.course == null ? 'Create Course' : 'Save Changes',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
                 ),
-                SizedBox(
-                  height: MediaQuery.of(context).viewInsets.bottom + 24,
-                ),
+                SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 24),
               ],
             ),
           ),
@@ -581,9 +558,9 @@ class _CourseSheetState extends State<_CourseSheet> {
               children: [
                 Text(
                   'Week ${idx + 1}',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 if (_weeks.length > 1)
                   IconButton(
@@ -600,10 +577,8 @@ class _CourseSheetState extends State<_CourseSheet> {
             TextFieldWidget(
               controller: _topicControllers[idx][0],
               labelText: 'Week Title',
-              onChanged: (v) => _weeks[idx] = Week(
-                title: v,
-                topics: week.topics,
-              ),
+              onChanged: (v) =>
+                  _weeks[idx] = Week(title: v, topics: week.topics),
             ),
             const SizedBox(height: 12),
             ..._buildTopicsList(idx),
@@ -675,10 +650,7 @@ class _CourseSheetState extends State<_CourseSheet> {
   void _addTopic(int weekIndex) {
     setState(() {
       final updated = List<String>.from(_weeks[weekIndex].topics)..add('');
-      _weeks[weekIndex] = Week(
-        title: _weeks[weekIndex].title,
-        topics: updated,
-      );
+      _weeks[weekIndex] = Week(title: _weeks[weekIndex].title, topics: updated);
       _topicControllers[weekIndex].add(TextEditingController());
     });
   }
@@ -689,18 +661,14 @@ class _CourseSheetState extends State<_CourseSheet> {
       _topicControllers[weekIndex].removeAt(topicIndex + 1);
       final updated = List<String>.from(_weeks[weekIndex].topics)
         ..removeAt(topicIndex);
-      _weeks[weekIndex] = Week(
-        title: _weeks[weekIndex].title,
-        topics: updated,
-      );
+      _weeks[weekIndex] = Week(title: _weeks[weekIndex].title, topics: updated);
     });
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     final course = Course(
-      id: widget.course?.id ??
-          DateTime.now().millisecondsSinceEpoch.toString(),
+      id: widget.course?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: _courseTitle.text,
       weeks: _weeks,
     );

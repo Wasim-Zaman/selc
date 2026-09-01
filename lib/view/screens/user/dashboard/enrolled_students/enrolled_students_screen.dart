@@ -8,6 +8,7 @@ import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_text_button.dart';
 
 class EnrolledStudentsScreen extends StatelessWidget {
   final EnrolledStudentsServices _enrolledStudentsServices =
@@ -173,11 +174,11 @@ class EnrolledStudentsScreen extends StatelessWidget {
               const SizedBox(height: 24.0),
               Align(
                 alignment: Alignment.bottomRight,
-                child: TextButton(
+                child: AppTextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Close'),
+                  label: 'Close',
                 ),
               ),
             ],

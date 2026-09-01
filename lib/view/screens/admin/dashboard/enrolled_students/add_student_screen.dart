@@ -9,6 +9,7 @@ import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_button.dart';
 
 class AddStudentScreen extends StatefulWidget {
   final EnrolledStudentsServices enrolledStudentsServices;
@@ -169,9 +170,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       },
                     ),
                     const SizedBox(height: AppConstants.defaultPadding * 2),
-                    ElevatedButton(
+                    AppButton(
                       onPressed: _addStudent,
-                      child: const Text('Add Student'),
+                      label: 'Add Student',
                     ),
                   ],
                 ),
