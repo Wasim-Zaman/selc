@@ -167,13 +167,14 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
                       final update = updates[index];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: borderColor),
-                          ),
+                        child: Material(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(16),
                           child: ListTile(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              side: BorderSide(color: borderColor),
+                            ),
                             title: Text(
                               update.title,
                               style: theme.textTheme.titleMedium?.copyWith(

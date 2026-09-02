@@ -266,15 +266,16 @@ class AnnouncementCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-        ),
-      ),
+    return Material(
+      color: isDark ? AppColors.darkCard : AppColors.lightCard,
+      borderRadius: BorderRadius.circular(16),
       child: ListTile(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          ),
+        ),
         title: Text(
           announcement.title,
           style: theme.textTheme.titleMedium?.copyWith(
@@ -351,10 +352,7 @@ class _AddEditAnnouncementDialogState extends State<AddEditAnnouncementDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextFieldWidget(
-              controller: _titleController,
-              labelText: 'Title',
-            ),
+            TextFieldWidget(controller: _titleController, labelText: 'Title'),
             const SizedBox(height: 16),
             TextFieldWidget(
               controller: _detailsController,

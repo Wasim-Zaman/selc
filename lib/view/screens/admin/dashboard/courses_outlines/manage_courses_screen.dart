@@ -1,18 +1,18 @@
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gep/core/constants/constants.dart';
-import 'package:gep/cubits/courses/courses_cubit.dart';
-import 'package:gep/cubits/courses/courses_state.dart';
-import 'package:gep/models/course_outline.dart';
-import 'package:gep/utils/snackbars.dart';
-import 'package:gep/view/widgets/app_button.dart';
-import 'package:gep/view/widgets/app_delete_button.dart';
-import 'package:gep/view/widgets/app_scaffold.dart';
-import 'package:gep/view/widgets/app_text_button.dart';
-import 'package:gep/view/widgets/paginated_widget.dart';
-import 'package:gep/view/widgets/placeholder_widget.dart';
-import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:material_ui/material_ui.dart';
+
+import '../../../../../core/constants/constants.dart';
+import '../../../../../cubits/courses/courses_cubit.dart';
+import '../../../../../cubits/courses/courses_state.dart';
+import '../../../../../models/course_outline.dart';
+import '../../../../../utils/snackbars.dart';
+import '../../../../widgets/app_button.dart';
+import '../../../../widgets/app_delete_button.dart';
+import '../../../../widgets/app_scaffold.dart';
+import '../../../../widgets/app_text_button.dart';
+import '../../../../widgets/paginated_widget.dart';
+import '../../../../widgets/placeholder_widget.dart';
+import '../../../../widgets/text_field_widget.dart';
 
 class ManageCoursesScreen extends StatefulWidget {
   const ManageCoursesScreen({super.key});
@@ -42,74 +42,84 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundColor = isDark
-        ? AppColors.darkScaffoldBackground
-        : AppColors.lightScaffoldBackground;
     final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textColorSecondary = isDark
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
 
-    return AppScaffold(
-      backgroundColor: backgroundColor,
-      title: 'Manage Courses',
-      body: BlocConsumer<CoursesCubit, CoursesState>(
-        listener: (context, state) {
-          if (state.error != null && !state.isLoading && !state.isRefreshing) {
-            TopSnackbar.error(context, state.error!);
-          }
-        },
-        builder: (context, state) {
-          final courses = state.items;
-          final isLoading = state.isLoading && courses.isEmpty;
+    return BlocConsumer<CoursesCubit, CoursesState>(
+      listener: (context, state) {
+        if (state.error != null && !state.isLoading && !state.isRefreshing) {
+          TopSnackbar.error(context, state.error!);
+        }
+      },
+      builder: (context, state) {
+        final courses = state.items;
+        final isLoading = state.isLoading && courses.isEmpty;
 
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            slivers: [
-              // Search
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppConstants.defaultPadding,
-                    12,
-                    AppConstants.defaultPadding,
-                    12,
+        return AppScaffold(
+          title: 'Manage Courses',
+          bottomNavigationBar: courses.isNotEmpty
+              ? Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppConstants.defaultPadding,
+                    vertical: 8,
                   ),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    border: Border(top: BorderSide(color: borderColor)),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: PaginatedWidget(
+                      isLoading: state.isLoading || state.isRefreshing,
+                      hasPrevious: state.currentPage > 0,
+                      hasNext: state.hasMore,
+                      onPrevious: () =>
+                          context.read<CoursesCubit>().previousPage(),
+                      onNext: () => context.read<CoursesCubit>().nextPage(),
+                      onPageSelected: (page) =>
+                          context.read<CoursesCubit>().goToPage(page),
+                      onRefresh: () => context.read<CoursesCubit>().refresh(),
+                      currentPage: state.currentPage,
+                      pageSize: 10,
+                    ),
+                  ),
+                )
+              : null,
+          body: RefreshIndicator(
+            onRefresh: () async => context.read<CoursesCubit>().refresh(),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              children: [
+                // Search Bar
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
                   child: TextFieldWidget(
                     controller: _searchController,
                     labelText: 'Search courses',
                     hintText: 'Search courses…',
                     prefixIcon: Icons.search_rounded,
                     suffixIcon: _searchController.text.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
+                        ? IconButton(
+                            icon: const Icon(Icons.close_rounded, size: 18),
+                            color: textColorSecondary,
+                            onPressed: () {
                               _searchController.clear();
                               context.read<CoursesCubit>().clearSearch();
                             },
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 18,
-                              color: textColorSecondary,
-                            ),
                           )
                         : null,
                     onChanged: (v) =>
                         context.read<CoursesCubit>().setSearchQuery(v),
                   ),
                 ),
-              ),
 
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppConstants.defaultPadding + 4,
-                    0,
-                    AppConstants.defaultPadding + 4,
-                    8,
-                  ),
+                // Header Label & Badge
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12, left: 4, right: 4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -134,301 +144,153 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> {
                         ],
                       ),
                       if (!isLoading && courses.isNotEmpty)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppColors.darkNeutral
-                                : AppColors.lightNeutral,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '${courses.length}',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: isDark
-                                  ? AppColors.darkBodyText
-                                  : AppColors.lightBodyText,
-                            ),
-                          ),
+                        Badge(
+                          label: Text('${courses.length}'),
+                          backgroundColor: isDark
+                              ? AppColors.darkNeutral
+                              : AppColors.lightNeutral,
+                          textColor: isDark
+                              ? AppColors.darkBodyText
+                              : AppColors.lightBodyText,
                         ),
                     ],
                   ),
                 ),
-              ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 4)),
-
-              if (isLoading)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.defaultPadding,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: PlaceholderWidgets.listPlaceholder(),
-                  ),
-                )
-              else if (state.error != null && courses.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline_rounded,
-                          size: 48,
-                          color: AppColors.error,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Failed to load courses',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+                // Body Content States
+                if (isLoading)
+                  PlaceholderWidgets.listPlaceholder()
+                else if (state.error != null && courses.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 48),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            size: 48,
+                            color: AppColors.error,
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          state.error!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: textColorSecondary,
+                          const SizedBox(height: 12),
+                          Text(
+                            'Failed to load courses',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            state.error!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                )
-              else if (courses.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppColors.darkNeutral
-                                : AppColors.lightNeutral,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
+                  )
+                else if (courses.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 48),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
                             Icons.menu_book_rounded,
                             size: 36,
                             color: textColorSecondary,
                           ),
+                          const SizedBox(height: 16),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'No Courses Found'
+                                : 'No matches for "${state.searchQuery}"',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'Tap the + button below to add your first course'
+                                : '',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: courses.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final course = courses[index];
+                      return ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: BorderSide(color: borderColor),
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          state.searchQuery.isEmpty
-                              ? 'No Courses Found'
-                              : 'No matches for "${state.searchQuery}"',
+                        tileColor: cardColor,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 4,
+                        ),
+                        leading: Icon(
+                          Icons.auto_stories_rounded,
+                          color: theme.colorScheme.primary,
+                        ),
+                        title: Text(
+                          course.title,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          state.searchQuery.isEmpty
-                              ? 'Tap the + button below to add your first course'
-                              : '',
+                        subtitle: Text(
+                          '${course.weeks.length} weeks duration',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: textColorSecondary,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      ],
-                    ).animate().fadeIn(),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.defaultPadding,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final course = courses[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child:
-                            Container(
-                                  decoration: BoxDecoration(
-                                    color: cardColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: borderColor),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: isDark ? 0.2 : 0.02,
-                                        ),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(20),
-                                      onTap: () => _showCourseSheet(
-                                        context,
-                                        course: course,
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(14),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(10),
-                                              decoration: BoxDecoration(
-                                                color: isDark
-                                                    ? AppColors.darkNeutral
-                                                    : AppColors.lightNeutral,
-                                                borderRadius:
-                                                    BorderRadius.circular(14),
-                                              ),
-                                              child: Icon(
-                                                Icons.auto_stories_rounded,
-                                                size: 22,
-                                                color: isDark
-                                                    ? AppColors.darkIcon
-                                                    : AppColors.primary,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 14),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    course.title,
-                                                    style: theme
-                                                        .textTheme
-                                                        .titleMedium
-                                                        ?.copyWith(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 15,
-                                                        ),
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                  const SizedBox(height: 2),
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons
-                                                            .calendar_today_rounded,
-                                                        size: 12,
-                                                        color:
-                                                            textColorSecondary,
-                                                      ),
-                                                      const SizedBox(width: 4),
-                                                      Text(
-                                                        '${course.weeks.length} weeks duration',
-                                                        style: theme
-                                                            .textTheme
-                                                            .bodySmall
-                                                            ?.copyWith(
-                                                              color:
-                                                                  textColorSecondary,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                            ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.edit_outlined,
-                                                color: isDark
-                                                    ? AppColors.darkIcon
-                                                    : AppColors.primary,
-                                                size: 20,
-                                              ),
-                                              onPressed: () => _showCourseSheet(
-                                                context,
-                                                course: course,
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.delete_outline_rounded,
-                                                color: AppColors.error
-                                                    .withValues(alpha: 0.85),
-                                                size: 20,
-                                              ),
-                                              onPressed: () => _deleteCourse(
-                                                context,
-                                                course,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                .animate()
-                                .fadeIn(delay: (30 + index * 20).ms)
-                                .slideY(begin: 0.05, end: 0),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined, size: 20),
+                              color: theme.colorScheme.primary,
+                              onPressed: () =>
+                                  _showCourseSheet(context, course: course),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline_rounded,
+                                size: 20,
+                              ),
+                              color: AppColors.error.withValues(alpha: 0.85),
+                              onPressed: () => _deleteCourse(context, course),
+                            ),
+                          ],
+                        ),
+                        onTap: () => _showCourseSheet(context, course: course),
                       );
-                    }, childCount: courses.length),
+                    },
                   ),
-                ),
-
-              // Pagination
-              if (courses.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppConstants.defaultPadding,
-                      8,
-                      AppConstants.defaultPadding,
-                      4,
-                    ),
-                    child: PaginatedWidget(
-                      isLoading: state.isLoading || state.isRefreshing,
-                      hasPrevious: state.currentPage > 0,
-                      hasNext: state.hasMore,
-                      onPrevious: () =>
-                          context.read<CoursesCubit>().previousPage(),
-                      onNext: () => context.read<CoursesCubit>().nextPage(),
-                      onPageSelected: (page) =>
-                          context.read<CoursesCubit>().goToPage(page),
-                      onRefresh: () => context.read<CoursesCubit>().refresh(),
-                      currentPage: state.currentPage,
-                      pageSize: 10,
-                    ),
-                  ),
-                ),
-
-              const SliverToBoxAdapter(child: SizedBox(height: 80)),
-            ],
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        elevation: 2,
-        highlightElevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        onPressed: () => _showCourseSheet(context),
-        icon: const Icon(Icons.add_rounded, size: 22),
-        label: const Text(
-          'Add Course',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-        ),
-      ),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -603,10 +465,10 @@ class _CourseSheetState extends State<_CourseSheet> {
                 const SizedBox(height: AppConstants.defaultPadding),
                 ..._buildWeeksList(isDark, cardColor, borderColor),
                 const SizedBox(height: 12),
-                _ActionChip(
-                  icon: Icons.add_rounded,
-                  label: 'Add Week',
-                  onTap: _addWeek,
+                ActionChip(
+                  avatar: const Icon(Icons.add_rounded, size: 16),
+                  label: const Text('Add Week'),
+                  onPressed: _addWeek,
                 ),
                 const SizedBox(height: AppConstants.defaultPadding * 2),
                 AppButton(
@@ -673,10 +535,10 @@ class _CourseSheetState extends State<_CourseSheet> {
             const SizedBox(height: 12),
             ..._buildTopicsList(idx),
             const SizedBox(height: 8),
-            _ActionChip(
-              icon: Icons.add_rounded,
-              label: 'Add Topic',
-              onTap: () => _addTopic(idx),
+            ActionChip(
+              avatar: const Icon(Icons.add_rounded, size: 16),
+              label: const Text('Add Topic'),
+              onPressed: () => _addTopic(idx),
             ),
           ],
         ),
@@ -768,48 +630,5 @@ class _CourseSheetState extends State<_CourseSheet> {
       context.read<CoursesCubit>().addCourse(course);
     }
     Navigator.pop(context);
-  }
-}
-
-class _ActionChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _ActionChip({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Material(
-      color: isDark ? AppColors.darkNeutral : AppColors.lightNeutral,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: theme.colorScheme.primary),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

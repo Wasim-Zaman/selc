@@ -154,13 +154,14 @@ class _StudentsListTabState extends State<StudentsListTab> {
                       final student = students[index];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: borderColor),
-                          ),
+                        child: Material(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(16),
                           child: ListTile(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              side: BorderSide(color: borderColor),
+                            ),
                             leading: CircleAvatar(
                               child: Text(student.name[0]),
                             ),
