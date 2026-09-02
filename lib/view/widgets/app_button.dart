@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/constants/constants.dart';
+
 /// Primary elevated button used throughout the app.
 ///
 /// Defaults to full-width, rounded (16px), with bold label.
@@ -32,6 +34,7 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     Widget child = isLoading
         ? const SizedBox(
             height: 24,
@@ -47,7 +50,9 @@ class AppButton extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: foregroundColor,
+                  color: isDark
+                      ? AppColors.darkBodyText
+                      : AppColors.lightBodyText,
                 ),
               ),
             ],

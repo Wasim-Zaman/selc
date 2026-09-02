@@ -1,13 +1,16 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gep/cubits/admin/admin_cubit.dart';
-import 'package:gep/models/updates.dart';
 import 'package:gep/core/constants/constants.dart';
+import 'package:gep/cubits/updates_admin/updates_admin_cubit.dart';
+import 'package:gep/cubits/updates_admin/updates_admin_state.dart';
+import 'package:gep/models/updates.dart';
 import 'package:gep/utils/snackbars.dart';
-import 'package:gep/view/widgets/text_field_widget.dart';
-import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/app_text_button.dart';
+import 'package:gep/view/widgets/paginated_widget.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:material_ui/material_ui.dart';
 
 class UpdatesManagementScreen extends StatefulWidget {
   const UpdatesManagementScreen({super.key});
@@ -21,6 +24,7 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  late final TextEditingController _searchController;
   late DateTime _selectedDate;
   UpdateType _selectedType = UpdateType.newCourse;
 
@@ -28,12 +32,15 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
+    _searchController = TextEditingController();
+    context.read<UpdatesAdminCubit>().fetchPage(0);
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -49,90 +56,211 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final textColorSecondary = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
+
     return AppScaffold(
       title: 'Updates Management',
-      body: BlocConsumer<AdminCubit, AdminState>(
+      body: BlocConsumer<UpdatesAdminCubit, UpdatesAdminState>(
         listener: (context, state) {
-          if (state is AdminSuccess) {
-            TopSnackbar.success(context, state.message);
-            _resetForm();
-          } else if (state is AdminFailure) {
-            TopSnackbar.error(context, 'Error: ${state.error}');
+          if (state.error != null && !state.isLoading && !state.isRefreshing) {
+            TopSnackbar.error(context, state.error!);
           }
         },
         builder: (context, state) {
-          if (state is AdminLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return StreamBuilder<List<Updates>>(
-            stream: context.read<AdminCubit>().getUpdatesStream(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final updates = snapshot.data!;
+          final updates = state.items;
+          final isLoading = state.isLoading && updates.isEmpty;
 
-              if (updates.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'No updates available',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      const SizedBox(height: 16),
-                      AppButton(
-                        label: 'Add New Update',
-                        expanded: false,
-                        onPressed: () => _showUpdateDialog(context, null),
-                      ),
-                    ],
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            slivers: [
+              // Search
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppConstants.defaultPadding,
+                    12,
+                    AppConstants.defaultPadding,
+                    12,
                   ),
-                );
-              }
-
-              return ListView.separated(
-                itemCount: updates.length,
-                separatorBuilder: (context, index) => const Divider(),
-                itemBuilder: (context, index) {
-                  final update = updates[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: AppConstants.defaultPadding,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: borderColor),
                     ),
-                    child: ListTile(
-                      title: Text(
-                        update.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                    child: Row(
+                      children: [
+                        Icon(Icons.search_rounded,
+                            size: 20, color: textColorSecondary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (v) => context
+                                .read<UpdatesAdminCubit>()
+                                .setSearchQuery(v),
+                            decoration: InputDecoration(
+                              hintText: 'Search updates…',
+                              hintStyle: theme.textTheme.bodyMedium
+                                  ?.copyWith(color: textColorSecondary),
+                              border: InputBorder.none,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            style: theme.textTheme.bodyMedium,
+                          ),
                         ),
-                      ),
-                      subtitle: Text(
-                        '${update.formattedDate} - ${update.type.toString().split('.').last}',
-                        style: theme.textTheme.bodySmall,
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.edit,
-                                color: theme.colorScheme.primary),
-                            onPressed: () => _showUpdateDialog(context, update),
+                        if (_searchController.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              context.read<UpdatesAdminCubit>().clearSearch();
+                            },
+                            child: Icon(Icons.close_rounded,
+                                size: 18, color: textColorSecondary),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.delete,
-                                color: theme.colorScheme.error),
-                            onPressed: () => _confirmDelete(context, update.id),
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
-                  );
-                },
-              );
-            },
+                  ),
+                ),
+              ),
+
+              if (isLoading)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (state.error != null && updates.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline_rounded,
+                            size: 48, color: AppColors.error),
+                        const SizedBox(height: 12),
+                        Text('Failed to load updates',
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                )
+              else if (updates.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          state.searchQuery.isEmpty
+                              ? 'No updates available'
+                              : 'No matches for "${state.searchQuery}"',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 16),
+                        if (state.searchQuery.isEmpty)
+                          AppButton(
+                            label: 'Add New Update',
+                            expanded: false,
+                            onPressed: () => _showUpdateDialog(context, null),
+                          ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppConstants.defaultPadding,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final update = updates[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: cardColor,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: borderColor),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              update.title,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              '${update.formattedDate} - ${update.type.toString().split('.').last}',
+                              style: theme.textTheme.bodySmall,
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.edit,
+                                      color: theme.colorScheme.primary),
+                                  onPressed: () =>
+                                      _showUpdateDialog(context, update),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete,
+                                      color: theme.colorScheme.error),
+                                  onPressed: () =>
+                                      _confirmDelete(context, update.id),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(delay: (30 + index * 20).ms)
+                          .slideY(begin: 0.05, end: 0);
+                    }, childCount: updates.length),
+                  ),
+                ),
+
+              // Pagination
+              if (updates.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppConstants.defaultPadding,
+                      8,
+                      AppConstants.defaultPadding,
+                      24,
+                    ),
+                    child: PaginatedWidget(
+                      isLoading: state.isLoading || state.isRefreshing,
+                      hasPrevious: state.currentPage > 0,
+                      hasNext: state.hasMore,
+                      onPrevious: () =>
+                          context.read<UpdatesAdminCubit>().previousPage(),
+                      onNext: () =>
+                          context.read<UpdatesAdminCubit>().nextPage(),
+                      onPageSelected: (page) =>
+                          context.read<UpdatesAdminCubit>().goToPage(page),
+                      onRefresh: () =>
+                          context.read<UpdatesAdminCubit>().refresh(),
+                      currentPage: state.currentPage,
+                      pageSize: 10,
+                    ),
+                  ),
+                ),
+            ],
           );
         },
       ),
@@ -235,11 +363,11 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
                     type: _selectedType,
                   );
                   if (update == null) {
-                    context.read<AdminCubit>().addUpdates(newUpdate);
+                    context.read<UpdatesAdminCubit>().addUpdate(newUpdate);
                   } else {
                     context
-                        .read<AdminCubit>()
-                        .updateUpdates(update.id, newUpdate);
+                        .read<UpdatesAdminCubit>()
+                        .updateUpdate(update.id, newUpdate);
                   }
                   Navigator.of(context).pop();
                 }
@@ -274,8 +402,7 @@ class _UpdatesManagementScreenState extends State<UpdatesManagementScreen> {
     );
 
     if (confirmed == true) {
-      // ignore: use_build_context_synchronously
-      context.read<AdminCubit>().deleteUpdates(updateId);
+      context.read<UpdatesAdminCubit>().deleteUpdate(updateId);
     }
   }
 }

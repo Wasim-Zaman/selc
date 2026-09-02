@@ -1,25 +1,56 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/cubits/banners/banners_cubit.dart';
+import 'package:gep/cubits/banners/banners_state.dart';
 import 'package:gep/models/banner.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/app_button.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/app_text_button.dart';
+import 'package:gep/view/widgets/paginated_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../../cubits/banner/banner_image_cubit.dart';
 
-class ManageBannerScreen extends StatelessWidget {
+class ManageBannerScreen extends StatefulWidget {
   const ManageBannerScreen({super.key});
+
+  @override
+  State<ManageBannerScreen> createState() => _ManageBannerScreenState();
+}
+
+class _ManageBannerScreenState extends State<ManageBannerScreen> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    context.read<BannersCubit>().fetchPage(0);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final adminCubit = context.read<AdminCubit>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final textColorSecondary = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
 
     return AppScaffold(
       title: 'Banners',
@@ -30,65 +61,157 @@ class ManageBannerScreen extends StatelessWidget {
           onPressed: () => _showAddEditDialog(context, adminCubit),
         ),
       ],
-      body: BlocConsumer<AdminCubit, AdminState>(
+      body: BlocConsumer<BannersCubit, BannersState>(
         listener: (context, state) {
-          if (state is AdminSuccess) {
-            TopSnackbar.success(context, state.message);
-          } else if (state is AdminFailure) {
-            TopSnackbar.error(context, state.error);
+          if (state.error != null && !state.isLoading && !state.isRefreshing) {
+            TopSnackbar.error(context, state.error!);
           }
         },
         builder: (context, state) {
-          if (state is AdminLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          final banners = state.items;
+          final isLoading = state.isLoading && banners.isEmpty;
 
-          return StreamBuilder<List<BannerModel>>(
-            stream: adminCubit.getBannersStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline_rounded,
-                        color: AppColors.error,
-                        size: 40,
-                      ),
-                      const SizedBox(height: 8),
-                      Text('Error: ${snapshot.error}'),
-                    ],
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            slivers: [
+              // Search
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppConstants.defaultPadding,
+                    12,
+                    AppConstants.defaultPadding,
+                    12,
                   ),
-                );
-              }
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: borderColor),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.search_rounded,
+                            size: 20, color: textColorSecondary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (v) =>
+                                context.read<BannersCubit>().setSearchQuery(v),
+                            decoration: InputDecoration(
+                              hintText: 'Search banners…',
+                              hintStyle: theme.textTheme.bodyMedium
+                                  ?.copyWith(color: textColorSecondary),
+                              border: InputBorder.none,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ),
+                        if (_searchController.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              context.read<BannersCubit>().clearSearch();
+                            },
+                            child: Icon(Icons.close_rounded,
+                                size: 18, color: textColorSecondary),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
 
-              final banners = snapshot.data ?? [];
-              if (banners.isEmpty) {
-                return _EmptyState(
-                  onAdd: () => _showAddEditDialog(context, adminCubit),
-                );
-              }
+              if (isLoading)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (state.error != null && banners.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline_rounded,
+                            size: 48, color: AppColors.error),
+                        const SizedBox(height: 12),
+                        Text('Failed to load banners',
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                )
+              else if (banners.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _EmptyState(
+                    onAdd: () => _showAddEditDialog(context, adminCubit),
+                    searchQuery: state.searchQuery,
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppConstants.defaultPadding,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final banner = banners[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: _BannerItemCard(
+                          banner: banner,
+                          onEdit: () => _showAddEditDialog(
+                            context,
+                            adminCubit,
+                            banner: banner,
+                          ),
+                          onDelete: () =>
+                              _confirmDelete(context, adminCubit, banner.id),
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(delay: (30 + index * 20).ms)
+                          .slideY(begin: 0.05, end: 0);
+                    }, childCount: banners.length),
+                  ),
+                ),
 
-              return ListView.separated(
-                padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                itemCount: banners.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 14),
-                itemBuilder: (context, index) {
-                  final banner = banners[index];
-                  return _BannerItemCard(
-                    banner: banner,
-                    onEdit: () =>
-                        _showAddEditDialog(context, adminCubit, banner: banner),
-                    onDelete: () =>
-                        _confirmDelete(context, adminCubit, banner.id),
-                  );
-                },
-              );
-            },
+              // Pagination
+              if (banners.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppConstants.defaultPadding,
+                      8,
+                      AppConstants.defaultPadding,
+                      24,
+                    ),
+                    child: PaginatedWidget(
+                      isLoading: state.isLoading || state.isRefreshing,
+                      hasPrevious: state.currentPage > 0,
+                      hasNext: state.hasMore,
+                      onPrevious: () =>
+                          context.read<BannersCubit>().previousPage(),
+                      onNext: () => context.read<BannersCubit>().nextPage(),
+                      onPageSelected: (page) =>
+                          context.read<BannersCubit>().goToPage(page),
+                      onRefresh: () => context.read<BannersCubit>().refresh(),
+                      currentPage: state.currentPage,
+                      pageSize: 10,
+                    ),
+                  ),
+                ),
+            ],
           );
         },
       ),
@@ -249,7 +372,7 @@ class AddEditBannerDialog extends StatelessWidget {
   final TextEditingController _titleController;
 
   AddEditBannerDialog({super.key, required this.adminCubit, this.banner})
-    : _titleController = TextEditingController(text: banner?.title ?? '');
+      : _titleController = TextEditingController(text: banner?.title ?? '');
 
   void _save(BuildContext context, File? imageFile) {
     final title = _titleController.text.trim();
@@ -319,24 +442,26 @@ class AddEditBannerDialog extends StatelessWidget {
                       child: isProcessing
                           ? const Center(child: CircularProgressIndicator())
                           : pickedFile != null
-                          ? Image.file(pickedFile, fit: BoxFit.cover)
-                          : banner != null
-                          ? Image.network(banner!.imageUrl, fit: BoxFit.cover)
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.add_photo_alternate_outlined,
-                                  size: 32,
-                                  color: theme.colorScheme.primary,
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'Select Image (1200x480)',
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
+                              ? Image.file(pickedFile, fit: BoxFit.cover)
+                              : banner != null
+                                  ? Image.network(banner!.imageUrl,
+                                      fit: BoxFit.cover)
+                                  : Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.add_photo_alternate_outlined,
+                                          size: 32,
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          'Select Image (1200x480)',
+                                          style: theme.textTheme.bodySmall,
+                                        ),
+                                      ],
+                                    ),
                     ),
                   ),
                 );
@@ -346,7 +471,8 @@ class AddEditBannerDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        AppTextButton(label: 'Cancel', onPressed: () => Navigator.pop(context)),
+        AppTextButton(
+            label: 'Cancel', onPressed: () => Navigator.pop(context)),
         BlocBuilder<BannerImageCubit, BannerImageState>(
           builder: (context, state) {
             final File? pickedFile = state is BannerImageSuccess
@@ -367,8 +493,9 @@ class AddEditBannerDialog extends StatelessWidget {
 
 class _EmptyState extends StatelessWidget {
   final VoidCallback onAdd;
+  final String searchQuery;
 
-  const _EmptyState({required this.onAdd});
+  const _EmptyState({required this.onAdd, required this.searchQuery});
 
   @override
   Widget build(BuildContext context) {
@@ -386,26 +513,29 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No Banners Found',
+              searchQuery.isEmpty ? 'No Banners Found' : 'No Matches',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              'Create display banners for promotions and announcements.',
+              searchQuery.isEmpty
+                  ? 'Create display banners for promotions and announcements.'
+                  : 'No banners match "$searchQuery"',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 20),
-            AppButton(
-              label: 'Add Banner',
-              icon: const Icon(Icons.add_rounded),
-              expanded: false,
-              onPressed: onAdd,
-            ),
+            if (searchQuery.isEmpty)
+              AppButton(
+                label: 'Add Banner',
+                icon: const Icon(Icons.add_rounded),
+                expanded: false,
+                onPressed: onAdd,
+              ),
           ],
         ),
       ),

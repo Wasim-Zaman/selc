@@ -3,23 +3,24 @@
 import 'dart:developer';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:gep/cubits/enrolled_students_admin/enrolled_students_cubit.dart';
 import 'package:gep/models/enrolled_students.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
-import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class StudentsStatsTab extends StatelessWidget {
-  final EnrolledStudentsServices enrolledStudentsServices;
-
-  const StudentsStatsTab({super.key, required this.enrolledStudentsServices});
+  const StudentsStatsTab({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final service = context.read<EnrolledStudentsAdminCubit>().service;
+
     return FutureBuilder<List<EnrolledStudent>>(
-      future: _getCurrentYearStudents(),
+      future: _getCurrentYearStudents(service),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return PlaceholderWidgets.studentsStatsTabPlaceholder();
@@ -210,9 +211,9 @@ class StudentsStatsTab extends StatelessWidget {
             FlSpot(index.toDouble(), enrollmentCounts[index].toDouble()));
   }
 
-  Future<List<EnrolledStudent>> _getCurrentYearStudents() async {
+  Future<List<EnrolledStudent>> _getCurrentYearStudents(dynamic service) async {
     final currentYear = DateTime.now().year;
-    return await enrolledStudentsServices.getStudentsByYear(currentYear);
+    return await service.getStudentsByYear(currentYear);
   }
 
   String _formatDate(DateTime date) {

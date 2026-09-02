@@ -1,18 +1,48 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gep/cubits/admin/admin_cubit.dart';
-import 'package:gep/models/admission_announcement.dart';
 import 'package:gep/core/constants/constants.dart';
+import 'package:gep/cubits/admin/admin_cubit.dart';
+import 'package:gep/cubits/admissions/admissions_cubit.dart';
+import 'package:gep/cubits/admissions/admissions_state.dart';
+import 'package:gep/models/admission_announcement.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/app_text_button.dart';
+import 'package:gep/view/widgets/paginated_widget.dart';
+import 'package:material_ui/material_ui.dart';
 
-class AdminAdmissionsScreen extends StatelessWidget {
+class AdminAdmissionsScreen extends StatefulWidget {
   const AdminAdmissionsScreen({super.key});
+
+  @override
+  State<AdminAdmissionsScreen> createState() => _AdminAdmissionsScreenState();
+}
+
+class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    context.read<AdmissionsCubit>().fetchPage(0);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final textColorSecondary = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
     final adminCubit = context.read<AdminCubit>();
 
     return AppScaffold(
@@ -23,49 +53,167 @@ class AdminAdmissionsScreen extends StatelessWidget {
           onPressed: () => _showAddEditDialog(context, adminCubit),
         ),
       ],
-      body: BlocConsumer<AdminCubit, AdminState>(
+      body: BlocConsumer<AdmissionsCubit, AdmissionsState>(
         listener: (context, state) {
-          if (state is AdminSuccess) {
-            TopSnackbar.success(context, state.message);
-          } else if (state is AdminFailure) {
-            TopSnackbar.error(context, state.error);
+          if (state.error != null && !state.isLoading && !state.isRefreshing) {
+            TopSnackbar.error(context, state.error!);
           }
         },
         builder: (context, state) {
-          if (state is AdminLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return StreamBuilder<List<AdmissionAnnouncement>>(
-            stream: adminCubit.getAdmissionAnnouncementsStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No announcements available'));
-              }
-              return ListView.separated(
-                padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                itemCount: snapshot.data!.length,
-                separatorBuilder: (context, index) => const Divider(),
-                itemBuilder: (context, index) {
-                  return AnnouncementCard(
-                    announcement: snapshot.data![index],
-                    onEdit: () => _showAddEditDialog(
-                      context,
-                      adminCubit,
-                      announcement: snapshot.data![index],
+          final items = state.items;
+          final isLoading = state.isLoading && items.isEmpty;
+
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            slivers: [
+              // Search
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppConstants.defaultPadding,
+                    12,
+                    AppConstants.defaultPadding,
+                    12,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: borderColor),
                     ),
-                    onDelete: () => _deleteAnnouncement(
-                      context,
-                      adminCubit,
-                      snapshot.data![index].id,
+                    child: Row(
+                      children: [
+                        Icon(Icons.search_rounded,
+                            size: 20, color: textColorSecondary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (v) => context
+                                .read<AdmissionsCubit>()
+                                .setSearchQuery(v),
+                            decoration: InputDecoration(
+                              hintText: 'Search announcements…',
+                              hintStyle: theme.textTheme.bodyMedium
+                                  ?.copyWith(color: textColorSecondary),
+                              border: InputBorder.none,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ),
+                        if (_searchController.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              context.read<AdmissionsCubit>().clearSearch();
+                            },
+                            child: Icon(Icons.close_rounded,
+                                size: 18, color: textColorSecondary),
+                          ),
+                      ],
                     ),
-                  );
-                },
-              );
-            },
+                  ),
+                ),
+              ),
+
+              if (isLoading)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (state.error != null && items.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline_rounded,
+                            size: 48, color: AppColors.error),
+                        const SizedBox(height: 12),
+                        Text('Failed to load announcements',
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                )
+              else if (items.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Text(
+                      state.searchQuery.isEmpty
+                          ? 'No announcements available'
+                          : 'No matches for "${state.searchQuery}"',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppConstants.defaultPadding,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final announcement = items[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: AnnouncementCard(
+                          announcement: announcement,
+                          onEdit: () => _showAddEditDialog(
+                            context,
+                            adminCubit,
+                            announcement: announcement,
+                          ),
+                          onDelete: () => _deleteAnnouncement(
+                            context,
+                            adminCubit,
+                            announcement.id,
+                          ),
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(delay: (30 + index * 20).ms)
+                          .slideY(begin: 0.05, end: 0);
+                    }, childCount: items.length),
+                  ),
+                ),
+
+              // Pagination
+              if (items.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppConstants.defaultPadding,
+                      8,
+                      AppConstants.defaultPadding,
+                      24,
+                    ),
+                    child: PaginatedWidget(
+                      isLoading: state.isLoading || state.isRefreshing,
+                      hasPrevious: state.currentPage > 0,
+                      hasNext: state.hasMore,
+                      onPrevious: () =>
+                          context.read<AdmissionsCubit>().previousPage(),
+                      onNext: () =>
+                          context.read<AdmissionsCubit>().nextPage(),
+                      onPageSelected: (page) =>
+                          context.read<AdmissionsCubit>().goToPage(page),
+                      onRefresh: () =>
+                          context.read<AdmissionsCubit>().refresh(),
+                      currentPage: state.currentPage,
+                      pageSize: 10,
+                    ),
+                  ),
+                ),
+            ],
           );
         },
       ),
@@ -124,10 +272,15 @@ class AnnouncementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        vertical: 4,
-        horizontal: AppConstants.defaultPadding,
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: ListTile(
         title: Text(
@@ -220,13 +373,13 @@ class _AddEditAnnouncementDialogState extends State<AddEditAnnouncementDialog> {
                 Expanded(
                   child: AppTextButton(
                     onPressed: () => _selectDate(context, isStartDate: true),
-                    label: 'Start Date: ${_formatDate(_startDate)}',
+                    label: 'Start: ${_formatDate(_startDate)}',
                   ),
                 ),
                 Expanded(
                   child: AppTextButton(
                     onPressed: () => _selectDate(context, isStartDate: false),
-                    label: 'End Date: ${_formatDate(_endDate)}',
+                    label: 'End: ${_formatDate(_endDate)}',
                   ),
                 ),
               ],

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/models/paginated_result.dart';
 import 'package:gep/services/analytics/analytics_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -20,6 +21,30 @@ class EnrolledStudentsServices {
       students.sort((a, b) => a.name.compareTo(b.name));
       return students;
     });
+  }
+
+  Future<PaginatedResult<EnrolledStudent>> getStudentsPaginated({
+    required int page,
+    required int pageSize,
+    String? searchQuery,
+  }) async {
+    final from = page * pageSize;
+    final to = from + pageSize;
+
+    var query = _supabase.from(_table).select();
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      query = query.or('name.ilike.%$searchQuery%,email.ilike.%$searchQuery%');
+    }
+
+    final data = await query.order('name', ascending: true).range(from, to);
+
+    final hasMore = data.length > pageSize;
+    final items = data
+        .take(pageSize)
+        .map((row) => _fromRow(row, row['id']?.toString() ?? ''))
+        .toList();
+
+    return PaginatedResult(items: items, hasMore: hasMore);
   }
 
   Future<void> addStudent(EnrolledStudent student) async {

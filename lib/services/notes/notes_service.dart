@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:gep/models/note.dart';
+import 'package:gep/models/paginated_result.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotesService {
@@ -49,6 +50,45 @@ class NotesService {
         .map((rows) => rows.map((row) => row['id'] as String).toList());
   }
 
+  /// Fetch a paginated slice of categories ordered by newest first.
+  ///
+  /// [page] is zero-based. Returns at most [pageSize] items plus a
+  /// [hasMore] flag determined by requesting one extra row.
+  ///
+  /// Optionally filter by [searchQuery] using a case-insensitive
+  /// partial match on the category id (name).
+  Future<PaginatedResult<String>> getCategoriesPaginated({
+    required int page,
+    required int pageSize,
+    String? searchQuery,
+  }) async {
+    try {
+      final from = page * pageSize;
+      final to = from + pageSize; // fetch one extra to detect hasMore
+
+      var query = _supabase.from(_categoriesTable).select('id');
+
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        query = query.ilike('id', '%$searchQuery%');
+      }
+
+      final data = await query
+          .order('created_at', ascending: false)
+          .range(from, to);
+
+      final hasMore = data.length > pageSize;
+      final items = data
+          .take(pageSize)
+          .map<String>((row) => row['id'] as String)
+          .toList();
+
+      return PaginatedResult(items: items, hasMore: hasMore);
+    } catch (e) {
+      log('Error fetching paginated categories: $e');
+      rethrow;
+    }
+  }
+
   Future<void> addNote(String category, String title, String url) async {
     await _supabase.from(_notesTable).insert({
       'category_id': category,
@@ -79,5 +119,46 @@ class NotesService {
       notes.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       return notes;
     });
+  }
+
+  Future<PaginatedResult<Note>> getNotesPaginated({
+    required String category,
+    required int page,
+    required int pageSize,
+    String? searchQuery,
+  }) async {
+    try {
+      final from = page * pageSize;
+      final to = from + pageSize;
+
+      var query = _supabase
+          .from(_notesTable)
+          .select()
+          .eq('category_id', category);
+
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        query = query.ilike('title', '%$searchQuery%');
+      }
+
+      final data = await query
+          .order('timestamp', ascending: false)
+          .range(from, to);
+
+      final hasMore = data.length > pageSize;
+      final items = data
+          .take(pageSize)
+          .map((row) => Note.fromMap(row['id'] as String, {
+                'title': row['title'],
+                'url': row['url'],
+                'timestamp': row['timestamp'],
+                'accessGranted': row['access_granted'] ?? false,
+              }))
+          .toList();
+
+      return PaginatedResult(items: items, hasMore: hasMore);
+    } catch (e) {
+      log('Error fetching paginated notes: $e');
+      rethrow;
+    }
   }
 }

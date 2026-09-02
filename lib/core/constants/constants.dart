@@ -7,6 +7,7 @@ class Images {
 }
 
 class AppIcons {
+  static const gepLogo = "assets/icons/icon_foreground.png";
   static const gepLogoLight = "assets/icons/icon_navy.png";
   static const gepLogoDark = "assets/icons/icon_black.png";
   static const siginLight = "assets/icons/signin_light.png";

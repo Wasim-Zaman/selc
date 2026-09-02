@@ -1,15 +1,16 @@
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gep/core/constants/constants.dart';
+import 'package:gep/cubits/notes_categories/notes_categories_cubit.dart';
+import 'package:gep/cubits/notes_categories/notes_categories_state.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/paginated_widget.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:material_ui/material_ui.dart';
-
-import '../../../../../cubits/admin/admin_cubit.dart';
 
 class AdminNotesCategoriesScreen extends StatefulWidget {
   const AdminNotesCategoriesScreen({super.key});
@@ -22,23 +23,27 @@ class AdminNotesCategoriesScreen extends StatefulWidget {
 class _AdminNotesCategoriesScreenState
     extends State<AdminNotesCategoriesScreen> {
   late final TextEditingController _categoryController;
+  late final TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
     _categoryController = TextEditingController();
+    _searchController = TextEditingController();
+    context.read<NotesCategoriesCubit>().fetchPage(0);
   }
 
   @override
   void dispose() {
     _categoryController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   void _handleAddCategory() {
     final text = _categoryController.text.trim();
     if (text.isNotEmpty) {
-      context.read<AdminCubit>().addCategory(text);
+      context.read<NotesCategoriesCubit>().addCategory(text);
       _categoryController.clear();
       FocusScope.of(context).unfocus();
     } else {
@@ -63,11 +68,15 @@ class _AdminNotesCategoriesScreenState
     return AppScaffold(
       backgroundColor: backgroundColor,
       title: 'Categories',
-      body: StreamBuilder<List<String>>(
-        stream: context.read<AdminCubit>().getCategoriesStream(),
-        builder: (context, snapshot) {
-          final categories = snapshot.data ?? [];
-          final isLoading = snapshot.connectionState == ConnectionState.waiting;
+      body: BlocConsumer<NotesCategoriesCubit, NotesCategoriesState>(
+        listener: (context, state) {
+          if (state.error != null && !state.isLoading && !state.isRefreshing) {
+            TopSnackbar.error(context, state.error!);
+          }
+        },
+        builder: (context, state) {
+          final categories = state.items;
+          final isLoading = state.isLoading && categories.isEmpty;
 
           return CustomScrollView(
             physics: const BouncingScrollPhysics(
@@ -151,10 +160,8 @@ class _AdminNotesCategoriesScreenState
                                       onTap: _handleAddCategory,
                                       child: Material(
                                         borderRadius: BorderRadius.circular(16),
-                                        color: isDark
-                                            ? AppColors.secondary
-                                            : AppColors.primary,
-                                        child: Icon(
+                                        color: AppColors.secondary,
+                                        child: const Icon(
                                           Icons.add_rounded,
                                           size: 28,
                                         ),
@@ -169,6 +176,69 @@ class _AdminNotesCategoriesScreenState
                         .animate()
                         .fadeIn(duration: 200.ms)
                         .slideY(begin: -0.04, end: 0),
+              ),
+
+              // Search Bar
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppConstants.defaultPadding,
+                    0,
+                    AppConstants.defaultPadding,
+                    12,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: borderColor),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.search_rounded,
+                          size: 20,
+                          color: textColorSecondary,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (value) => context
+                                .read<NotesCategoriesCubit>()
+                                .setSearchQuery(value),
+                            decoration: InputDecoration(
+                              hintText: 'Search categories…',
+                              hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                                color: textColorSecondary,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                              ),
+                            ),
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ),
+                        if (_searchController.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              _searchController.clear();
+                              context
+                                  .read<NotesCategoriesCubit>()
+                                  .clearSearch();
+                            },
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: textColorSecondary,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
 
               // Section Label with Dynamic Count
@@ -190,7 +260,9 @@ class _AdminNotesCategoriesScreenState
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'ALL CATEGORIES',
+                            state.searchQuery.isEmpty
+                                ? 'ALL CATEGORIES'
+                                : 'SEARCH RESULTS',
                             style: theme.textTheme.labelSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               letterSpacing: 1.1,
@@ -228,7 +300,7 @@ class _AdminNotesCategoriesScreenState
 
               const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
-              // Stream View Handling
+              // Paginated View Handling
               if (isLoading)
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(
@@ -238,7 +310,7 @@ class _AdminNotesCategoriesScreenState
                     child: PlaceholderWidgets.listPlaceholder(),
                   ),
                 )
-              else if (snapshot.hasError)
+              else if (state.error != null && categories.isEmpty)
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
@@ -291,7 +363,9 @@ class _AdminNotesCategoriesScreenState
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Add a new category above to get started',
+                          state.searchQuery.isEmpty
+                              ? 'Add a new category above to get started'
+                              : 'No matches for "${state.searchQuery}"',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: textColorSecondary,
                           ),
@@ -369,7 +443,7 @@ class _AdminNotesCategoriesScreenState
                                                 size: 20,
                                               ),
                                               onPressed: () => context
-                                                  .read<AdminCubit>()
+                                                  .read<NotesCategoriesCubit>()
                                                   .deleteCategory(category),
                                             ),
                                             const SizedBox(width: 2),
@@ -389,6 +463,34 @@ class _AdminNotesCategoriesScreenState
                                 .slideY(begin: 0.05, end: 0),
                       );
                     }, childCount: categories.length),
+                  ),
+                ),
+
+              // Pagination Controls
+              if (categories.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppConstants.defaultPadding,
+                      8,
+                      AppConstants.defaultPadding,
+                      4,
+                    ),
+                    child: PaginatedWidget(
+                      isLoading: state.isLoading || state.isRefreshing,
+                      hasPrevious: state.currentPage > 0,
+                      hasNext: state.hasMore,
+                      onPrevious: () =>
+                          context.read<NotesCategoriesCubit>().previousPage(),
+                      onNext: () =>
+                          context.read<NotesCategoriesCubit>().nextPage(),
+                      onPageSelected: (page) =>
+                          context.read<NotesCategoriesCubit>().goToPage(page),
+                      onRefresh: () =>
+                          context.read<NotesCategoriesCubit>().refresh(),
+                      currentPage: state.currentPage,
+                      pageSize: 15,
+                    ),
                   ),
                 ),
 

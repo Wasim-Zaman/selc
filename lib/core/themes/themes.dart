@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 class AppThemes {
   // Light Theme Palette
-  static const Color _lightBackground = Color(0xFFA8F8F9);
+  static const Color _lightBackground = Color(0xFFF8FAFC);
   static const Color _lightSurface = Color(0xFFFFFFFF);
   static const Color _lightSurfaceVariant = Color(0xFFF1F5F9);
   static const Color _lightTextPrimary = Color(0xFF0F172A);

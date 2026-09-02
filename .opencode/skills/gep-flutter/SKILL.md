@@ -48,14 +48,14 @@ lib/
   gep_app.dart               # MyApp -> MaterialApp.router
   core/constants/            # AppColors, AppGradients, AppLotties, AppIcons
   core/themes/               # AppThemes.lightTheme / darkTheme
-  cubits/<feature>/          # one cubit per feature
-  models/                    # data models
+  cubits/<feature>/          # one cubit per feature / screen
+  models/                    # data models + PaginatedResult<T>
   router/                    # AppRouter (go_router), AppRoutes, AppNavigation
   services/                  # auth, analytics, supabase services
   view/
     screens/user/            # user-facing screens (dashboard, notes, ...)
     screens/admin/           # admin panel screens
-    widgets/                 # shared widgets (AppDrawer, BannerSlider, ...)
+    widgets/                 # shared widgets (AppDrawer, BannerSlider, PaginatedWidget)
 ```
 
 ## Theme Toggle
@@ -256,3 +256,120 @@ class _SectionHeader extends StatelessWidget {
 - [ ] Theme-aware colors (`AppColors.darkXxx` / `AppColors.lightXxx`).
 - [ ] `AppDrawer` if the screen has a drawer.
 - [ ] No raw `Scaffold`, no `flutter/material.dart`, no hardcoded routes.
+
+---
+
+## Pagination & State Management Architecture
+
+### 9. One Cubit Per Screen (No StreamBuilder in UI)
+
+**Never** use `StreamBuilder` directly in a screen for list data. Every list
+screen gets its own dedicated Cubit registered at the app level in
+`main.dart`. This ensures state survives hot reload, pull-to-refresh, and
+navigation.
+
+```dart
+// main.dart
+BlocProvider(create: (context) => UserNotesCubit(NotesService())),
+```
+
+The cubit holds:
+- `items` — current page of data
+- `currentPage` — zero-based page index
+- `hasMore` — cursor pagination flag
+- `isLoading` / `isRefreshing` — distinct loading states
+- `searchQuery` — optional debounced filter
+
+### 10. Cursor Pagination via Supabase
+
+All list endpoints use **cursor pagination** (no `COUNT` queries):
+
+```dart
+Future<PaginatedResult<T>> getItemsPaginated({
+  required int page,
+  required int pageSize,
+  String? searchQuery,
+}) async {
+  final from = page * pageSize;
+  final to = from + pageSize;        // fetch one extra row
+
+  var query = _supabase.from(_table).select();
+  if (searchQuery != null && searchQuery.isNotEmpty) {
+    query = query.ilike('title', '%$searchQuery%');
+  }
+
+  final data = await query
+      .order('created_at', ascending: false)
+      .range(from, to);
+
+  final hasMore = data.length > pageSize;
+  final items = data.take(pageSize).map(...).toList();
+
+  return PaginatedResult(items: items, hasMore: hasMore);
+}
+```
+
+- `PaginatedResult<T>` lives in `lib/models/paginated_result.dart`
+- Page size defaults: **15** for notes/categories, **10** for everything else
+
+### 11. Search with Debounce
+
+Every paginated list includes a search bar. Queries are debounced (400 ms)
+and reset to page 0:
+
+```dart
+void setSearchQuery(String query) {
+  _debounceTimer?.cancel();
+  _debounceTimer = Timer(const Duration(milliseconds: 400), () {
+    emit(state.copyWith(searchQuery: query.trim(), currentPage: 0));
+    fetchPage(0);
+  });
+}
+```
+
+Search uses Supabase `.ilike()` for case-insensitive partial matching.
+
+### 12. `PaginatedWidget` for Navigation
+
+Use `lib/view/widgets/paginated_widget.dart` at the bottom of every
+paginated list. It provides:
+- **Previous / Next** chevrons (disabled at bounds)
+- **Numbered page buttons** with ellipsis for gaps
+- **Refresh** spinner
+- **Range indicator** (e.g. "1–15 of 47")
+
+```dart
+SliverToBoxAdapter(
+  child: PaginatedWidget(
+    isLoading: state.isLoading || state.isRefreshing,
+    hasPrevious: state.currentPage > 0,
+    hasNext: state.hasMore,
+    onPrevious: () => context.read<MyCubit>().previousPage(),
+    onNext: () => context.read<MyCubit>().nextPage(),
+    onPageSelected: (page) => context.read<MyCubit>().goToPage(page),
+    onRefresh: () => context.read<MyCubit>().refresh(),
+    currentPage: state.currentPage,
+    pageSize: 10,
+  ),
+)
+```
+
+### 13. Cubit Naming Conventions
+
+- Admin mutating cubits: `NotesCategoriesCubit`, `BannersCubit`, `AdmissionsCubit`,
+  `UpdatesAdminCubit`, `EnrolledStudentsAdminCubit`, `CoursesCubit`
+- User read-only cubits: `UserNotesCubit`, `UserAdmissionsCubit`,
+  `UserCoursesCubit`, `UserUpdatesCubit`, `UserStudentsCubit`
+- Shared: `NotesCategoriesCubit` (used by both admin and user)
+
+### 14. Silent Refresh Pattern
+
+`fetchPage(page, silent: true)` keeps the existing list visible while
+refreshing in the background. Use this for:
+- Pull-to-refresh gestures
+- After add/delete mutations
+- Periodic background refresh
+
+```dart
+Future<void> refresh() => fetchPage(state.currentPage, silent: true);
+```
