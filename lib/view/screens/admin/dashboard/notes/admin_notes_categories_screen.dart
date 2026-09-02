@@ -187,42 +187,13 @@ class _AdminNotesCategoriesScreenState
                     AppConstants.defaultPadding,
                     12,
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.search_rounded,
-                          size: 20,
-                          color: textColorSecondary,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (value) => context
-                                .read<NotesCategoriesCubit>()
-                                .setSearchQuery(value),
-                            decoration: InputDecoration(
-                              hintText: 'Search categories…',
-                              hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                                color: textColorSecondary,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 14,
-                              ),
-                            ),
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ),
-                        if (_searchController.text.isNotEmpty)
-                          GestureDetector(
+                  child: TextFieldWidget(
+                    controller: _searchController,
+                    labelText: 'Search categories',
+                    hintText: 'Search categories…',
+                    prefixIcon: Icons.search_rounded,
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? GestureDetector(
                             onTap: () {
                               _searchController.clear();
                               context
@@ -234,9 +205,11 @@ class _AdminNotesCategoriesScreenState
                               size: 18,
                               color: textColorSecondary,
                             ),
-                          ),
-                      ],
-                    ),
+                          )
+                        : null,
+                    onChanged: (value) => context
+                        .read<NotesCategoriesCubit>()
+                        .setSearchQuery(value),
                   ),
                 ),
               ),

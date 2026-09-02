@@ -7,6 +7,7 @@ import 'package:gep/models/updates.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/paginated_widget.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -37,8 +38,6 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
-    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textColorSecondary = isDark
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
@@ -64,46 +63,24 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
                     AppConstants.defaultPadding,
                     12,
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search_rounded,
-                            size: 20, color: textColorSecondary),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (v) => context
-                                .read<UserUpdatesCubit>()
-                                .setSearchQuery(v),
-                            decoration: InputDecoration(
-                              hintText: 'Search updates…',
-                              hintStyle: theme.textTheme.bodyMedium
-                                  ?.copyWith(color: textColorSecondary),
-                              border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ),
-                        if (_searchController.text.isNotEmpty)
-                          GestureDetector(
+                  child: TextFieldWidget(
+                    controller: _searchController,
+                    labelText: 'Search updates',
+                    hintText: 'Search updates…',
+                    prefixIcon: Icons.search_rounded,
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? GestureDetector(
                             onTap: () {
                               _searchController.clear();
                               context.read<UserUpdatesCubit>().clearSearch();
                             },
                             child: Icon(Icons.close_rounded,
                                 size: 18, color: textColorSecondary),
-                          ),
-                      ],
-                    ),
+                          )
+                        : null,
+                    onChanged: (v) => context
+                        .read<UserUpdatesCubit>()
+                        .setSearchQuery(v),
                   ),
                 ),
               ),

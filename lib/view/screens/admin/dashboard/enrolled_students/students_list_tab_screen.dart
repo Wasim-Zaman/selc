@@ -14,6 +14,7 @@ import 'package:gep/view/widgets/app_delete_button.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/app_text_button.dart';
 import 'package:gep/view/widgets/paginated_widget.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:material_ui/material_ui.dart';
 
 class StudentsListTab extends StatefulWidget {
@@ -74,37 +75,13 @@ class _StudentsListTabState extends State<StudentsListTab> {
                     AppConstants.defaultPadding,
                     12,
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search_rounded,
-                            size: 20, color: textColorSecondary),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (v) => context
-                                .read<EnrolledStudentsAdminCubit>()
-                                .setSearchQuery(v),
-                            decoration: InputDecoration(
-                              hintText: 'Search students…',
-                              hintStyle: theme.textTheme.bodyMedium
-                                  ?.copyWith(color: textColorSecondary),
-                              border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ),
-                        if (_searchController.text.isNotEmpty)
-                          GestureDetector(
+                  child: TextFieldWidget(
+                    controller: _searchController,
+                    labelText: 'Search students',
+                    hintText: 'Search students…',
+                    prefixIcon: Icons.search_rounded,
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? GestureDetector(
                             onTap: () {
                               _searchController.clear();
                               context
@@ -113,9 +90,11 @@ class _StudentsListTabState extends State<StudentsListTab> {
                             },
                             child: Icon(Icons.close_rounded,
                                 size: 18, color: textColorSecondary),
-                          ),
-                      ],
-                    ),
+                          )
+                        : null,
+                    onChanged: (v) => context
+                        .read<EnrolledStudentsAdminCubit>()
+                        .setSearchQuery(v),
                   ),
                 ),
               ),

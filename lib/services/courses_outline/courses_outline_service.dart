@@ -25,7 +25,7 @@ class CoursesOutlineService {
       query = query.ilike('title', '%$searchQuery%');
     }
 
-    final data = await query.order('created_at', ascending: false).range(from, to);
+    final data = await query.order('id', ascending: false).range(from, to);
 
     final hasMore = data.length > pageSize;
     final items = data.take(pageSize).map((row) => _mapCourse(row)).toList();

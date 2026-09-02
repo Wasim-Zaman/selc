@@ -78,45 +78,26 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> {
                     AppConstants.defaultPadding,
                     12,
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search_rounded,
-                            size: 20, color: textColorSecondary),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (v) =>
-                                context.read<CoursesCubit>().setSearchQuery(v),
-                            decoration: InputDecoration(
-                              hintText: 'Search courses…',
-                              hintStyle: theme.textTheme.bodyMedium
-                                  ?.copyWith(color: textColorSecondary),
-                              border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ),
-                        if (_searchController.text.isNotEmpty)
-                          GestureDetector(
+                  child: TextFieldWidget(
+                    controller: _searchController,
+                    labelText: 'Search courses',
+                    hintText: 'Search courses…',
+                    prefixIcon: Icons.search_rounded,
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? GestureDetector(
                             onTap: () {
                               _searchController.clear();
                               context.read<CoursesCubit>().clearSearch();
                             },
-                            child: Icon(Icons.close_rounded,
-                                size: 18, color: textColorSecondary),
-                          ),
-                      ],
-                    ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: textColorSecondary,
+                            ),
+                          )
+                        : null,
+                    onChanged: (v) =>
+                        context.read<CoursesCubit>().setSearchQuery(v),
                   ),
                 ),
               ),
@@ -273,117 +254,134 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> {
                       final course = courses[index];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: borderColor),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(
-                                  alpha: isDark ? 0.2 : 0.02,
-                                ),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () =>
-                                  _showCourseSheet(context, course: course),
-                              child: Padding(
-                                padding: const EdgeInsets.all(14),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: isDark
-                                            ? AppColors.darkNeutral
-                                            : AppColors.lightNeutral,
-                                        borderRadius: BorderRadius.circular(14),
+                        child:
+                            Container(
+                                  decoration: BoxDecoration(
+                                    color: cardColor,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: borderColor),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: isDark ? 0.2 : 0.02,
+                                        ),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
                                       ),
-                                      child: Icon(
-                                        Icons.auto_stories_rounded,
-                                        size: 22,
-                                        color: isDark
-                                            ? AppColors.darkIcon
-                                            : AppColors.primary,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            course.title,
-                                            style: theme.textTheme.titleMedium
-                                                ?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.calendar_today_rounded,
-                                                size: 12,
-                                                color: textColorSecondary,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                '${course.weeks.length} weeks duration',
-                                                style: theme
-                                                    .textTheme.bodySmall
-                                                    ?.copyWith(
-                                                  color: textColorSecondary,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.edit_outlined,
-                                        color: isDark
-                                            ? AppColors.darkIcon
-                                            : AppColors.primary,
-                                        size: 20,
-                                      ),
-                                      onPressed: () => _showCourseSheet(
+                                    ],
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(20),
+                                      onTap: () => _showCourseSheet(
                                         context,
                                         course: course,
                                       ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.delete_outline_rounded,
-                                        color: AppColors.error.withValues(
-                                          alpha: 0.85,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(14),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: isDark
+                                                    ? AppColors.darkNeutral
+                                                    : AppColors.lightNeutral,
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                              ),
+                                              child: Icon(
+                                                Icons.auto_stories_rounded,
+                                                size: 22,
+                                                color: isDark
+                                                    ? AppColors.darkIcon
+                                                    : AppColors.primary,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 14),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    course.title,
+                                                    style: theme
+                                                        .textTheme
+                                                        .titleMedium
+                                                        ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 15,
+                                                        ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  const SizedBox(height: 2),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .calendar_today_rounded,
+                                                        size: 12,
+                                                        color:
+                                                            textColorSecondary,
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        '${course.weeks.length} weeks duration',
+                                                        style: theme
+                                                            .textTheme
+                                                            .bodySmall
+                                                            ?.copyWith(
+                                                              color:
+                                                                  textColorSecondary,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.edit_outlined,
+                                                color: isDark
+                                                    ? AppColors.darkIcon
+                                                    : AppColors.primary,
+                                                size: 20,
+                                              ),
+                                              onPressed: () => _showCourseSheet(
+                                                context,
+                                                course: course,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.delete_outline_rounded,
+                                                color: AppColors.error
+                                                    .withValues(alpha: 0.85),
+                                                size: 20,
+                                              ),
+                                              onPressed: () => _deleteCourse(
+                                                context,
+                                                course,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        size: 20,
                                       ),
-                                      onPressed: () =>
-                                          _deleteCourse(context, course),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ).animate().fadeIn(delay: (30 + index * 20).ms).slideY(
-                            begin: 0.05, end: 0),
+                                  ),
+                                )
+                                .animate()
+                                .fadeIn(delay: (30 + index * 20).ms)
+                                .slideY(begin: 0.05, end: 0),
                       );
                     }, childCount: courses.length),
                   ),
@@ -617,8 +615,7 @@ class _CourseSheetState extends State<_CourseSheet> {
                       : 'Save Changes',
                   onPressed: _submit,
                 ),
-                SizedBox(
-                    height: MediaQuery.of(context).viewInsets.bottom + 24),
+                SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 24),
               ],
             ),
           ),
@@ -651,9 +648,9 @@ class _CourseSheetState extends State<_CourseSheet> {
               children: [
                 Text(
                   'Week ${idx + 1}',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 if (_weeks.length > 1)
                   IconButton(
@@ -726,8 +723,7 @@ class _CourseSheetState extends State<_CourseSheet> {
   void _addWeek() {
     setState(() {
       _weeks.add(Week(title: '', topics: ['']));
-      _topicControllers
-          .add([TextEditingController(), TextEditingController()]);
+      _topicControllers.add([TextEditingController(), TextEditingController()]);
     });
   }
 
@@ -744,8 +740,7 @@ class _CourseSheetState extends State<_CourseSheet> {
   void _addTopic(int weekIndex) {
     setState(() {
       final updated = List<String>.from(_weeks[weekIndex].topics)..add('');
-      _weeks[weekIndex] =
-          Week(title: _weeks[weekIndex].title, topics: updated);
+      _weeks[weekIndex] = Week(title: _weeks[weekIndex].title, topics: updated);
       _topicControllers[weekIndex].add(TextEditingController());
     });
   }
@@ -756,16 +751,14 @@ class _CourseSheetState extends State<_CourseSheet> {
       _topicControllers[weekIndex].removeAt(topicIndex + 1);
       final updated = List<String>.from(_weeks[weekIndex].topics)
         ..removeAt(topicIndex);
-      _weeks[weekIndex] =
-          Week(title: _weeks[weekIndex].title, topics: updated);
+      _weeks[weekIndex] = Week(title: _weeks[weekIndex].title, topics: updated);
     });
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     final course = Course(
-      id: widget.course?.id ??
-          DateTime.now().millisecondsSinceEpoch.toString(),
+      id: widget.course?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: _courseTitle.text,
       weeks: _weeks,
     );

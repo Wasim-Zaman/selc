@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../../cubits/banner/banner_image_cubit.dart';
+import '../../../../widgets/text_field_widget.dart';
 
 class ManageBannerScreen extends StatefulWidget {
   const ManageBannerScreen({super.key});
@@ -46,8 +47,6 @@ class _ManageBannerScreenState extends State<ManageBannerScreen> {
     final adminCubit = context.read<AdminCubit>();
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
-    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textColorSecondary = isDark
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
@@ -85,45 +84,26 @@ class _ManageBannerScreenState extends State<ManageBannerScreen> {
                     AppConstants.defaultPadding,
                     12,
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search_rounded,
-                            size: 20, color: textColorSecondary),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (v) =>
-                                context.read<BannersCubit>().setSearchQuery(v),
-                            decoration: InputDecoration(
-                              hintText: 'Search banners…',
-                              hintStyle: theme.textTheme.bodyMedium
-                                  ?.copyWith(color: textColorSecondary),
-                              border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ),
-                        if (_searchController.text.isNotEmpty)
-                          GestureDetector(
+                  child: TextFieldWidget(
+                    controller: _searchController,
+                    labelText: 'Search banners',
+                    hintText: 'Search banners…',
+                    prefixIcon: Icons.search_rounded,
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? GestureDetector(
                             onTap: () {
                               _searchController.clear();
                               context.read<BannersCubit>().clearSearch();
                             },
-                            child: Icon(Icons.close_rounded,
-                                size: 18, color: textColorSecondary),
-                          ),
-                      ],
-                    ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: textColorSecondary,
+                            ),
+                          )
+                        : null,
+                    onChanged: (v) =>
+                        context.read<BannersCubit>().setSearchQuery(v),
                   ),
                 ),
               ),
@@ -140,12 +120,18 @@ class _ManageBannerScreenState extends State<ManageBannerScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.error_outline_rounded,
-                            size: 48, color: AppColors.error),
+                        Icon(
+                          Icons.error_outline_rounded,
+                          size: 48,
+                          color: AppColors.error,
+                        ),
                         const SizedBox(height: 12),
-                        Text('Failed to load banners',
-                            style: theme.textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(
+                          'Failed to load banners',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -167,18 +153,21 @@ class _ManageBannerScreenState extends State<ManageBannerScreen> {
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final banner = banners[index];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: _BannerItemCard(
-                          banner: banner,
-                          onEdit: () => _showAddEditDialog(
-                            context,
-                            adminCubit,
-                            banner: banner,
-                          ),
-                          onDelete: () =>
-                              _confirmDelete(context, adminCubit, banner.id),
-                        ),
-                      )
+                            padding: const EdgeInsets.only(bottom: 14),
+                            child: _BannerItemCard(
+                              banner: banner,
+                              onEdit: () => _showAddEditDialog(
+                                context,
+                                adminCubit,
+                                banner: banner,
+                              ),
+                              onDelete: () => _confirmDelete(
+                                context,
+                                adminCubit,
+                                banner.id,
+                              ),
+                            ),
+                          )
                           .animate()
                           .fadeIn(delay: (30 + index * 20).ms)
                           .slideY(begin: 0.05, end: 0);
@@ -372,7 +361,7 @@ class AddEditBannerDialog extends StatelessWidget {
   final TextEditingController _titleController;
 
   AddEditBannerDialog({super.key, required this.adminCubit, this.banner})
-      : _titleController = TextEditingController(text: banner?.title ?? '');
+    : _titleController = TextEditingController(text: banner?.title ?? '');
 
   void _save(BuildContext context, File? imageFile) {
     final title = _titleController.text.trim();
@@ -403,12 +392,10 @@ class AddEditBannerDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
+            TextFieldWidget(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Banner Title',
-                prefixIcon: Icon(Icons.title_rounded),
-              ),
+              labelText: 'Banner Title',
+              prefixIcon: Icons.title_rounded,
             ),
             const SizedBox(height: 16),
             BlocBuilder<BannerImageCubit, BannerImageState>(
@@ -442,26 +429,24 @@ class AddEditBannerDialog extends StatelessWidget {
                       child: isProcessing
                           ? const Center(child: CircularProgressIndicator())
                           : pickedFile != null
-                              ? Image.file(pickedFile, fit: BoxFit.cover)
-                              : banner != null
-                                  ? Image.network(banner!.imageUrl,
-                                      fit: BoxFit.cover)
-                                  : Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.add_photo_alternate_outlined,
-                                          size: 32,
-                                          color: theme.colorScheme.primary,
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          'Select Image (1200x480)',
-                                          style: theme.textTheme.bodySmall,
-                                        ),
-                                      ],
-                                    ),
+                          ? Image.file(pickedFile, fit: BoxFit.cover)
+                          : banner != null
+                          ? Image.network(banner!.imageUrl, fit: BoxFit.cover)
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.add_photo_alternate_outlined,
+                                  size: 32,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Select Image (1200x480)',
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 );
@@ -471,8 +456,7 @@ class AddEditBannerDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        AppTextButton(
-            label: 'Cancel', onPressed: () => Navigator.pop(context)),
+        AppTextButton(label: 'Cancel', onPressed: () => Navigator.pop(context)),
         BlocBuilder<BannerImageCubit, BannerImageState>(
           builder: (context, state) {
             final File? pickedFile = state is BannerImageSuccess

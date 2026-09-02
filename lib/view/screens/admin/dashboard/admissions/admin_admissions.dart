@@ -11,6 +11,8 @@ import 'package:gep/view/widgets/app_text_button.dart';
 import 'package:gep/view/widgets/paginated_widget.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../widgets/text_field_widget.dart';
+
 class AdminAdmissionsScreen extends StatefulWidget {
   const AdminAdmissionsScreen({super.key});
 
@@ -38,8 +40,6 @@ class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
-    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textColorSecondary = isDark
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
@@ -77,46 +77,26 @@ class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
                     AppConstants.defaultPadding,
                     12,
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search_rounded,
-                            size: 20, color: textColorSecondary),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (v) => context
-                                .read<AdmissionsCubit>()
-                                .setSearchQuery(v),
-                            decoration: InputDecoration(
-                              hintText: 'Search announcements…',
-                              hintStyle: theme.textTheme.bodyMedium
-                                  ?.copyWith(color: textColorSecondary),
-                              border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ),
-                        if (_searchController.text.isNotEmpty)
-                          GestureDetector(
+                  child: TextFieldWidget(
+                    controller: _searchController,
+                    labelText: 'Search announcements',
+                    hintText: 'Search announcements…',
+                    prefixIcon: Icons.search_rounded,
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? GestureDetector(
                             onTap: () {
                               _searchController.clear();
                               context.read<AdmissionsCubit>().clearSearch();
                             },
-                            child: Icon(Icons.close_rounded,
-                                size: 18, color: textColorSecondary),
-                          ),
-                      ],
-                    ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: textColorSecondary,
+                            ),
+                          )
+                        : null,
+                    onChanged: (v) =>
+                        context.read<AdmissionsCubit>().setSearchQuery(v),
                   ),
                 ),
               ),
@@ -133,12 +113,18 @@ class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.error_outline_rounded,
-                            size: 48, color: AppColors.error),
+                        Icon(
+                          Icons.error_outline_rounded,
+                          size: 48,
+                          color: AppColors.error,
+                        ),
                         const SizedBox(height: 12),
-                        Text('Failed to load announcements',
-                            style: theme.textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(
+                          'Failed to load announcements',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -164,21 +150,21 @@ class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final announcement = items[index];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: AnnouncementCard(
-                          announcement: announcement,
-                          onEdit: () => _showAddEditDialog(
-                            context,
-                            adminCubit,
-                            announcement: announcement,
-                          ),
-                          onDelete: () => _deleteAnnouncement(
-                            context,
-                            adminCubit,
-                            announcement.id,
-                          ),
-                        ),
-                      )
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: AnnouncementCard(
+                              announcement: announcement,
+                              onEdit: () => _showAddEditDialog(
+                                context,
+                                adminCubit,
+                                announcement: announcement,
+                              ),
+                              onDelete: () => _deleteAnnouncement(
+                                context,
+                                adminCubit,
+                                announcement.id,
+                              ),
+                            ),
+                          )
                           .animate()
                           .fadeIn(delay: (30 + index * 20).ms)
                           .slideY(begin: 0.05, end: 0);
@@ -202,8 +188,7 @@ class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
                       hasNext: state.hasMore,
                       onPrevious: () =>
                           context.read<AdmissionsCubit>().previousPage(),
-                      onNext: () =>
-                          context.read<AdmissionsCubit>().nextPage(),
+                      onNext: () => context.read<AdmissionsCubit>().nextPage(),
                       onPageSelected: (page) =>
                           context.read<AdmissionsCubit>().goToPage(page),
                       onRefresh: () =>
@@ -220,8 +205,11 @@ class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
     );
   }
 
-  void _showAddEditDialog(BuildContext context, AdminCubit adminCubit,
-      {AdmissionAnnouncement? announcement}) {
+  void _showAddEditDialog(
+    BuildContext context,
+    AdminCubit adminCubit, {
+    AdmissionAnnouncement? announcement,
+  }) {
     showDialog(
       context: context,
       builder: (context) => AddEditAnnouncementDialog(
@@ -232,13 +220,17 @@ class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
   }
 
   void _deleteAnnouncement(
-      BuildContext context, AdminCubit adminCubit, String id) {
+    BuildContext context,
+    AdminCubit adminCubit,
+    String id,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Announcement'),
-        content:
-            const Text('Are you sure you want to delete this announcement?'),
+        content: const Text(
+          'Are you sure you want to delete this announcement?',
+        ),
         actions: [
           AppTextButton(
             onPressed: () => Navigator.pop(context),
@@ -340,31 +332,33 @@ class _AddEditAnnouncementDialogState extends State<AddEditAnnouncementDialog> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.announcement?.title);
-    _detailsController =
-        TextEditingController(text: widget.announcement?.details);
+    _detailsController = TextEditingController(
+      text: widget.announcement?.details,
+    );
     _startDate = widget.announcement?.startDate ?? DateTime.now();
-    _endDate = widget.announcement?.endDate ??
+    _endDate =
+        widget.announcement?.endDate ??
         DateTime.now().add(const Duration(days: 30));
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.announcement == null
-          ? 'Add Announcement'
-          : 'Edit Announcement'),
+      title: Text(
+        widget.announcement == null ? 'Add Announcement' : 'Edit Announcement',
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            TextFieldWidget(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              labelText: 'Title',
             ),
             const SizedBox(height: 16),
-            TextField(
+            TextFieldWidget(
               controller: _detailsController,
-              decoration: const InputDecoration(labelText: 'Details'),
+              labelText: 'Details',
               maxLines: 3,
             ),
             const SizedBox(height: 16),
@@ -388,14 +382,8 @@ class _AddEditAnnouncementDialogState extends State<AddEditAnnouncementDialog> {
         ),
       ),
       actions: [
-        AppTextButton(
-          onPressed: () => Navigator.pop(context),
-          label: 'Cancel',
-        ),
-        AppTextButton(
-          onPressed: _saveAnnouncement,
-          label: 'Save',
-        ),
+        AppTextButton(onPressed: () => Navigator.pop(context), label: 'Cancel'),
+        AppTextButton(onPressed: _saveAnnouncement, label: 'Save'),
       ],
     );
   }

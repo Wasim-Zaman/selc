@@ -27,7 +27,7 @@ class BannerService {
       query = query.ilike('title', '%$searchQuery%');
     }
 
-    final data = await query.order('created_at', ascending: false).range(from, to);
+    final data = await query.order('id', ascending: false).range(from, to);
 
     final hasMore = data.length > pageSize;
     final items = data
