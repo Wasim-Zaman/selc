@@ -7,9 +7,8 @@ import '../../../../../cubits/courses/courses_state.dart';
 import '../../../../../models/course_outline.dart';
 import '../../../../../utils/snackbars.dart';
 import '../../../../widgets/app_button.dart';
-import '../../../../widgets/app_delete_button.dart';
+import '../../../../widgets/app_dialog.dart';
 import '../../../../widgets/app_scaffold.dart';
-import '../../../../widgets/app_text_button.dart';
 import '../../../../widgets/paginated_widget.dart';
 import '../../../../widgets/placeholder_widget.dart';
 import '../../../../widgets/text_field_widget.dart';
@@ -307,65 +306,13 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> {
   }
 
   void _deleteCourse(BuildContext context, Course course) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    showDialog(
+    AppDialog.showConfirmation(
       context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: AppColors.error,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Text('Delete Course'),
-            ],
-          ),
-          content: Text(
-            'Are you sure you want to delete "${course.title}"?',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: isDark
-                  ? AppColors.darkBodyTextSecondary
-                  : AppColors.lightBodyTextSecondary,
-            ),
-          ),
-          actionsPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-          actions: <Widget>[
-            AppTextButton(
-              label: 'Cancel',
-              onPressed: () => Navigator.of(dialogContext).pop(),
-            ),
-            AppDeleteButton(
-              label: 'Delete',
-              onPressed: () {
-                context.read<CoursesCubit>().deleteCourse(course.id!);
-                Navigator.of(dialogContext).pop();
-              },
-              expanded: false,
-              height: null,
-              borderRadius: 12,
-            ),
-          ],
-        );
-      },
+      title: 'Delete Course',
+      message: 'Are you sure you want to delete "${course.title}"?',
+      cancelLabel: 'Cancel',
+      confirmLabel: 'Delete',
+      isDestructive: true,
     );
   }
 }

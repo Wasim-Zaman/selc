@@ -73,6 +73,7 @@ dependencies:
 
   material_ui: any
   image_cropper: ^12.2.1
+  cupertino_ui: ^1.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
