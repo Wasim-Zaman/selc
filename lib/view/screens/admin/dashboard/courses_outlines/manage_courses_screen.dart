@@ -59,6 +59,14 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> {
 
         return AppScaffold(
           title: 'Manage Courses',
+          floatingActionButton: context.watch<CoursesCubit>().state.isLoading
+              ? null
+              : FloatingActionButton.extended(
+                  onPressed: () => _showCourseSheet(context),
+                  tooltip: 'Add Course',
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Add Course'),
+                ),
           bottomNavigationBar: courses.isNotEmpty
               ? Container(
                   padding: const EdgeInsets.symmetric(
