@@ -378,26 +378,8 @@ class _CourseSheetState extends State<_CourseSheet> {
       margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 24),
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        child: Scaffold(
-          backgroundColor: bg,
-          appBar: AppBar(
-            backgroundColor: bg,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            title: Text(
-              widget.course == null ? 'Add Course' : 'Edit Course',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
+        child: AppScaffold(
+          title: widget.course == null ? 'Add Course' : 'Edit Course',
           body: Form(
             key: _formKey,
             child: ListView(
