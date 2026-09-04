@@ -183,7 +183,7 @@ class AdminCubit extends Cubit<AdminState> {
   Future<void> addBanner(String title, File imageFile) async {
     emit(AdminLoading());
     try {
-      final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final String fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
       final String filePath = 'banners/$fileName';
       final String imageUrl =
           await _storageService.uploadFile(filePath, imageFile);
@@ -193,6 +193,7 @@ class AdminCubit extends Cubit<AdminState> {
       emit(AdminSuccess('Banner added successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
+      rethrow;
     }
   }
 
@@ -201,7 +202,7 @@ class AdminCubit extends Cubit<AdminState> {
     try {
       String imageUrl = banner.imageUrl;
       if (newImageFile != null) {
-        final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final String fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
         final String filePath = 'banners/$fileName';
         imageUrl = await _storageService.uploadFile(filePath, newImageFile);
         await _storageService.deleteFile(banner.imageUrl);
@@ -211,6 +212,7 @@ class AdminCubit extends Cubit<AdminState> {
       emit(AdminSuccess('Banner updated successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
+      rethrow;
     }
   }
 
@@ -223,6 +225,7 @@ class AdminCubit extends Cubit<AdminState> {
       emit(AdminSuccess('Banner deleted successfully'));
     } catch (e) {
       emit(AdminFailure(e.toString()));
+      rethrow;
     }
   }
 

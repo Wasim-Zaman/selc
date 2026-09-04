@@ -1,4 +1,3 @@
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/admin/admin_cubit.dart';
@@ -6,12 +5,14 @@ import 'package:gep/cubits/admissions/admissions_cubit.dart';
 import 'package:gep/cubits/admissions/admissions_state.dart';
 import 'package:gep/models/admission_announcement.dart';
 import 'package:gep/utils/snackbars.dart';
+import 'package:gep/view/widgets/admin_list_tile.dart';
+import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_dialog.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
-import 'package:gep/view/widgets/app_text_button.dart';
 import 'package:gep/view/widgets/paginated_widget.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:material_ui/material_ui.dart';
-
-import '../../../../widgets/text_field_widget.dart';
 
 class AdminAdmissionsScreen extends StatefulWidget {
   const AdminAdmissionsScreen({super.key});
@@ -40,148 +41,45 @@ class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textColorSecondary = isDark
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
     final adminCubit = context.read<AdminCubit>();
 
-    return AppScaffold(
-      title: 'Manage Admissions',
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () => _showAddEditDialog(context, adminCubit),
-        ),
-      ],
-      body: BlocConsumer<AdmissionsCubit, AdmissionsState>(
-        listener: (context, state) {
-          if (state.error != null && !state.isLoading && !state.isRefreshing) {
-            TopSnackbar.error(context, state.error!);
-          }
-        },
-        builder: (context, state) {
-          final items = state.items;
-          final isLoading = state.isLoading && items.isEmpty;
+    return BlocConsumer<AdmissionsCubit, AdmissionsState>(
+      listener: (context, state) {
+        if (state.error != null && !state.isLoading && !state.isRefreshing) {
+          TopSnackbar.error(context, state.error!);
+        }
+      },
+      builder: (context, state) {
+        final items = state.items;
+        final isLoading = state.isLoading && items.isEmpty;
 
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            slivers: [
-              // Search
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppConstants.defaultPadding,
-                    12,
-                    AppConstants.defaultPadding,
-                    12,
-                  ),
-                  child: TextFieldWidget(
-                    controller: _searchController,
-                    labelText: 'Search announcements',
-                    hintText: 'Search announcements…',
-                    prefixIcon: Icons.search_rounded,
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              context.read<AdmissionsCubit>().clearSearch();
-                            },
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 18,
-                              color: textColorSecondary,
-                            ),
-                          )
-                        : null,
-                    onChanged: (v) =>
-                        context.read<AdmissionsCubit>().setSearchQuery(v),
-                  ),
+        return AppScaffold(
+          title: 'Manage Admissions',
+          floatingActionButton: isLoading
+              ? null
+              : FloatingActionButton.extended(
+                  onPressed: () => _showAddEditSheet(context, adminCubit),
+                  tooltip: 'Add Announcement',
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Add Announcement'),
                 ),
-              ),
-
-              if (isLoading)
-                const SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (state.error != null && items.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline_rounded,
-                          size: 48,
-                          color: AppColors.error,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Failed to load announcements',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else if (items.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Text(
-                      state.searchQuery.isEmpty
-                          ? 'No announcements available'
-                          : 'No matches for "${state.searchQuery}"',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
-                )
-              else
-                SliverPadding(
+          bottomNavigationBar: items.isNotEmpty
+              ? Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppConstants.defaultPadding,
+                    vertical: 8,
                   ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final announcement = items[index];
-                      return Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: AnnouncementCard(
-                              announcement: announcement,
-                              onEdit: () => _showAddEditDialog(
-                                context,
-                                adminCubit,
-                                announcement: announcement,
-                              ),
-                              onDelete: () => _deleteAnnouncement(
-                                context,
-                                adminCubit,
-                                announcement.id,
-                              ),
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(delay: (30 + index * 20).ms)
-                          .slideY(begin: 0.05, end: 0);
-                    }, childCount: items.length),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    border: Border(top: BorderSide(color: borderColor)),
                   ),
-                ),
-
-              // Pagination
-              if (items.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppConstants.defaultPadding,
-                      8,
-                      AppConstants.defaultPadding,
-                      24,
-                    ),
+                  child: SafeArea(
+                    top: false,
                     child: PaginatedWidget(
                       isLoading: state.isLoading || state.isRefreshing,
                       hasPrevious: state.currentPage > 0,
@@ -197,55 +95,207 @@ class _AdminAdmissionsScreenState extends State<AdminAdmissionsScreen> {
                       pageSize: 10,
                     ),
                   ),
+                )
+              : null,
+          body: RefreshIndicator(
+            onRefresh: () async => context.read<AdmissionsCubit>().refresh(),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              children: [
+                // Search Bar
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: TextFieldWidget(
+                    controller: _searchController,
+                    labelText: 'Search announcements',
+                    hintText: 'Search announcements…',
+                    prefixIcon: Icons.search_rounded,
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.close_rounded, size: 18),
+                            color: textColorSecondary,
+                            onPressed: () {
+                              _searchController.clear();
+                              context.read<AdmissionsCubit>().clearSearch();
+                            },
+                          )
+                        : null,
+                    onChanged: (v) =>
+                        context.read<AdmissionsCubit>().setSearchQuery(v),
+                  ),
                 ),
-            ],
-          );
-        },
-      ),
+
+                // Header Label & Badge
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12, left: 4, right: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.campaign_rounded,
+                            size: 16,
+                            color: textColorSecondary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'AVAILABLE ANNOUNCEMENTS'
+                                : 'SEARCH RESULTS',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.1,
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (!isLoading && items.isNotEmpty)
+                        Badge(
+                          label: Text('${items.length}'),
+                          backgroundColor: isDark
+                              ? AppColors.darkNeutral
+                              : AppColors.lightNeutral,
+                          textColor: isDark
+                              ? AppColors.darkBodyText
+                              : AppColors.lightBodyText,
+                        ),
+                    ],
+                  ),
+                ),
+
+                // Body Content States
+                if (isLoading)
+                  PlaceholderWidgets.listPlaceholder()
+                else if (state.error != null && items.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 48),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            size: 48,
+                            color: AppColors.error,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Failed to load announcements',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.error!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (items.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 48),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.campaign_outlined,
+                            size: 36,
+                            color: textColorSecondary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'No Announcements Found'
+                                : 'No matches for "${state.searchQuery}"',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'Tap the + button below to add your first announcement'
+                                : '',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: items.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final announcement = items[index];
+                      return AnnouncementCard(
+                        announcement: announcement,
+                        onEdit: () => _showAddEditSheet(
+                          context,
+                          adminCubit,
+                          announcement: announcement,
+                        ),
+                        onDelete: () => _deleteAnnouncement(
+                          adminCubit,
+                          announcement,
+                        ),
+                      );
+                    },
+                  ),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  void _showAddEditDialog(
+  void _showAddEditSheet(
     BuildContext context,
     AdminCubit adminCubit, {
     AdmissionAnnouncement? announcement,
   }) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AddEditAnnouncementDialog(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddEditAnnouncementSheet(
         adminCubit: adminCubit,
         announcement: announcement,
       ),
     );
   }
 
-  void _deleteAnnouncement(
-    BuildContext context,
+  Future<void> _deleteAnnouncement(
     AdminCubit adminCubit,
-    String id,
-  ) {
-    showDialog(
+    AdmissionAnnouncement announcement,
+  ) async {
+    final confirmed = await AppDialog.showConfirmation(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Announcement'),
-        content: const Text(
-          'Are you sure you want to delete this announcement?',
-        ),
-        actions: [
-          AppTextButton(
-            onPressed: () => Navigator.pop(context),
-            label: 'Cancel',
-          ),
-          AppTextButton(
-            onPressed: () {
-              adminCubit.deleteAdmissionAnnouncement(id);
-              Navigator.pop(context);
-            },
-            label: 'Delete',
-          ),
-        ],
-      ),
+      title: 'Delete Announcement',
+      message:
+          'Are you sure you want to delete "${announcement.title}"?',
+      confirmLabel: 'Delete',
+      isDestructive: true,
     );
+
+    if (confirmed == true && mounted) {
+      adminCubit.deleteAdmissionAnnouncement(announcement.id);
+    }
   }
 }
 
@@ -263,43 +313,24 @@ class AnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Material(
-      color: isDark ? AppColors.darkCard : AppColors.lightCard,
-      borderRadius: BorderRadius.circular(16),
-      child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          ),
-        ),
-        title: Text(
-          announcement.title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Text(
+    return AdminListTile(
+      leadingIcon: Icons.campaign_rounded,
+      title: announcement.title,
+      subtitle:
           '${_formatDate(announcement.startDate)} - ${_formatDate(announcement.endDate)}',
-          style: theme.textTheme.bodySmall,
+      trailingActions: [
+        IconButton(
+          icon: const Icon(Icons.edit_outlined, size: 20),
+          color: Theme.of(context).colorScheme.primary,
+          onPressed: onEdit,
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.edit, color: theme.colorScheme.primary),
-              onPressed: onEdit,
-            ),
-            IconButton(
-              icon: Icon(Icons.delete, color: theme.colorScheme.error),
-              onPressed: onDelete,
-            ),
-          ],
+        IconButton(
+          icon: const Icon(Icons.delete_outline_rounded, size: 20),
+          color: AppColors.error.withValues(alpha: 0.85),
+          onPressed: onDelete,
         ),
-      ),
+      ],
+      onTap: onEdit,
     );
   }
 
@@ -308,22 +339,23 @@ class AnnouncementCard extends StatelessWidget {
   }
 }
 
-class AddEditAnnouncementDialog extends StatefulWidget {
+class AddEditAnnouncementSheet extends StatefulWidget {
   final AdminCubit adminCubit;
   final AdmissionAnnouncement? announcement;
 
-  const AddEditAnnouncementDialog({
+  const AddEditAnnouncementSheet({
     super.key,
     required this.adminCubit,
     this.announcement,
   });
 
   @override
-  State<AddEditAnnouncementDialog> createState() =>
-      _AddEditAnnouncementDialogState();
+  State<AddEditAnnouncementSheet> createState() =>
+      _AddEditAnnouncementSheetState();
 }
 
-class _AddEditAnnouncementDialogState extends State<AddEditAnnouncementDialog> {
+class _AddEditAnnouncementSheetState
+    extends State<AddEditAnnouncementSheet> {
   late TextEditingController _titleController;
   late TextEditingController _detailsController;
   late DateTime _startDate;
@@ -337,56 +369,87 @@ class _AddEditAnnouncementDialogState extends State<AddEditAnnouncementDialog> {
       text: widget.announcement?.details,
     );
     _startDate = widget.announcement?.startDate ?? DateTime.now();
-    _endDate =
-        widget.announcement?.endDate ??
+    _endDate = widget.announcement?.endDate ??
         DateTime.now().add(const Duration(days: 30));
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        widget.announcement == null ? 'Add Announcement' : 'Edit Announcement',
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bg = isDark
+        ? AppColors.darkScaffoldBackground
+        : AppColors.lightScaffoldBackground;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFieldWidget(controller: _titleController, labelText: 'Title'),
-            const SizedBox(height: 16),
-            TextFieldWidget(
-              controller: _detailsController,
-              labelText: 'Details',
-              maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: AppTextButton(
-                    onPressed: () => _selectDate(context, isStartDate: true),
-                    label: 'Start: ${_formatDate(_startDate)}',
+      margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 24),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        child: AppScaffold(
+          title: widget.announcement == null
+              ? 'Add Announcement'
+              : 'Edit Announcement',
+          body: ListView(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            children: [
+              TextFieldWidget(
+                controller: _titleController,
+                labelText: 'Title',
+              ),
+              const SizedBox(height: AppConstants.defaultPadding),
+              TextFieldWidget(
+                controller: _detailsController,
+                labelText: 'Details',
+                maxLines: 3,
+              ),
+              const SizedBox(height: AppConstants.defaultPadding),
+              Row(
+                children: [
+                  Expanded(
+                    child: _DatePickerTile(
+                      label: 'Start Date',
+                      date: _startDate,
+                      cardColor: cardColor,
+                      borderColor: borderColor,
+                      onTap: () => _selectDate(context, isStartDate: true),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: AppTextButton(
-                    onPressed: () => _selectDate(context, isStartDate: false),
-                    label: 'End: ${_formatDate(_endDate)}',
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _DatePickerTile(
+                      label: 'End Date',
+                      date: _endDate,
+                      cardColor: cardColor,
+                      borderColor: borderColor,
+                      onTap: () => _selectDate(context, isStartDate: false),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: AppConstants.defaultPadding * 2),
+              AppButton(
+                label: widget.announcement == null
+                    ? 'Add Announcement'
+                    : 'Save Changes',
+                onPressed: _saveAnnouncement,
+              ),
+              SizedBox(
+                  height: MediaQuery.of(context).viewInsets.bottom + 24),
+            ],
+          ),
         ),
       ),
-      actions: [
-        AppTextButton(onPressed: () => Navigator.pop(context), label: 'Cancel'),
-        AppTextButton(onPressed: _saveAnnouncement, label: 'Save'),
-      ],
     );
   }
 
-  void _selectDate(BuildContext context, {required bool isStartDate}) async {
+  Future<void> _selectDate(BuildContext context,
+      {required bool isStartDate}) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isStartDate ? _startDate : _endDate,
@@ -422,14 +485,67 @@ class _AddEditAnnouncementDialogState extends State<AddEditAnnouncementDialog> {
     Navigator.pop(context);
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
   @override
   void dispose() {
     _titleController.dispose();
     _detailsController.dispose();
     super.dispose();
+  }
+}
+
+class _DatePickerTile extends StatelessWidget {
+  final String label;
+  final DateTime date;
+  final Color cardColor;
+  final Color borderColor;
+  final VoidCallback onTap;
+
+  const _DatePickerTile({
+    required this.label,
+    required this.date,
+    required this.cardColor,
+    required this.borderColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: cardColor,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: borderColor),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: IgnorePointer(
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              leading: Icon(
+                Icons.calendar_today_rounded,
+                color: theme.colorScheme.primary,
+                size: 20,
+              ),
+              title: Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              subtitle: Text(
+                '${date.day}/${date.month}/${date.year}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

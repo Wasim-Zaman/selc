@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/admin/admin_cubit.dart';
@@ -10,14 +9,14 @@ import 'package:gep/cubits/banners/banners_state.dart';
 import 'package:gep/models/banner.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_dialog.dart';
 import 'package:gep/view/widgets/app_scaffold.dart';
-import 'package:gep/view/widgets/app_text_button.dart';
 import 'package:gep/view/widgets/paginated_widget.dart';
-import 'package:go_router/go_router.dart';
+import 'package:gep/view/widgets/placeholder_widget.dart';
+import 'package:gep/view/widgets/text_field_widget.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../../cubits/banner/banner_image_cubit.dart';
-import '../../../../widgets/text_field_widget.dart';
 
 class ManageBannerScreen extends StatefulWidget {
   const ManageBannerScreen({super.key});
@@ -47,144 +46,44 @@ class _ManageBannerScreenState extends State<ManageBannerScreen> {
     final adminCubit = context.read<AdminCubit>();
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textColorSecondary = isDark
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
 
-    return AppScaffold(
-      title: 'Banners',
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.add_rounded),
-          tooltip: 'Add Banner',
-          onPressed: () => _showAddEditDialog(context, adminCubit),
-        ),
-      ],
-      body: BlocConsumer<BannersCubit, BannersState>(
-        listener: (context, state) {
-          if (state.error != null && !state.isLoading && !state.isRefreshing) {
-            TopSnackbar.error(context, state.error!);
-          }
-        },
-        builder: (context, state) {
-          final banners = state.items;
-          final isLoading = state.isLoading && banners.isEmpty;
+    return BlocConsumer<BannersCubit, BannersState>(
+      listener: (context, state) {
+        if (state.error != null && !state.isLoading && !state.isRefreshing) {
+          TopSnackbar.error(context, state.error!);
+        }
+      },
+      builder: (context, state) {
+        final banners = state.items;
+        final isLoading = state.isLoading && banners.isEmpty;
 
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            slivers: [
-              // Search
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppConstants.defaultPadding,
-                    12,
-                    AppConstants.defaultPadding,
-                    12,
-                  ),
-                  child: TextFieldWidget(
-                    controller: _searchController,
-                    labelText: 'Search banners',
-                    hintText: 'Search banners…',
-                    prefixIcon: Icons.search_rounded,
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              context.read<BannersCubit>().clearSearch();
-                            },
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 18,
-                              color: textColorSecondary,
-                            ),
-                          )
-                        : null,
-                    onChanged: (v) =>
-                        context.read<BannersCubit>().setSearchQuery(v),
-                  ),
+        return AppScaffold(
+          title: 'Banners',
+          floatingActionButton: isLoading
+              ? null
+              : FloatingActionButton.extended(
+                  onPressed: () => _showAddEditSheet(context, adminCubit),
+                  tooltip: 'Add Banner',
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Add Banner'),
                 ),
-              ),
-
-              if (isLoading)
-                const SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (state.error != null && banners.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline_rounded,
-                          size: 48,
-                          color: AppColors.error,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Failed to load banners',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else if (banners.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: _EmptyState(
-                    onAdd: () => _showAddEditDialog(context, adminCubit),
-                    searchQuery: state.searchQuery,
-                  ),
-                )
-              else
-                SliverPadding(
+          bottomNavigationBar: banners.isNotEmpty
+              ? Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppConstants.defaultPadding,
+                    vertical: 8,
                   ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final banner = banners[index];
-                      return Padding(
-                            padding: const EdgeInsets.only(bottom: 14),
-                            child: _BannerItemCard(
-                              banner: banner,
-                              onEdit: () => _showAddEditDialog(
-                                context,
-                                adminCubit,
-                                banner: banner,
-                              ),
-                              onDelete: () => _confirmDelete(
-                                context,
-                                adminCubit,
-                                banner.id,
-                              ),
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(delay: (30 + index * 20).ms)
-                          .slideY(begin: 0.05, end: 0);
-                    }, childCount: banners.length),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    border: Border(top: BorderSide(color: borderColor)),
                   ),
-                ),
-
-              // Pagination
-              if (banners.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppConstants.defaultPadding,
-                      8,
-                      AppConstants.defaultPadding,
-                      24,
-                    ),
+                  child: SafeArea(
+                    top: false,
                     child: PaginatedWidget(
                       isLoading: state.isLoading || state.isRefreshing,
                       hasPrevious: state.currentPage > 0,
@@ -199,50 +98,180 @@ class _ManageBannerScreenState extends State<ManageBannerScreen> {
                       pageSize: 10,
                     ),
                   ),
+                )
+              : null,
+          body: RefreshIndicator(
+            onRefresh: () async => context.read<BannersCubit>().refresh(),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              children: [
+                // Search Bar
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: TextFieldWidget(
+                    controller: _searchController,
+                    labelText: 'Search banners',
+                    hintText: 'Search banners…',
+                    prefixIcon: Icons.search_rounded,
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.close_rounded, size: 18),
+                            color: textColorSecondary,
+                            onPressed: () {
+                              _searchController.clear();
+                              context.read<BannersCubit>().clearSearch();
+                            },
+                          )
+                        : null,
+                    onChanged: (v) =>
+                        context.read<BannersCubit>().setSearchQuery(v),
+                  ),
                 ),
-            ],
-          );
-        },
-      ),
+
+                // Header Label & Badge
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12, left: 4, right: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.view_carousel_rounded,
+                            size: 16,
+                            color: textColorSecondary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'AVAILABLE BANNERS'
+                                : 'SEARCH RESULTS',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.1,
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (!isLoading && banners.isNotEmpty)
+                        Badge(
+                          label: Text('${banners.length}'),
+                          backgroundColor: isDark
+                              ? AppColors.darkNeutral
+                              : AppColors.lightNeutral,
+                          textColor: isDark
+                              ? AppColors.darkBodyText
+                              : AppColors.lightBodyText,
+                        ),
+                    ],
+                  ),
+                ),
+
+                // Body Content States
+                if (isLoading)
+                  PlaceholderWidgets.listPlaceholder()
+                else if (state.error != null && banners.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 48),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            size: 48,
+                            color: AppColors.error,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Failed to load banners',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.error!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (banners.isEmpty)
+                  _EmptyState(
+                    onAdd: () => _showAddEditSheet(context, adminCubit),
+                    searchQuery: state.searchQuery,
+                  )
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: banners.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final banner = banners[index];
+                      return _BannerItemCard(
+                        banner: banner,
+                        onEdit: () => _showAddEditSheet(
+                          context,
+                          adminCubit,
+                          banner: banner,
+                        ),
+                        onDelete: () => _confirmDelete(adminCubit, banner),
+                      );
+                    },
+                  ),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  void _showAddEditDialog(
+  void _showAddEditSheet(
     BuildContext context,
     AdminCubit adminCubit, {
     BannerModel? banner,
   }) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (_) => BlocProvider(
         create: (_) => BannerImageCubit(),
-        child: AddEditBannerDialog(adminCubit: adminCubit, banner: banner),
+        child: AddEditBannerSheet(adminCubit: adminCubit, banner: banner),
       ),
     );
   }
 
-  void _confirmDelete(
-    BuildContext context,
+  Future<void> _confirmDelete(
     AdminCubit adminCubit,
-    String bannerId,
-  ) {
-    showDialog(
+    BannerModel banner,
+  ) async {
+    final confirmed = await AppDialog.showConfirmation(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Banner'),
-        content: const Text('Are you sure you want to delete this banner?'),
-        actions: [
-          AppTextButton(label: 'Cancel', onPressed: () => Navigator.pop(ctx)),
-          AppTextButton(
-            label: 'Delete',
-            onPressed: () {
-              adminCubit.deleteBanner(bannerId);
-              Navigator.pop(ctx);
-            },
-          ),
-        ],
-      ),
+      title: 'Delete Banner',
+      message: 'Are you sure you want to delete "${banner.title}"?',
+      confirmLabel: 'Delete',
+      isDestructive: true,
     );
+
+    if (confirmed == true && mounted) {
+      try {
+        await adminCubit.deleteBanner(banner.id);
+      } catch (e) {
+        if (mounted) {
+          TopSnackbar.error(context, 'Failed to delete banner: $e');
+        }
+      }
+    }
   }
 }
 
@@ -264,8 +293,8 @@ class _BannerItemCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkNeutral : Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
         ),
@@ -277,7 +306,7 @@ class _BannerItemCard extends StatelessWidget {
             aspectRatio: 16 / 7,
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(13),
+                top: Radius.circular(15),
               ),
               child: Stack(
                 fit: StackFit.expand,
@@ -355,27 +384,73 @@ class _BannerItemCard extends StatelessWidget {
   }
 }
 
-class AddEditBannerDialog extends StatelessWidget {
+class AddEditBannerSheet extends StatefulWidget {
   final AdminCubit adminCubit;
   final BannerModel? banner;
-  final TextEditingController _titleController;
 
-  AddEditBannerDialog({super.key, required this.adminCubit, this.banner})
-    : _titleController = TextEditingController(text: banner?.title ?? '');
+  const AddEditBannerSheet({
+    super.key,
+    required this.adminCubit,
+    this.banner,
+  });
 
-  void _save(BuildContext context, File? imageFile) {
+  @override
+  State<AddEditBannerSheet> createState() => _AddEditBannerSheetState();
+}
+
+class _AddEditBannerSheetState extends State<AddEditBannerSheet> {
+  late final TextEditingController _titleController;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.banner?.title ?? '');
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save(BuildContext context, File? imageFile) async {
     final title = _titleController.text.trim();
-    if (title.isEmpty || (imageFile == null && banner == null)) {
+    if (title.isEmpty || (imageFile == null && widget.banner == null)) {
       TopSnackbar.error(context, 'Please provide title and image');
       return;
     }
 
-    if (banner == null) {
-      adminCubit.addBanner(title, imageFile!);
-    } else {
-      adminCubit.updateBanner(banner!.copyWith(title: title), imageFile);
+    setState(() => _isSaving = true);
+
+    try {
+      if (widget.banner == null) {
+        await widget.adminCubit.addBanner(title, imageFile!);
+      } else {
+        await widget.adminCubit.updateBanner(
+          widget.banner!.copyWith(title: title),
+          imageFile,
+        );
+      }
+
+      if (!context.mounted) return;
+
+      // Refresh the banners list so the new/edited banner appears
+      context.read<BannersCubit>().refresh();
+
+      Navigator.of(context).pop();
+      TopSnackbar.success(
+        context,
+        widget.banner == null
+            ? 'Banner added successfully'
+            : 'Banner updated successfully',
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      TopSnackbar.error(context, 'Failed to save banner: $e');
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
-    context.pop();
   }
 
   @override
@@ -383,94 +458,127 @@ class AddEditBannerDialog extends StatelessWidget {
     final imageCubit = context.read<BannerImageCubit>();
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final bg = isDark
+        ? AppColors.darkScaffoldBackground
+        : AppColors.lightScaffoldBackground;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
 
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text(banner == null ? 'Add Banner' : 'Edit Banner'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextFieldWidget(
-              controller: _titleController,
-              labelText: 'Banner Title',
-              prefixIcon: Icons.title_rounded,
-            ),
-            const SizedBox(height: 16),
-            BlocBuilder<BannerImageCubit, BannerImageState>(
-              builder: (context, state) {
-                final isProcessing = state is BannerImageProcessing;
-                final File? pickedFile = state is BannerImageSuccess
-                    ? state.imageFile
-                    : null;
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 24),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        child: AppScaffold(
+          title: widget.banner == null ? 'Add Banner' : 'Edit Banner',
+          body: ListView(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            children: [
+              TextFieldWidget(
+                controller: _titleController,
+                labelText: 'Banner Title',
+                prefixIcon: Icons.title_rounded,
+              ),
+              const SizedBox(height: 16),
+              BlocBuilder<BannerImageCubit, BannerImageState>(
+                builder: (context, state) {
+                  final isProcessing = state is BannerImageProcessing;
+                  final File? pickedFile = state is BannerImageSuccess
+                      ? state.imageFile
+                      : null;
 
-                return InkWell(
-                  onTap: isProcessing
-                      ? null
-                      : () => imageCubit.pickAndProcessBanner(context),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    height: 130,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.darkNeutral
-                          : Colors.grey.shade100,
+                  return Material(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      onTap: _isSaving || isProcessing
+                          ? null
+                          : () => imageCubit.pickAndProcessBanner(context),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isDark
-                            ? AppColors.darkBorder
-                            : Colors.grey.shade300,
+                      child: Container(
+                        height: 150,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: borderColor),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: isProcessing
+                              ? const Center(
+                                  child: CircularProgressIndicator())
+                              : pickedFile != null
+                                  ? Image.file(pickedFile, fit: BoxFit.cover)
+                                  : widget.banner != null
+                                      ? CachedNetworkImage(
+                                          imageUrl: widget.banner!.imageUrl,
+                                          fit: BoxFit.cover,
+                                          placeholder: (_, _) => Container(
+                                            color: isDark
+                                                ? Colors.white10
+                                                : Colors.black12,
+                                            child: const Center(
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2),
+                                            ),
+                                          ),
+                                          errorWidget: (_, _, _) => Container(
+                                            color: isDark
+                                                ? Colors.white10
+                                                : Colors.black12,
+                                            child: const Icon(
+                                              Icons.broken_image_rounded,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        )
+                                      : Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.add_photo_alternate_outlined,
+                                              size: 32,
+                                              color: theme.colorScheme.primary,
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              'Select Image (1200x480)',
+                                              style: theme.textTheme.bodySmall,
+                                            ),
+                                          ],
+                                        ),
+                        ),
                       ),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: isProcessing
-                          ? const Center(child: CircularProgressIndicator())
-                          : pickedFile != null
-                          ? Image.file(pickedFile, fit: BoxFit.cover)
-                          : banner != null
-                          ? Image.network(banner!.imageUrl, fit: BoxFit.cover)
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.add_photo_alternate_outlined,
-                                  size: 32,
-                                  color: theme.colorScheme.primary,
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'Select Image (1200x480)',
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+                  );
+                },
+              ),
+              const SizedBox(height: AppConstants.defaultPadding * 2),
+              BlocBuilder<BannerImageCubit, BannerImageState>(
+                builder: (context, state) {
+                  final File? pickedFile = state is BannerImageSuccess
+                      ? state.imageFile
+                      : null;
+                  final bool canSave = !_isSaving &&
+                      (pickedFile != null || widget.banner != null);
+                  return AppButton(
+                    label: _isSaving ? 'Saving…' : 'Save',
+                    onPressed: canSave
+                        ? () => _save(context, pickedFile)
+                        : null,
+                  );
+                },
+              ),
+              SizedBox(
+                  height: MediaQuery.of(context).viewInsets.bottom + 24),
+            ],
+          ),
         ),
       ),
-      actions: [
-        AppTextButton(label: 'Cancel', onPressed: () => Navigator.pop(context)),
-        BlocBuilder<BannerImageCubit, BannerImageState>(
-          builder: (context, state) {
-            final File? pickedFile = state is BannerImageSuccess
-                ? state.imageFile
-                : null;
-            return AppButton(
-              label: 'Save',
-              expanded: false,
-              height: 38,
-              onPressed: () => _save(context, pickedFile),
-            );
-          },
-        ),
-      ],
     );
   }
 }
@@ -484,16 +592,21 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+    final isDark = theme.brightness == Brightness.dark;
+    final textColorSecondary = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.view_carousel_outlined,
-              size: 72,
-              color: theme.colorScheme.primary.withValues(alpha: 0.5),
+              size: 36,
+              color: textColorSecondary,
             ),
             const SizedBox(height: 16),
             Text(
@@ -502,14 +615,14 @@ class _EmptyState extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(
               searchQuery.isEmpty
-                  ? 'Create display banners for promotions and announcements.'
+                  ? 'Tap the + button below to add your first banner'
                   : 'No banners match "$searchQuery"',
               textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: textColorSecondary,
               ),
             ),
             const SizedBox(height: 20),

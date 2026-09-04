@@ -12,9 +12,17 @@ class ImageUtils {
   /// Picks an image from the specified [source].
   static Future<File?> pickImage({
     ImageSource source = ImageSource.gallery,
+    double? maxWidth,
+    double? maxHeight,
+    int? imageQuality,
   }) async {
     try {
-      final pickedFile = await ImagePicker().pickImage(source: source);
+      final pickedFile = await ImagePicker().pickImage(
+        source: source,
+        maxWidth: maxWidth ?? 1920,
+        maxHeight: maxHeight ?? 1920,
+        imageQuality: imageQuality ?? 90,
+      );
       if (pickedFile == null) return null;
       return File(pickedFile.path);
     } catch (e) {

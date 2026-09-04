@@ -6,6 +6,7 @@ import '../../../../../cubits/courses/courses_cubit.dart';
 import '../../../../../cubits/courses/courses_state.dart';
 import '../../../../../models/course_outline.dart';
 import '../../../../../utils/snackbars.dart';
+import '../../../../widgets/admin_list_tile.dart';
 import '../../../../widgets/app_button.dart';
 import '../../../../widgets/app_dialog.dart';
 import '../../../../widgets/app_scaffold.dart';
@@ -239,55 +240,26 @@ class _ManageCoursesScreenState extends State<ManageCoursesScreen> {
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final course = courses[index];
-                      return ListTile(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(color: borderColor),
-                        ),
-                        tileColor: cardColor,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 4,
-                        ),
-                        leading: Icon(
-                          Icons.auto_stories_rounded,
-                          color: theme.colorScheme.primary,
-                        ),
-                        title: Text(
-                          course.title,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                      return AdminListTile(
+                        leadingIcon: Icons.auto_stories_rounded,
+                        title: course.title,
+                        subtitle: '${course.weeks.length} weeks duration',
+                        trailingActions: [
+                          IconButton(
+                            icon: const Icon(Icons.edit_outlined, size: 20),
+                            color: theme.colorScheme.primary,
+                            onPressed: () =>
+                                _showCourseSheet(context, course: course),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: Text(
-                          '${course.weeks.length} weeks duration',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: textColorSecondary,
-                            fontWeight: FontWeight.w500,
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 20,
+                            ),
+                            color: AppColors.error.withValues(alpha: 0.85),
+                            onPressed: () => _deleteCourse(context, course),
                           ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit_outlined, size: 20),
-                              color: theme.colorScheme.primary,
-                              onPressed: () =>
-                                  _showCourseSheet(context, course: course),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.delete_outline_rounded,
-                                size: 20,
-                              ),
-                              color: AppColors.error.withValues(alpha: 0.85),
-                              onPressed: () => _deleteCourse(context, course),
-                            ),
-                          ],
-                        ),
+                        ],
                         onTap: () => _showCourseSheet(context, course: course),
                       );
                     },

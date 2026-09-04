@@ -7,6 +7,7 @@ import '../../../../../cubits/notes_categories/notes_categories_state.dart';
 import '../../../../../router/app_navigation.dart';
 import '../../../../../router/app_routes.dart';
 import '../../../../../utils/snackbars.dart';
+import '../../../../widgets/admin_list_tile.dart';
 import '../../../../widgets/app_dialog.dart';
 import '../../../../widgets/app_scaffold.dart';
 import '../../../../widgets/icon_button.dart';
@@ -317,47 +318,29 @@ class _AdminNotesCategoriesScreenState
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final category = categories[index];
-                      return ListTile(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          side: BorderSide(color: borderColor),
-                        ),
-                        tileColor: cardBg,
+                      return AdminListTile(
+                        leadingIcon: Icons.folder_rounded,
+                        title: category,
+                        borderRadius: 14,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 2,
                         ),
-                        leading: Icon(
-                          Icons.folder_rounded,
-                          color: theme.colorScheme.primary,
-                        ),
-                        title: Text(
-                          category,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.delete_outline_rounded,
-                                size: 20,
-                              ),
-                              color: AppColors.error.withValues(alpha: 0.8),
-                              onPressed: () => _handleDeleteCategory(category),
-                            ),
-                            Icon(
-                              Icons.chevron_right_rounded,
+                        trailingActions: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
                               size: 20,
-                              color: secondaryText,
                             ),
-                          ],
-                        ),
+                            color: AppColors.error.withValues(alpha: 0.8),
+                            onPressed: () => _handleDeleteCategory(category),
+                          ),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: 20,
+                            color: secondaryText,
+                          ),
+                        ],
                         onTap: () => AppNavigation.push(
                           context,
                           AppRoutes.kAddNotesRoute,
