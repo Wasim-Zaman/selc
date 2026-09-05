@@ -1,6 +1,5 @@
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/cubits/notes_categories/notes_categories_cubit.dart';
 import 'package:gep/cubits/notes_categories/notes_categories_state.dart';
@@ -10,6 +9,7 @@ import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/paginated_widget.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:material_ui/material_ui.dart';
 
 class NotesCategoriesScreen extends StatefulWidget {
   const NotesCategoriesScreen({super.key});
@@ -25,6 +25,7 @@ class _NotesCategoriesScreenState extends State<NotesCategoriesScreen> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _searchController.addListener(() => setState(() {}));
     context.read<NotesCategoriesCubit>().fetchPage(0);
   }
 
@@ -44,14 +45,47 @@ class _NotesCategoriesScreenState extends State<NotesCategoriesScreen> {
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
 
-    return AppScaffold(
-      title: 'Notes',
-      body: BlocBuilder<NotesCategoriesCubit, NotesCategoriesState>(
-        builder: (context, state) {
-          final categories = state.items;
-          final isLoading = state.isLoading && categories.isEmpty;
+    return BlocBuilder<NotesCategoriesCubit, NotesCategoriesState>(
+      builder: (context, state) {
+        final categories = state.items;
+        final isLoading = state.isLoading && categories.isEmpty;
 
-          return RefreshIndicator(
+        return AppScaffold(
+          title: 'Notes',
+          bottomNavigationBar: categories.isNotEmpty
+              ? Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    border: Border(
+                      top: BorderSide(color: borderColor, width: 1),
+                    ),
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppConstants.defaultPadding,
+                        vertical: 10,
+                      ),
+                      child: PaginatedWidget(
+                        isLoading: state.isLoading || state.isRefreshing,
+                        hasPrevious: state.currentPage > 0,
+                        hasNext: state.hasMore,
+                        onPrevious: () =>
+                            context.read<NotesCategoriesCubit>().previousPage(),
+                        onNext: () =>
+                            context.read<NotesCategoriesCubit>().nextPage(),
+                        onPageSelected: (page) =>
+                            context.read<NotesCategoriesCubit>().goToPage(page),
+                        onRefresh: () =>
+                            context.read<NotesCategoriesCubit>().refresh(),
+                        currentPage: state.currentPage,
+                        pageSize: 15,
+                      ),
+                    ),
+                  ),
+                )
+              : null,
+          body: RefreshIndicator(
             onRefresh: () async =>
                 context.read<NotesCategoriesCubit>().refresh(),
             child: CustomScrollView(
@@ -75,8 +109,7 @@ class _NotesCategoriesScreenState extends State<NotesCategoriesScreen> {
                       prefixIcon: Icons.search_rounded,
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon:
-                                  const Icon(Icons.close_rounded, size: 18),
+                              icon: const Icon(Icons.close_rounded, size: 18),
                               color: textColorSecondary,
                               onPressed: () {
                                 _searchController.clear();
@@ -157,8 +190,11 @@ class _NotesCategoriesScreenState extends State<NotesCategoriesScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.error_outline_rounded,
-                              size: 48, color: AppColors.error),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            size: 48,
+                            color: AppColors.error,
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             'Failed to load categories',
@@ -213,54 +249,32 @@ class _NotesCategoriesScreenState extends State<NotesCategoriesScreen> {
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.defaultPadding,
+                    padding: const EdgeInsets.fromLTRB(
+                      AppConstants.defaultPadding,
+                      0,
+                      AppConstants.defaultPadding,
+                      16,
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final category = categories[index];
-                        return _CategoryCard(
-                          category: category,
-                          index: index,
-                          cardColor: cardColor,
-                          borderColor: borderColor,
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _CategoryCard(
+                            category: category,
+                            index: index,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                          ),
                         );
                       }, childCount: categories.length),
                     ),
                   ),
-
-                // Pagination
-                if (categories.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppConstants.defaultPadding,
-                        8,
-                        AppConstants.defaultPadding,
-                        24,
-                      ),
-                      child: PaginatedWidget(
-                        isLoading: state.isLoading || state.isRefreshing,
-                        hasPrevious: state.currentPage > 0,
-                        hasNext: state.hasMore,
-                        onPrevious: () =>
-                            context.read<NotesCategoriesCubit>().previousPage(),
-                        onNext: () =>
-                            context.read<NotesCategoriesCubit>().nextPage(),
-                        onPageSelected: (page) =>
-                            context.read<NotesCategoriesCubit>().goToPage(page),
-                        onRefresh: () =>
-                            context.read<NotesCategoriesCubit>().refresh(),
-                        currentPage: state.currentPage,
-                        pageSize: 15,
-                      ),
-                    ),
-                  ),
               ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -287,11 +301,8 @@ class _CategoryCard extends StatelessWidget {
         : AppColors.lightBodyTextSecondary;
 
     return GestureDetector(
-      onTap: () => AppNavigation.push(
-        context,
-        AppRoutes.kNotesRoute,
-        extra: category,
-      ),
+      onTap: () =>
+          AppNavigation.push(context, AppRoutes.kNotesRoute, extra: category),
       child: Container(
         decoration: BoxDecoration(
           color: cardColor,
@@ -333,9 +344,6 @@ class _CategoryCard extends StatelessWidget {
           ),
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: (30 + index * 20).ms)
-        .slideY(begin: 0.05, end: 0);
+    ).animate().fadeIn(delay: (30 + index * 20).ms).slideY(begin: 0.05, end: 0);
   }
 }

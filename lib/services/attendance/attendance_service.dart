@@ -22,7 +22,7 @@ class AttendanceService {
       'date': date.toIso8601String().split('T').first,
       'qr_token': token,
       'expires_at': expiresAt.toIso8601String(),
-    });
+    }, onConflict: 'shift_id,date');
 
     return QrCodeData(shiftId: shiftId, date: date, token: token);
   }

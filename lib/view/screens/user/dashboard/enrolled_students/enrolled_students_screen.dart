@@ -28,6 +28,7 @@ class _EnrolledStudentsScreenState extends State<EnrolledStudentsScreen> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _searchController.addListener(() => setState(() {}));
     context.read<UserStudentsCubit>().fetchPage(0);
   }
 
@@ -47,16 +48,48 @@ class _EnrolledStudentsScreenState extends State<EnrolledStudentsScreen> {
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
 
-    return AppScaffold(
-      title: 'Enrolled Students',
-      body: BlocBuilder<UserStudentsCubit, UserStudentsState>(
-        builder: (context, state) {
-          final students = state.items;
-          final isLoading = state.isLoading && students.isEmpty;
+    return BlocBuilder<UserStudentsCubit, UserStudentsState>(
+      builder: (context, state) {
+        final students = state.items;
+        final isLoading = state.isLoading && students.isEmpty;
 
-          return RefreshIndicator(
-            onRefresh: () async =>
-                context.read<UserStudentsCubit>().refresh(),
+        return AppScaffold(
+          title: 'Enrolled Students',
+          bottomNavigationBar: students.isNotEmpty
+              ? Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    border: Border(
+                      top: BorderSide(color: borderColor, width: 1),
+                    ),
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppConstants.defaultPadding,
+                        vertical: 10,
+                      ),
+                      child: PaginatedWidget(
+                        isLoading: state.isLoading || state.isRefreshing,
+                        hasPrevious: state.currentPage > 0,
+                        hasNext: state.hasMore,
+                        onPrevious: () =>
+                            context.read<UserStudentsCubit>().previousPage(),
+                        onNext: () =>
+                            context.read<UserStudentsCubit>().nextPage(),
+                        onPageSelected: (page) =>
+                            context.read<UserStudentsCubit>().goToPage(page),
+                        onRefresh: () =>
+                            context.read<UserStudentsCubit>().refresh(),
+                        currentPage: state.currentPage,
+                        pageSize: 10,
+                      ),
+                    ),
+                  ),
+                )
+              : null,
+          body: RefreshIndicator(
+            onRefresh: () async => context.read<UserStudentsCubit>().refresh(),
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics(),
@@ -78,20 +111,16 @@ class _EnrolledStudentsScreenState extends State<EnrolledStudentsScreen> {
                       prefixIcon: Icons.search_rounded,
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon:
-                                  const Icon(Icons.close_rounded, size: 18),
+                              icon: const Icon(Icons.close_rounded, size: 18),
                               color: textColorSecondary,
                               onPressed: () {
                                 _searchController.clear();
-                                context
-                                    .read<UserStudentsCubit>()
-                                    .clearSearch();
+                                context.read<UserStudentsCubit>().clearSearch();
                               },
                             )
                           : null,
-                      onChanged: (v) => context
-                          .read<UserStudentsCubit>()
-                          .setSearchQuery(v),
+                      onChanged: (v) =>
+                          context.read<UserStudentsCubit>().setSearchQuery(v),
                     ),
                   ),
                 ),
@@ -160,8 +189,11 @@ class _EnrolledStudentsScreenState extends State<EnrolledStudentsScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.error_outline_rounded,
-                              size: 48, color: AppColors.error),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            size: 48,
+                            color: AppColors.error,
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             'Failed to load students',
@@ -216,8 +248,11 @@ class _EnrolledStudentsScreenState extends State<EnrolledStudentsScreen> {
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.defaultPadding,
+                    padding: const EdgeInsets.fromLTRB(
+                      AppConstants.defaultPadding,
+                      0,
+                      AppConstants.defaultPadding,
+                      16,
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
@@ -235,39 +270,11 @@ class _EnrolledStudentsScreenState extends State<EnrolledStudentsScreen> {
                       }, childCount: students.length),
                     ),
                   ),
-
-                // Pagination
-                if (students.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppConstants.defaultPadding,
-                        8,
-                        AppConstants.defaultPadding,
-                        24,
-                      ),
-                      child: PaginatedWidget(
-                        isLoading: state.isLoading || state.isRefreshing,
-                        hasPrevious: state.currentPage > 0,
-                        hasNext: state.hasMore,
-                        onPrevious: () =>
-                            context.read<UserStudentsCubit>().previousPage(),
-                        onNext: () =>
-                            context.read<UserStudentsCubit>().nextPage(),
-                        onPageSelected: (page) =>
-                            context.read<UserStudentsCubit>().goToPage(page),
-                        onRefresh: () =>
-                            context.read<UserStudentsCubit>().refresh(),
-                        currentPage: state.currentPage,
-                        pageSize: 10,
-                      ),
-                    ),
-                  ),
               ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -333,8 +340,9 @@ class _StudentCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 26,
-                backgroundColor:
-                    theme.colorScheme.primary.withValues(alpha: 0.1),
+                backgroundColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.1,
+                ),
                 child: Text(
                   _getInitials(student.name),
                   style: theme.textTheme.titleMedium?.copyWith(
@@ -373,18 +381,12 @@ class _StudentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: textColorSecondary,
-              ),
+              Icon(Icons.chevron_right_rounded, color: textColorSecondary),
             ],
           ),
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: (30 + index * 20).ms)
-        .slideY(begin: 0.05, end: 0);
+    ).animate().fadeIn(delay: (30 + index * 20).ms).slideY(begin: 0.05, end: 0);
   }
 }
 

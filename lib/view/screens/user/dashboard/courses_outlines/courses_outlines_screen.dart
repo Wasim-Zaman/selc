@@ -24,6 +24,7 @@ class _CoursesOutlinesScreenState extends State<CoursesOutlinesScreen> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _searchController.addListener(() => setState(() {}));
     context.read<UserCoursesCubit>().fetchPage(0);
   }
 
@@ -43,16 +44,48 @@ class _CoursesOutlinesScreenState extends State<CoursesOutlinesScreen> {
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
 
-    return AppScaffold(
-      title: 'Courses & Outlines',
-      body: BlocBuilder<UserCoursesCubit, UserCoursesState>(
-        builder: (context, state) {
-          final courses = state.items;
-          final isLoading = state.isLoading && courses.isEmpty;
+    return BlocBuilder<UserCoursesCubit, UserCoursesState>(
+      builder: (context, state) {
+        final courses = state.items;
+        final isLoading = state.isLoading && courses.isEmpty;
 
-          return RefreshIndicator(
-            onRefresh: () async =>
-                context.read<UserCoursesCubit>().refresh(),
+        return AppScaffold(
+          title: 'Courses & Outlines',
+          bottomNavigationBar: courses.isNotEmpty
+              ? Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    border: Border(
+                      top: BorderSide(color: borderColor, width: 1),
+                    ),
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppConstants.defaultPadding,
+                        vertical: 10,
+                      ),
+                      child: PaginatedWidget(
+                        isLoading: state.isLoading || state.isRefreshing,
+                        hasPrevious: state.currentPage > 0,
+                        hasNext: state.hasMore,
+                        onPrevious: () =>
+                            context.read<UserCoursesCubit>().previousPage(),
+                        onNext: () =>
+                            context.read<UserCoursesCubit>().nextPage(),
+                        onPageSelected: (page) =>
+                            context.read<UserCoursesCubit>().goToPage(page),
+                        onRefresh: () =>
+                            context.read<UserCoursesCubit>().refresh(),
+                        currentPage: state.currentPage,
+                        pageSize: 10,
+                      ),
+                    ),
+                  ),
+                )
+              : null,
+          body: RefreshIndicator(
+            onRefresh: () async => context.read<UserCoursesCubit>().refresh(),
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics(),
@@ -74,20 +107,16 @@ class _CoursesOutlinesScreenState extends State<CoursesOutlinesScreen> {
                       prefixIcon: Icons.search_rounded,
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon:
-                                  const Icon(Icons.close_rounded, size: 18),
+                              icon: const Icon(Icons.close_rounded, size: 18),
                               color: textColorSecondary,
                               onPressed: () {
                                 _searchController.clear();
-                                context
-                                    .read<UserCoursesCubit>()
-                                    .clearSearch();
+                                context.read<UserCoursesCubit>().clearSearch();
                               },
                             )
                           : null,
-                      onChanged: (v) => context
-                          .read<UserCoursesCubit>()
-                          .setSearchQuery(v),
+                      onChanged: (v) =>
+                          context.read<UserCoursesCubit>().setSearchQuery(v),
                     ),
                   ),
                 ),
@@ -156,8 +185,11 @@ class _CoursesOutlinesScreenState extends State<CoursesOutlinesScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.error_outline_rounded,
-                              size: 48, color: AppColors.error),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            size: 48,
+                            color: AppColors.error,
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             'Failed to load courses',
@@ -212,8 +244,11 @@ class _CoursesOutlinesScreenState extends State<CoursesOutlinesScreen> {
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.defaultPadding,
+                    padding: const EdgeInsets.fromLTRB(
+                      AppConstants.defaultPadding,
+                      0,
+                      AppConstants.defaultPadding,
+                      16,
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
@@ -229,39 +264,11 @@ class _CoursesOutlinesScreenState extends State<CoursesOutlinesScreen> {
                       }, childCount: courses.length),
                     ),
                   ),
-
-                // Pagination
-                if (courses.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppConstants.defaultPadding,
-                        8,
-                        AppConstants.defaultPadding,
-                        24,
-                      ),
-                      child: PaginatedWidget(
-                        isLoading: state.isLoading || state.isRefreshing,
-                        hasPrevious: state.currentPage > 0,
-                        hasNext: state.hasMore,
-                        onPrevious: () =>
-                            context.read<UserCoursesCubit>().previousPage(),
-                        onNext: () =>
-                            context.read<UserCoursesCubit>().nextPage(),
-                        onPageSelected: (page) =>
-                            context.read<UserCoursesCubit>().goToPage(page),
-                        onRefresh: () =>
-                            context.read<UserCoursesCubit>().refresh(),
-                        currentPage: state.currentPage,
-                        pageSize: 10,
-                      ),
-                    ),
-                  ),
               ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -335,10 +342,7 @@ class _CourseCard extends StatelessWidget {
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: (30 + index * 20).ms)
-        .slideY(begin: 0.05, end: 0);
+    ).animate().fadeIn(delay: (30 + index * 20).ms).slideY(begin: 0.05, end: 0);
   }
 }
 
@@ -365,10 +369,7 @@ class _WeekTile extends StatelessWidget {
         children: week.topics.map((topic) {
           return ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 40),
-            title: Text(
-              topic,
-              style: theme.textTheme.bodyMedium,
-            ),
+            title: Text(topic, style: theme.textTheme.bodyMedium),
             leading: Icon(
               Icons.check_circle_outline,
               size: 18,

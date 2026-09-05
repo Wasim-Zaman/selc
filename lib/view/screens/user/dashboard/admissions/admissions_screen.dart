@@ -24,6 +24,7 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _searchController.addListener(() => setState(() {}));
     context.read<UserAdmissionsCubit>().fetchPage(0);
   }
 
@@ -43,14 +44,48 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
 
-    return AppScaffold(
-      title: 'Admissions',
-      body: BlocBuilder<UserAdmissionsCubit, UserAdmissionsState>(
-        builder: (context, state) {
-          final items = state.items;
-          final isLoading = state.isLoading && items.isEmpty;
+    return BlocBuilder<UserAdmissionsCubit, UserAdmissionsState>(
+      builder: (context, state) {
+        final items = state.items;
+        final isLoading = state.isLoading && items.isEmpty;
 
-          return RefreshIndicator(
+        return AppScaffold(
+          title: 'Admissions',
+          // Bottom Navigation Bar with PaginatedWidget
+          bottomNavigationBar: items.isNotEmpty
+              ? Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    border: Border(
+                      top: BorderSide(color: borderColor, width: 1),
+                    ),
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppConstants.defaultPadding,
+                        vertical: 10,
+                      ),
+                      child: PaginatedWidget(
+                        isLoading: state.isLoading || state.isRefreshing,
+                        hasPrevious: state.currentPage > 0,
+                        hasNext: state.hasMore,
+                        onPrevious: () =>
+                            context.read<UserAdmissionsCubit>().previousPage(),
+                        onNext: () =>
+                            context.read<UserAdmissionsCubit>().nextPage(),
+                        onPageSelected: (page) =>
+                            context.read<UserAdmissionsCubit>().goToPage(page),
+                        onRefresh: () =>
+                            context.read<UserAdmissionsCubit>().refresh(),
+                        currentPage: state.currentPage,
+                        pageSize: 10,
+                      ),
+                    ),
+                  ),
+                )
+              : null,
+          body: RefreshIndicator(
             onRefresh: () async =>
                 context.read<UserAdmissionsCubit>().refresh(),
             child: CustomScrollView(
@@ -74,8 +109,7 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
                       prefixIcon: Icons.search_rounded,
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon:
-                                  const Icon(Icons.close_rounded, size: 18),
+                              icon: const Icon(Icons.close_rounded, size: 18),
                               color: textColorSecondary,
                               onPressed: () {
                                 _searchController.clear();
@@ -85,9 +119,8 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
                               },
                             )
                           : null,
-                      onChanged: (v) => context
-                          .read<UserAdmissionsCubit>()
-                          .setSearchQuery(v),
+                      onChanged: (v) =>
+                          context.read<UserAdmissionsCubit>().setSearchQuery(v),
                     ),
                   ),
                 ),
@@ -156,8 +189,11 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.error_outline_rounded,
-                              size: 48, color: AppColors.error),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            size: 48,
+                            color: AppColors.error,
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             'Failed to load announcements',
@@ -212,8 +248,11 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.defaultPadding,
+                    padding: const EdgeInsets.fromLTRB(
+                      AppConstants.defaultPadding,
+                      0,
+                      AppConstants.defaultPadding,
+                      16,
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
@@ -229,39 +268,11 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
                       }, childCount: items.length),
                     ),
                   ),
-
-                // Pagination
-                if (items.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppConstants.defaultPadding,
-                        8,
-                        AppConstants.defaultPadding,
-                        24,
-                      ),
-                      child: PaginatedWidget(
-                        isLoading: state.isLoading || state.isRefreshing,
-                        hasPrevious: state.currentPage > 0,
-                        hasNext: state.hasMore,
-                        onPrevious: () =>
-                            context.read<UserAdmissionsCubit>().previousPage(),
-                        onNext: () =>
-                            context.read<UserAdmissionsCubit>().nextPage(),
-                        onPageSelected: (page) =>
-                            context.read<UserAdmissionsCubit>().goToPage(page),
-                        onRefresh: () =>
-                            context.read<UserAdmissionsCubit>().refresh(),
-                        currentPage: state.currentPage,
-                        pageSize: 10,
-                      ),
-                    ),
-                  ),
               ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -366,8 +377,10 @@ class _AnnouncementCard extends StatelessWidget {
               top: 0,
               right: 0,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.error,
                   borderRadius: const BorderRadius.only(
@@ -387,10 +400,7 @@ class _AnnouncementCard extends StatelessWidget {
             ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(delay: (30 + index * 20).ms)
-        .slideY(begin: 0.05, end: 0);
+    ).animate().fadeIn(delay: (30 + index * 20).ms).slideY(begin: 0.05, end: 0);
   }
 
   String _formatDate(DateTime date) {
