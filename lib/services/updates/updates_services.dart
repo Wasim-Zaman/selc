@@ -29,7 +29,9 @@ class UpdatesServices {
       query = query.ilike('title', '%$searchQuery%');
     }
 
-    final data = await query.order('timestamp', ascending: false).range(from, to);
+    final data = await query
+        .order('timestamp', ascending: false)
+        .range(from, to);
 
     final hasMore = data.length > pageSize;
     final items = data

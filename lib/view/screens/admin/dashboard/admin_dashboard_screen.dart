@@ -356,8 +356,9 @@ class _AdminPrimaryCard extends StatelessWidget {
     return GestureDetector(
           onTap: () async {
             await AnalyticsService().logButtonClick(action['title']);
-            if (context.mounted)
+            if (context.mounted) {
               AppNavigation.push(context, action['routeName']);
+            }
           },
           child: Container(
             height: 175,

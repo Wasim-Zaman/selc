@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:lottie/lottie.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:upgrader/upgrader.dart';
@@ -17,9 +18,9 @@ import '../../../../router/app_navigation.dart';
 import '../../../../router/app_routes.dart';
 import '../../../../services/analytics/analytics_service.dart';
 import '../../../../services/auth/auth_service.dart';
+import '../../../widgets/announcement_strip.dart';
 import '../../../widgets/app_drawer.dart';
 import '../../../widgets/banner_slider.dart';
-import 'package:gep/view/widgets/app_scaffold.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -32,6 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final AnalyticsService _analyticsService = AnalyticsService();
   bool _isAdminLoggedIn = false;
+  late final BannerCubit _bannerCubit;
 
   static const List<_Service> _services = [
     _Service(
@@ -83,7 +85,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    _bannerCubit = BannerCubit(
+      bannersStream: context.read<AdminCubit>().getBannersStream(),
+    );
     init();
+  }
+
+  @override
+  void dispose() {
+    _bannerCubit.close();
+    super.dispose();
   }
 
   Future<void> init() async {
@@ -122,15 +133,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Banner Slider
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: BlocProvider(
-                  create: (context) => BannerCubit(
-                    bannersStream: context
-                        .read<AdminCubit>()
-                        .getBannersStream(),
-                  ),
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: BlocProvider.value(
+                  value: _bannerCubit,
                   child: const BannerSlider(),
                 ).animate().fadeIn(duration: 350.ms),
+              ),
+            ),
+
+            // Announcement Strip
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(top: 2, bottom: 8),
+                child: AnnouncementStrip(),
               ),
             ),
 
@@ -176,9 +191,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 100,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.85,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 1.0,
                 ),
                 delegate: SliverChildBuilderDelegate(
                   (context, index) =>
@@ -201,7 +216,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   .fadeIn(delay: 200.ms)
                   .slideY(begin: 0.05, end: 0),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
       ),
@@ -224,11 +239,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(
         AppConstants.defaultPadding,
-        12,
-        AppConstants.defaultPadding,
         8,
+        AppConstants.defaultPadding,
+        4,
       ),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(24),
@@ -237,7 +252,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkNeutral : AppColors.lightNeutral,
               borderRadius: BorderRadius.circular(16),
@@ -356,7 +371,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             AppRoutes.kAdminDashboardRoute,
           ),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : AppColors.lightCard,
               borderRadius: BorderRadius.circular(18),
@@ -459,7 +474,7 @@ class _SectionHeader extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
       child: Row(
         children: [
           Icon(
@@ -501,8 +516,8 @@ class _FeaturedActionCard extends StatelessWidget {
             if (context.mounted) AppNavigation.push(context, service.route);
           },
           child: Container(
-            height: 156,
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            height: 132,
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : AppColors.lightCard,
               borderRadius: BorderRadius.circular(24),
@@ -518,8 +533,8 @@ class _FeaturedActionCard extends StatelessWidget {
                   child: Opacity(
                     opacity: 0.25,
                     child: SizedBox(
-                      width: 84,
-                      height: 84,
+                      width: 72,
+                      height: 72,
                       child: Lottie.asset(
                         service.lottie,
                         fit: BoxFit.contain,
@@ -625,7 +640,7 @@ class _ServiceTile extends StatelessWidget {
             color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           ),
         ),
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -658,9 +673,14 @@ class _ServiceTile extends StatelessWidget {
   }
 }
 
-class _InsightCard extends StatelessWidget {
+class _InsightCard extends StatefulWidget {
   const _InsightCard();
 
+  @override
+  State<_InsightCard> createState() => _InsightCardState();
+}
+
+class _InsightCardState extends State<_InsightCard> {
   static const List<String> _months = [
     'Jan',
     'Feb',
@@ -669,6 +689,14 @@ class _InsightCard extends StatelessWidget {
     'May',
     'Jun',
   ];
+
+  late final Stream<List<EnrolledStudent>> _stream;
+
+  @override
+  void initState() {
+    super.initState();
+    _stream = context.read<AdminCubit>().getEnrolledStudentsStream();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -688,20 +716,20 @@ class _InsightCard extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: StreamBuilder<List<EnrolledStudent>>(
-          stream: context.read<AdminCubit>().getEnrolledStudentsStream(),
+          stream: _stream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const SizedBox(
-                height: 180,
+                height: 140,
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               );
             }
 
             if (snapshot.hasError) {
               return const SizedBox(
-                height: 180,
+                height: 140,
                 child: Center(child: Text('Unable to load enrollment data.')),
               );
             }
@@ -740,7 +768,7 @@ class _InsightCard extends StatelessWidget {
 
             if (students.isEmpty) {
               return SizedBox(
-                height: 180,
+                height: 140,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -887,7 +915,7 @@ class _InsightCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -921,7 +949,7 @@ class _InsightCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Row(
                   children: List.generate(_months.length, (i) {
                     final isCurrent = i == thisMonthIndex;
@@ -975,10 +1003,10 @@ class _StatChip extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkNeutral : AppColors.lightNeutral,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

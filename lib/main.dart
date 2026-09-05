@@ -51,6 +51,8 @@ void main() async {
     publishableKey: Env.supabaseAnonKey,
   );
 
+  final savedTheme = await ThemeCubit.loadSavedTheme();
+
   runApp(
     MultiBlocProvider(
       providers: [
@@ -78,7 +80,7 @@ void main() async {
         BlocProvider(create: (context) => UserCoursesCubit(CoursesOutlineService())),
         BlocProvider(create: (context) => UserUpdatesCubit(UpdatesServices())),
         BlocProvider(create: (context) => UserStudentsCubit(EnrolledStudentsServices(AnalyticsService()))),
-        BlocProvider(create: (context) => ThemeCubit()),
+        BlocProvider(create: (context) => ThemeCubit(savedTheme)),
       ],
       child: MyApp(observer: observer),
     ),
