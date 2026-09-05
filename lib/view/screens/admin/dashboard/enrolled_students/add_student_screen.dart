@@ -3,11 +3,15 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/models/shift/shift.dart';
 import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
+import 'package:gep/services/shifts/shifts_service.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_button.dart';
 
 class AddStudentScreen extends StatefulWidget {
   final EnrolledStudentsServices enrolledStudentsServices;
@@ -30,6 +34,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   DateTime _dateOfBirth = DateTime.now();
   String _gender = 'Male';
   DateTime _enrollmentDate = DateTime.now();
+  String? _selectedShiftId;
+  List<Shift> _shifts = [];
 
   // Add these FocusNode declarations
   final _nameFocus = FocusNode();
@@ -43,9 +49,27 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _loadShifts();
+  }
+
+  Future<void> _loadShifts() async {
+    try {
+      final shifts = await ShiftsService().getAllShifts();
+      if (mounted) {
+        setState(() => _shifts = shifts);
+      }
+    } catch (e) {
+      // Shifts are optional; don't block the UI
+      debugPrint('Failed to load shifts: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add New Student')),
+    return AppScaffold(
+      title: 'Add New Student',
       body: _isLoading
           ? PlaceholderWidgets.addStudentScreenPlaceholder()
           : Form(
@@ -150,6 +174,27 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       },
                     ),
                     const SizedBox(height: AppConstants.defaultPadding),
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedShiftId,
+                      decoration: const InputDecoration(
+                        labelText: 'Assigned Shift',
+                        hintText: 'Select a shift (optional)',
+                      ),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('None'),
+                        ),
+                        ..._shifts.map((shift) => DropdownMenuItem(
+                              value: shift.id,
+                              child: Text(shift.name),
+                            )),
+                      ],
+                      onChanged: (value) {
+                        setState(() => _selectedShiftId = value);
+                      },
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
                     ListTile(
                       title: const Text('Enrollment Date'),
                       subtitle: Text(
@@ -168,9 +213,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       },
                     ),
                     const SizedBox(height: AppConstants.defaultPadding * 2),
-                    ElevatedButton(
+                    AppButton(
                       onPressed: _addStudent,
-                      child: const Text('Add Student'),
+                      label: 'Add Student',
                     ),
                   ],
                 ),
@@ -197,6 +242,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         dateOfBirth: _dateOfBirth,
         gender: _gender,
         enrollmentDate: _enrollmentDate,
+        shiftId: _selectedShiftId,
       );
 
       try {

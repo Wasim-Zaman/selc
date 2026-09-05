@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gep/cubits/auth/auth_cubit.dart';
@@ -8,24 +7,162 @@ import 'package:gep/cubits/theme/theme_cubit.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
 import 'package:gep/services/auth/auth_service.dart';
-import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
+
+import '../../core/constants/constants.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key, required this.isAdminLoggedIn});
+  const AppDrawer({
+    super.key,
+    required this.isAdminLoggedIn,
+    this.isAdminDashboard = false,
+  });
 
   final bool isAdminLoggedIn;
+  final bool isAdminDashboard;
 
   @override
   Widget build(BuildContext context) {
     final user = AuthService().getCurrentUser();
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final backgroundColor = isDark
+        ? AppColors.darkScaffoldBackground
+        : AppColors.lightScaffoldBackground;
+
+    final List<Widget> tiles = [];
+    int index = 0;
+
+    if (isAdminDashboard) {
+      tiles.add(
+        _DrawerTile(
+          icon: Icons.dashboard_outlined,
+          label: 'User App',
+          index: index++,
+          onTap: () {
+            Navigator.pop(context);
+            AppNavigation.goAndClearStack(
+              context,
+              AppRoutes.kDashboardRoute,
+            );
+          },
+        ),
+      );
+    } else {
+      tiles.add(const _SectionHeader(label: 'Account'));
+      tiles.add(
+        _DrawerTile(
+          icon: Icons.person_outline_rounded,
+          label: 'Profile',
+          index: index++,
+          onTap: () {
+            Navigator.pop(context);
+            // TODO: profile navigation
+          },
+        ),
+      );
+      tiles.add(
+        _DrawerTile(
+          icon: Icons.admin_panel_settings_outlined,
+          label: 'Admin Panel',
+          index: index++,
+          onTap: () {
+            Navigator.pop(context);
+            if (isAdminLoggedIn) {
+              AppNavigation.pushReplacement(
+                context,
+                AppRoutes.kAdminDashboardRoute,
+              );
+            } else {
+              AppNavigation.push(context, AppRoutes.kAdminLoginRoute);
+            }
+          },
+        ),
+      );
+      tiles.add(const SizedBox(height: 16));
+      tiles.add(const _SectionHeader(label: 'Preferences'));
+      tiles.add(
+        BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (context, state) {
+            final isDarkMode = state.themeMode == ThemeMode.dark;
+            return _DrawerTile(
+              icon: isDarkMode
+                  ? Icons.light_mode_rounded
+                  : Icons.dark_mode_rounded,
+              label: isDarkMode ? 'Light Mode' : 'Dark Mode',
+              index: index++,
+              onTap: () => context.read<ThemeCubit>().toggleTheme(),
+            );
+          },
+        ),
+      );
+      tiles.add(const SizedBox(height: 16));
+      tiles.add(const _SectionHeader(label: 'Attendance'));
+      tiles.add(
+        _DrawerTile(
+          icon: Icons.fact_check_outlined,
+          label: 'My Attendance',
+          index: index++,
+          onTap: () {
+            Navigator.pop(context);
+            AppNavigation.push(
+              context,
+              AppRoutes.kStudentAttendanceRoute,
+            );
+          },
+        ),
+      );
+      tiles.add(
+        _DrawerTile(
+          icon: Icons.qr_code_scanner_rounded,
+          label: 'Scan QR',
+          index: index++,
+          onTap: () {
+            Navigator.pop(context);
+            AppNavigation.push(
+              context,
+              AppRoutes.kScanAttendanceRoute,
+            );
+          },
+        ),
+      );
+      tiles.add(const SizedBox(height: 16));
+      tiles.add(const _SectionHeader(label: 'Legal'));
+      tiles.add(
+        _DrawerTile(
+          icon: Icons.description_outlined,
+          label: 'Terms & Conditions',
+          index: index++,
+          onTap: () {
+            Navigator.pop(context);
+            AppNavigation.push(
+              context,
+              AppRoutes.kTermsAndConditionsRoute,
+            );
+          },
+        ),
+      );
+      tiles.add(
+        _DrawerTile(
+          icon: Icons.privacy_tip_outlined,
+          label: 'Privacy Policy',
+          index: index++,
+          onTap: () {
+            Navigator.pop(context);
+            // TODO: Navigate to Privacy Policy route
+          },
+        ),
+      );
+    }
 
     return Drawer(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: backgroundColor,
       surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(right: Radius.circular(24)),
+        borderRadius: BorderRadius.horizontal(
+          right: Radius.circular(AppConstants.defaultRadius * 2),
+        ),
       ),
       child: SafeArea(
         child: Column(
@@ -35,61 +172,29 @@ class AppDrawer extends StatelessWidget {
             const SizedBox(height: 12),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                children: [
-                  const _SectionHeader(label: 'Account'),
-                  _DrawerTile(
-                    icon: Icons.person_outline_rounded,
-                    label: 'Profile',
-                    index: 0,
-                    onTap: () {
-                      Navigator.pop(context);
-                      // TODO: profile navigation
-                    },
-                  ),
-                  _DrawerTile(
-                    icon: Icons.admin_panel_settings_outlined,
-                    label: 'Admin Panel',
-                    index: 1,
-                    onTap: () {
-                      Navigator.pop(context);
-                      if (isAdminLoggedIn) {
-                        AppNavigation.pushReplacement(
-                          context,
-                          AppRoutes.kAdminDashboardRoute,
-                        );
-                      } else {
-                        AppNavigation.push(context, AppRoutes.kAdminLoginRoute);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  const _SectionHeader(label: 'Preferences'),
-                  BlocBuilder<ThemeCubit, ThemeState>(
-                    builder: (context, themeMode) {
-                      final isDark = themeMode == ThemeMode.dark;
-                      return _DrawerTile(
-                        icon: isDark
-                            ? Icons.light_mode_rounded
-                            : Icons.dark_mode_rounded,
-                        label: isDark ? 'Light Mode' : 'Dark Mode',
-                        index: 2,
-                        onTap: () => context.read<ThemeCubit>().toggleTheme(),
-                      );
-                    },
-                  ),
-                ],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppConstants.defaultPadding - 4,
+                ),
+                children: tiles,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              padding: const EdgeInsets.fromLTRB(
+                AppConstants.defaultPadding,
+                8,
+                AppConstants.defaultPadding,
+                12,
+              ),
               child: _LogoutTile(
-                index: 3,
+                index: index,
                 onTap: () async {
-                  context.pop();
+                  Navigator.pop(context);
                   await context.read<AuthCubit>().logout();
                   if (!context.mounted) return;
-                  AppNavigation.goAndClearStack(context, AppRoutes.kLoginRoute);
+                  AppNavigation.goAndClearStack(
+                    context,
+                    AppRoutes.kLoginRoute,
+                  );
                 },
               ),
             ),
@@ -109,23 +214,26 @@ class _DrawerHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final textColor = isDark ? AppColors.darkBodyText : AppColors.lightBodyText;
+    final secondaryTextColor = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
+
     final displayName = user?.displayName ?? 'Guest User';
     final email = user?.email ?? 'Sign in to continue';
 
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppConstants.defaultPadding),
       decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.surfaceContainerHighest
-            : colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-        ),
+        color: cardColor,
+        borderRadius: BorderRadius.circular(AppConstants.defaultRadius * 1.5),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,27 +246,34 @@ class _DrawerHeader extends StatelessWidget {
                 height: 56,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: colorScheme.primaryContainer,
-                  border: Border.all(color: colorScheme.primary, width: 1.5),
+                  color: isDark
+                      ? AppColors.darkNeutral
+                      : AppColors.lightNeutral,
+                  border: Border.all(
+                    color: AppColors.primary,
+                    width: AppConstants.defaultBorderWidth + 0.5,
+                  ),
                 ),
                 child: ClipOval(
                   child: user?.photoURL != null
                       ? CachedNetworkImage(
                           imageUrl: user!.photoURL!,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
+                          placeholder: (context, url) => const Center(
                             child: SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: colorScheme.primary,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
                           errorWidget: (context, url, error) => Icon(
                             Icons.person_rounded,
-                            color: colorScheme.onPrimaryContainer,
+                            color: isDark
+                                ? AppColors.darkIcon
+                                : AppColors.lightIcon,
                             size: 30,
                           ),
                         )
@@ -166,8 +281,8 @@ class _DrawerHeader extends StatelessWidget {
                           Icons.person_rounded,
                           size: 30,
                           color: isDark
-                              ? colorScheme.onSurfaceVariant
-                              : colorScheme.onPrimaryContainer,
+                              ? AppColors.darkIcon
+                              : AppColors.lightIcon,
                         ),
                 ),
               ),
@@ -178,18 +293,21 @@ class _DrawerHeader extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: isAdminLoggedIn
-                      ? colorScheme.primary
-                      : colorScheme.secondaryContainer,
+                      ? AppColors.primary
+                      : (isDark
+                            ? AppColors.darkNeutral
+                            : AppColors.lightNeutral),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   isAdminLoggedIn ? 'Admin' : 'Member',
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: theme.textTheme.labelSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? colorScheme.onSurfaceVariant
-                        : colorScheme.onPrimaryContainer,
+                    color: isAdminLoggedIn
+                        ? Colors.white
+                        : (isDark
+                              ? AppColors.darkBodyText
+                              : AppColors.lightBodyText),
                   ),
                 ),
               ),
@@ -202,7 +320,7 @@ class _DrawerHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
+              color: textColor,
             ),
           ),
           if (email.isNotEmpty) ...[
@@ -212,7 +330,7 @@ class _DrawerHeader extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
+                color: secondaryTextColor,
               ),
             ),
           ],
@@ -229,13 +347,19 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.only(left: 12, bottom: 6, top: 4),
       child: Text(
         label.toUpperCase(),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        style: theme.textTheme.labelSmall?.copyWith(
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
+          color: isDark
+              ? AppColors.darkBodyTextSecondary
+              : AppColors.lightBodyTextSecondary,
         ),
       ),
     );
@@ -258,7 +382,7 @@ class _DrawerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
@@ -268,20 +392,28 @@ class _DrawerTile extends StatelessWidget {
               vertical: 2,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(AppConstants.defaultRadius),
             ),
-            leading: Icon(icon, size: 22, color: colorScheme.secondary),
+            leading: Icon(
+              icon,
+              size: AppConstants.defaultIconSize - 2,
+              color: AppColors.secondary,
+            ),
             title: Text(
               label,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
+                color: isDark
+                    ? AppColors.darkBodyText
+                    : AppColors.lightBodyText,
               ),
             ),
             trailing: Icon(
               Icons.chevron_right_rounded,
               size: 18,
-              color: colorScheme.onSurfaceVariant,
+              color: isDark
+                  ? AppColors.darkBodyTextSecondary
+                  : AppColors.lightBodyTextSecondary,
             ),
             onTap: onTap,
           ),
@@ -301,24 +433,28 @@ class _LogoutTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Material(
-          color: colorScheme.errorContainer,
-          borderRadius: BorderRadius.circular(16),
+          color: AppColors.error.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(AppConstants.defaultRadius + 4),
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppConstants.defaultRadius + 4),
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
                 children: [
-                  Icon(Icons.logout_rounded, size: 20),
+                  const Icon(
+                    Icons.logout_rounded,
+                    size: 20,
+                    color: AppColors.error,
+                  ),
                   const SizedBox(width: 12),
                   Text(
                     'Logout',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: AppColors.error,
                     ),
                   ),
                 ],
