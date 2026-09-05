@@ -1,6 +1,6 @@
 # SELC - Smart English Learning Center
 
-![SELC Logo](assets/icons/selc_logo.png)
+![SELC Logo](assets/icons/icon_navy.png)
 
 ## Table of Contents
 

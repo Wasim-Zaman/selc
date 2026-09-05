@@ -1,10 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gep/cubits/banner/banner_cubit.dart';
 import 'package:gep/cubits/banner/banner_state.dart';
-import 'package:gep/core/constants/constants.dart';
+import 'package:gep/view/widgets/cached_image_widget.dart';
 
 class BannerSlider extends StatelessWidget {
   const BannerSlider({super.key});
@@ -21,6 +20,8 @@ class BannerSlider extends StatelessWidget {
         // }
 
         if (state is BannerLoaded) {
+          if (state.banners.isEmpty) return const SizedBox.shrink();
+
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 16.0),
             decoration: BoxDecoration(
@@ -51,26 +52,8 @@ class BannerSlider extends StatelessWidget {
                         return Stack(
                           fit: StackFit.expand,
                           children: [
-                            CachedNetworkImage(
+                            CachedImageWidget(
                               imageUrl: banner.imageUrl,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                color: isDark
-                                    ? AppColors.darkNeutral
-                                    : AppColors.lightNeutral,
-                                child: const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                color: isDark
-                                    ? AppColors.darkNeutral
-                                    : AppColors.lightNeutral,
-                                child: Icon(
-                                  Icons.error,
-                                  color: theme.colorScheme.error,
-                                ),
-                              ),
                             ),
                             // Optional: Add a subtle gradient overlay
                             Container(

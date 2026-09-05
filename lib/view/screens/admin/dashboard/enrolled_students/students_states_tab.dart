@@ -3,23 +3,25 @@
 import 'dart:developer';
 
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:gep/cubits/enrolled_students_admin/enrolled_students_cubit.dart';
 import 'package:gep/models/enrolled_students.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
-import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
+import 'package:gep/view/widgets/admin_list_tile.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class StudentsStatsTab extends StatelessWidget {
-  final EnrolledStudentsServices enrolledStudentsServices;
-
-  const StudentsStatsTab({super.key, required this.enrolledStudentsServices});
+  const StudentsStatsTab({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final service = context.read<EnrolledStudentsAdminCubit>().service;
+
     return FutureBuilder<List<EnrolledStudent>>(
-      future: _getCurrentYearStudents(),
+      future: _getCurrentYearStudents(service),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return PlaceholderWidgets.studentsStatsTabPlaceholder();
@@ -100,32 +102,36 @@ class StudentsStatsTab extends StatelessWidget {
                 ),
               ),
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final student = currentYearStudents[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 4.0),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Text(student.name[0].toUpperCase()),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final student = currentYearStudents[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: AdminListTile(
+                        leading: CircleAvatar(
+                          child: Text(student.name[0].toUpperCase()),
+                        ),
+                        title: student.name,
+                        subtitle:
+                            'Enrolled: ${_formatDate(student.enrollmentDate)}',
+                        trailingActions: const [
+                          Icon(Icons.chevron_right_rounded),
+                        ],
+                        onTap: () {
+                          AppNavigation.push(
+                            context,
+                            AppRoutes.kStudentDetailsRoute,
+                            extra: student,
+                          );
+                        },
                       ),
-                      title: Text(student.name),
-                      subtitle: Text(
-                          'Enrolled: ${_formatDate(student.enrollmentDate)}'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        AppNavigation.push(
-                          context,
-                          AppRoutes.kStudentDetailsRoute,
-                          extra: student,
-                        );
-                      },
-                    ),
-                  );
-                },
-                childCount: currentYearStudents.length,
+                    );
+                  },
+                  childCount: currentYearStudents.length,
+                ),
               ),
             ),
             const SliverPadding(padding: EdgeInsets.only(bottom: 16)),
@@ -210,9 +216,9 @@ class StudentsStatsTab extends StatelessWidget {
             FlSpot(index.toDouble(), enrollmentCounts[index].toDouble()));
   }
 
-  Future<List<EnrolledStudent>> _getCurrentYearStudents() async {
+  Future<List<EnrolledStudent>> _getCurrentYearStudents(dynamic service) async {
     final currentYear = DateTime.now().year;
-    return await enrolledStudentsServices.getStudentsByYear(currentYear);
+    return await service.getStudentsByYear(currentYear);
   }
 
   String _formatDate(DateTime date) {

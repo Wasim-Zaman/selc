@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:in_app_review/in_app_review.dart';
-import 'package:upgrader/upgrader.dart';
 
 class AppWrapper extends StatefulWidget {
   final Widget child;
@@ -30,13 +29,6 @@ class _AppWrapperState extends State<AppWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return UpgradeAlert(
-      upgrader: Upgrader(
-        durationUntilAlertAgain: const Duration(days: 1),
-        debugDisplayAlways: true,
-        minAppVersion: '1.0.0',
-      ),
-      child: widget.child,
-    );
+    return widget.child;
   }
 }

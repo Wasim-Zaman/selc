@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/models/paginated_result.dart';
 import 'package:gep/services/analytics/analytics_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -13,11 +14,37 @@ class EnrolledStudentsServices {
 
   Stream<List<EnrolledStudent>> getEnrolledStudentsStream() {
     return _supabase.from(_table).stream(primaryKey: ['id']).map((rows) {
-      final students =
-          rows.map((row) => _fromRow(row, row['id'] as String)).toList();
+      final students = rows.map((row) {
+        final id = row['id']?.toString() ?? '';
+        return _fromRow(row, id);
+      }).toList();
       students.sort((a, b) => a.name.compareTo(b.name));
       return students;
     });
+  }
+
+  Future<PaginatedResult<EnrolledStudent>> getStudentsPaginated({
+    required int page,
+    required int pageSize,
+    String? searchQuery,
+  }) async {
+    final from = page * pageSize;
+    final to = from + pageSize;
+
+    var query = _supabase.from(_table).select();
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      query = query.or('name.ilike.%$searchQuery%,email.ilike.%$searchQuery%');
+    }
+
+    final data = await query.order('name', ascending: true).range(from, to);
+
+    final hasMore = data.length > pageSize;
+    final items = data
+        .take(pageSize)
+        .map((row) => _fromRow(row, row['id']?.toString() ?? ''))
+        .toList();
+
+    return PaginatedResult(items: items, hasMore: hasMore);
   }
 
   Future<void> addStudent(EnrolledStudent student) async {
@@ -76,6 +103,11 @@ class EnrolledStudentsServices {
     return null;
   }
 
+  Future<List<EnrolledStudent>> getEnrolledStudentsByEmail(String email) async {
+    final data = await _supabase.from(_table).select().eq('email', email);
+    return data.map((row) => _fromRow(row, row['id'] as String)).toList();
+  }
+
   Future<List<EnrolledStudent>> getStudentsByLevel(String level) async {
     final data = await _supabase.from(_table).select().eq('level', level);
     return data.map((row) => _fromRow(row, row['id'] as String)).toList();
@@ -117,6 +149,7 @@ class EnrolledStudentsServices {
         'date_of_birth': student.dateOfBirth.toIso8601String(),
         'gender': student.gender,
         'enrollment_date': student.enrollmentDate.toIso8601String(),
+        'shift_id': student.shiftId,
       };
 
   EnrolledStudent _fromRow(Map<String, dynamic> row, String id) =>
@@ -130,6 +163,7 @@ class EnrolledStudentsServices {
         'address': row['address'],
         'date_of_birth': row['date_of_birth'],
         'gender': row['gender'],
-        'enrollment_date': row['enrollment_date'],
+        'enrollmentDate': row['enrollment_date'],
+        'shift_id': row['shift_id'],
       }, id);
 }

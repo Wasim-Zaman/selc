@@ -1,13 +1,18 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/models/shift/shift.dart';
 import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
+import 'package:gep/services/shifts/shifts_service.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
+import 'package:gep/view/widgets/app_button.dart';
+import 'package:gep/view/widgets/app_text_button.dart';
 
 class EditStudentScreen extends StatefulWidget {
   final EnrolledStudent student;
@@ -35,6 +40,8 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   late DateTime _dateOfBirth;
   late String _gender;
   late DateTime _enrollmentDate;
+  late String? _selectedShiftId;
+  List<Shift> _shifts = [];
 
   // Add these FocusNode declarations
   final _nameFocus = FocusNode();
@@ -63,21 +70,32 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     _dateOfBirth = widget.student.dateOfBirth;
     _gender = widget.student.gender;
     _enrollmentDate = widget.student.enrollmentDate;
+    _selectedShiftId = widget.student.shiftId;
+    _loadShifts();
+  }
+
+  Future<void> _loadShifts() async {
+    try {
+      final shifts = await ShiftsService().getAllShifts();
+      if (mounted) {
+        setState(() => _shifts = shifts);
+      }
+    } catch (e) {
+      debugPrint('Failed to load shifts: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Student'),
-        actions: [
-          IconButton(
-            icon:
-                Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
-            onPressed: _deleteStudent,
-          ),
-        ],
-      ),
+    return AppScaffold(
+      title: 'Edit Student',
+      actions: [
+        IconButton(
+          icon:
+              Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+          onPressed: _deleteStudent,
+        ),
+      ],
       body: _isLoading
           ? PlaceholderWidgets.editStudentScreenPlaceholder()
           : Form(
@@ -182,6 +200,27 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       },
                     ),
                     const SizedBox(height: AppConstants.defaultPadding),
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedShiftId,
+                      decoration: const InputDecoration(
+                        labelText: 'Assigned Shift',
+                        hintText: 'Select a shift (optional)',
+                      ),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('None'),
+                        ),
+                        ..._shifts.map((shift) => DropdownMenuItem(
+                              value: shift.id,
+                              child: Text(shift.name),
+                            )),
+                      ],
+                      onChanged: (value) {
+                        setState(() => _selectedShiftId = value);
+                      },
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
                     ListTile(
                       title: const Text('Enrollment Date'),
                       subtitle: Text(
@@ -200,9 +239,9 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       },
                     ),
                     const SizedBox(height: AppConstants.defaultPadding * 2),
-                    ElevatedButton(
+                    AppButton(
                       onPressed: _updateStudent,
-                      child: const Text('Update Student'),
+                      label: 'Update Student',
                     ),
                   ],
                 ),
@@ -229,6 +268,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         dateOfBirth: _dateOfBirth,
         gender: _gender,
         enrollmentDate: _enrollmentDate,
+        shiftId: _selectedShiftId,
       );
 
       try {
@@ -257,12 +297,12 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         title: const Text('Confirm Deletion'),
         content: const Text('Are you sure you want to delete this student?'),
         actions: [
-          TextButton(
-            child: const Text('Cancel'),
+          AppTextButton(
+            label: 'Cancel',
             onPressed: () => Navigator.of(context).pop(false),
           ),
-          TextButton(
-            child: const Text('Delete'),
+          AppTextButton(
+            label: 'Delete',
             onPressed: () => Navigator.of(context).pop(true),
           ),
         ],

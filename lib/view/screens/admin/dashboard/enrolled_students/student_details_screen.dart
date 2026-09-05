@@ -1,18 +1,46 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/models/shift/shift.dart';
+import 'package:gep/services/shifts/shifts_service.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
-class StudentDetailsScreen extends StatelessWidget {
+class StudentDetailsScreen extends StatefulWidget {
   final EnrolledStudent student;
 
   const StudentDetailsScreen({super.key, required this.student});
 
   @override
+  State<StudentDetailsScreen> createState() => _StudentDetailsScreenState();
+}
+
+class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
+  Shift? _shift;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadShift();
+  }
+
+  Future<void> _loadShift() async {
+    if (widget.student.shiftId == null || widget.student.shiftId!.isEmpty) {
+      return;
+    }
+    try {
+      final shift = await ShiftsService().getShift(widget.student.shiftId!);
+      if (mounted) {
+        setState(() => _shift = shift);
+      }
+    } catch (e) {
+      debugPrint('Failed to load shift: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Student Details'),
-      ),
+    return AppScaffold(
+      title: 'Student Details',
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -31,7 +59,7 @@ class StudentDetailsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        student.name,
+                        widget.student.name,
                         style:
                             Theme.of(context).textTheme.displaySmall?.copyWith(
                                   color: Theme.of(context).primaryColor,
@@ -59,12 +87,12 @@ class StudentDetailsScreen extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 16),
-                      _buildDetailRow('Email', student.email),
-                      _buildDetailRow('Level', student.level),
+                      _buildDetailRow('Email', widget.student.email),
+                      _buildDetailRow('Level', widget.student.level),
                       _buildDetailRow(
-                          'Date of Birth', _formatDate(student.dateOfBirth)),
-                      _buildDetailRow('Gender', student.gender),
-                      _buildDetailRow('Address', student.address),
+                          'Date of Birth', _formatDate(widget.student.dateOfBirth)),
+                      _buildDetailRow('Gender', widget.student.gender),
+                      _buildDetailRow('Address', widget.student.address),
                     ],
                   ),
                 ),
@@ -86,10 +114,10 @@ class StudentDetailsScreen extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 16),
-                      _buildDetailRow('Contact Number', student.contactNumber),
-                      _buildDetailRow('Father\'s Name', student.fatherName),
+                      _buildDetailRow('Contact Number', widget.student.contactNumber),
+                      _buildDetailRow('Father\'s Name', widget.student.fatherName),
                       _buildDetailRow(
-                          'Father\'s Contact', student.fatherContactNumber),
+                          'Father\'s Contact', widget.student.fatherContactNumber),
                     ],
                   ),
                 ),
@@ -112,7 +140,16 @@ class StudentDetailsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       _buildDetailRow('Enrollment Date',
-                          _formatDate(student.enrollmentDate)),
+                          _formatDate(widget.student.enrollmentDate)),
+                      _buildDetailRow(
+                        'Assigned Shift',
+                        _shift?.name ?? 'None',
+                      ),
+                      if (_shift != null)
+                        _buildDetailRow(
+                          'Shift Time',
+                          _shift!.timeRange,
+                        ),
                     ],
                   ),
                 ),

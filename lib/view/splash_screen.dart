@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
 import 'package:gep/core/constants/constants.dart';
+import 'package:gep/view/widgets/app_scaffold.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -46,7 +47,8 @@ class SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return AppScaffold(
       body: Column(
         children: [
           Expanded(
@@ -55,7 +57,7 @@ class SplashScreenState extends State<SplashScreen>
                 position: _animation,
                 child: Image.asset(
                   fit: BoxFit.cover,
-                  AppIcons.gepLogo,
+                  isDark ? AppIcons.gepLogoDark : AppIcons.gepLogoLight,
                   width: MediaQuery.of(context).size.width * 0.5,
                   height: MediaQuery.of(context).size.height * 0.5,
                 ),
