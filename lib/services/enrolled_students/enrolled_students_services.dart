@@ -103,6 +103,11 @@ class EnrolledStudentsServices {
     return null;
   }
 
+  Future<List<EnrolledStudent>> getEnrolledStudentsByEmail(String email) async {
+    final data = await _supabase.from(_table).select().eq('email', email);
+    return data.map((row) => _fromRow(row, row['id'] as String)).toList();
+  }
+
   Future<List<EnrolledStudent>> getStudentsByLevel(String level) async {
     final data = await _supabase.from(_table).select().eq('level', level);
     return data.map((row) => _fromRow(row, row['id'] as String)).toList();
@@ -144,6 +149,7 @@ class EnrolledStudentsServices {
         'date_of_birth': student.dateOfBirth.toIso8601String(),
         'gender': student.gender,
         'enrollment_date': student.enrollmentDate.toIso8601String(),
+        'shift_id': student.shiftId,
       };
 
   EnrolledStudent _fromRow(Map<String, dynamic> row, String id) =>
@@ -158,5 +164,6 @@ class EnrolledStudentsServices {
         'date_of_birth': row['date_of_birth'],
         'gender': row['gender'],
         'enrollmentDate': row['enrollment_date'],
+        'shift_id': row['shift_id'],
       }, id);
 }

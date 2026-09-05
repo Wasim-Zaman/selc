@@ -10,6 +10,7 @@ import 'package:gep/cubits/enrolled_students_admin/enrolled_students_cubit.dart'
 import 'package:gep/models/enrolled_students.dart';
 import 'package:gep/router/app_navigation.dart';
 import 'package:gep/router/app_routes.dart';
+import 'package:gep/view/widgets/admin_list_tile.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 
 class StudentsStatsTab extends StatelessWidget {
@@ -101,32 +102,36 @@ class StudentsStatsTab extends StatelessWidget {
                 ),
               ),
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final student = currentYearStudents[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 4.0),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Text(student.name[0].toUpperCase()),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final student = currentYearStudents[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: AdminListTile(
+                        leading: CircleAvatar(
+                          child: Text(student.name[0].toUpperCase()),
+                        ),
+                        title: student.name,
+                        subtitle:
+                            'Enrolled: ${_formatDate(student.enrollmentDate)}',
+                        trailingActions: const [
+                          Icon(Icons.chevron_right_rounded),
+                        ],
+                        onTap: () {
+                          AppNavigation.push(
+                            context,
+                            AppRoutes.kStudentDetailsRoute,
+                            extra: student,
+                          );
+                        },
                       ),
-                      title: Text(student.name),
-                      subtitle: Text(
-                          'Enrolled: ${_formatDate(student.enrollmentDate)}'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        AppNavigation.push(
-                          context,
-                          AppRoutes.kStudentDetailsRoute,
-                          extra: student,
-                        );
-                      },
-                    ),
-                  );
-                },
-                childCount: currentYearStudents.length,
+                    );
+                  },
+                  childCount: currentYearStudents.length,
+                ),
               ),
             ),
             const SliverPadding(padding: EdgeInsets.only(bottom: 16)),

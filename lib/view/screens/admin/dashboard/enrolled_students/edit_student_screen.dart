@@ -3,7 +3,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:gep/models/enrolled_students.dart';
+import 'package:gep/models/shift/shift.dart';
 import 'package:gep/services/enrolled_students/enrolled_students_services.dart';
+import 'package:gep/services/shifts/shifts_service.dart';
 import 'package:gep/core/constants/constants.dart';
 import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
@@ -38,6 +40,8 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   late DateTime _dateOfBirth;
   late String _gender;
   late DateTime _enrollmentDate;
+  late String? _selectedShiftId;
+  List<Shift> _shifts = [];
 
   // Add these FocusNode declarations
   final _nameFocus = FocusNode();
@@ -66,6 +70,19 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     _dateOfBirth = widget.student.dateOfBirth;
     _gender = widget.student.gender;
     _enrollmentDate = widget.student.enrollmentDate;
+    _selectedShiftId = widget.student.shiftId;
+    _loadShifts();
+  }
+
+  Future<void> _loadShifts() async {
+    try {
+      final shifts = await ShiftsService().getAllShifts();
+      if (mounted) {
+        setState(() => _shifts = shifts);
+      }
+    } catch (e) {
+      debugPrint('Failed to load shifts: $e');
+    }
   }
 
   @override
@@ -183,6 +200,27 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       },
                     ),
                     const SizedBox(height: AppConstants.defaultPadding),
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedShiftId,
+                      decoration: const InputDecoration(
+                        labelText: 'Assigned Shift',
+                        hintText: 'Select a shift (optional)',
+                      ),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('None'),
+                        ),
+                        ..._shifts.map((shift) => DropdownMenuItem(
+                              value: shift.id,
+                              child: Text(shift.name),
+                            )),
+                      ],
+                      onChanged: (value) {
+                        setState(() => _selectedShiftId = value);
+                      },
+                    ),
+                    const SizedBox(height: AppConstants.defaultPadding),
                     ListTile(
                       title: const Text('Enrollment Date'),
                       subtitle: Text(
@@ -230,6 +268,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         dateOfBirth: _dateOfBirth,
         gender: _gender,
         enrollmentDate: _enrollmentDate,
+        shiftId: _selectedShiftId,
       );
 
       try {

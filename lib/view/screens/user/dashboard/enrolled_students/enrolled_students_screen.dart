@@ -41,6 +41,8 @@ class _EnrolledStudentsScreenState extends State<EnrolledStudentsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textColorSecondary = isDark
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
@@ -52,128 +54,217 @@ class _EnrolledStudentsScreenState extends State<EnrolledStudentsScreen> {
           final students = state.items;
           final isLoading = state.isLoading && students.isEmpty;
 
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            slivers: [
-              // Search
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppConstants.defaultPadding,
-                    12,
-                    AppConstants.defaultPadding,
-                    12,
-                  ),
-                  child: TextFieldWidget(
-                    controller: _searchController,
-                    labelText: 'Search students',
-                    hintText: 'Search students…',
-                    prefixIcon: Icons.search_rounded,
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              context.read<UserStudentsCubit>().clearSearch();
-                            },
-                            child: Icon(Icons.close_rounded,
-                                size: 18, color: textColorSecondary),
-                          )
-                        : null,
-                    onChanged: (v) => context
-                        .read<UserStudentsCubit>()
-                        .setSearchQuery(v),
-                  ),
-                ),
+          return RefreshIndicator(
+            onRefresh: () async =>
+                context.read<UserStudentsCubit>().refresh(),
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
               ),
-
-              if (isLoading)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.defaultPadding,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: PlaceholderWidgets.listPlaceholder(itemCount: 10),
-                  ),
-                )
-              else if (state.error != null && students.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error_outline_rounded,
-                            size: 48, color: AppColors.error),
-                        const SizedBox(height: 12),
-                        Text('Failed to load students',
-                            style: theme.textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                )
-              else if (students.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Text(
-                      state.searchQuery.isEmpty
-                          ? 'No students available'
-                          : 'No matches for "${state.searchQuery}"',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.defaultPadding,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final student = students[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: _StudentCard(
-                          student: student,
-                          index: index,
-                          onTap: () => _showStudentDetails(context, student),
-                        ),
-                      );
-                    }, childCount: students.length),
-                  ),
-                ),
-
-              // Pagination
-              if (students.isNotEmpty)
+              slivers: [
+                // Search
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(
                       AppConstants.defaultPadding,
-                      8,
+                      12,
                       AppConstants.defaultPadding,
-                      24,
+                      12,
                     ),
-                    child: PaginatedWidget(
-                      isLoading: state.isLoading || state.isRefreshing,
-                      hasPrevious: state.currentPage > 0,
-                      hasNext: state.hasMore,
-                      onPrevious: () =>
-                          context.read<UserStudentsCubit>().previousPage(),
-                      onNext: () =>
-                          context.read<UserStudentsCubit>().nextPage(),
-                      onPageSelected: (page) =>
-                          context.read<UserStudentsCubit>().goToPage(page),
-                      onRefresh: () =>
-                          context.read<UserStudentsCubit>().refresh(),
-                      currentPage: state.currentPage,
-                      pageSize: 10,
+                    child: TextFieldWidget(
+                      controller: _searchController,
+                      labelText: 'Search students',
+                      hintText: 'Search students…',
+                      prefixIcon: Icons.search_rounded,
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon:
+                                  const Icon(Icons.close_rounded, size: 18),
+                              color: textColorSecondary,
+                              onPressed: () {
+                                _searchController.clear();
+                                context
+                                    .read<UserStudentsCubit>()
+                                    .clearSearch();
+                              },
+                            )
+                          : null,
+                      onChanged: (v) => context
+                          .read<UserStudentsCubit>()
+                          .setSearchQuery(v),
                     ),
                   ),
                 ),
-            ],
+
+                // Header Label & Badge
+                if (!isLoading)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppConstants.defaultPadding,
+                        0,
+                        AppConstants.defaultPadding,
+                        12,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.people_rounded,
+                                size: 16,
+                                color: textColorSecondary,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                state.searchQuery.isEmpty
+                                    ? 'ENROLLED STUDENTS'
+                                    : 'SEARCH RESULTS',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.1,
+                                  color: textColorSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (students.isNotEmpty)
+                            Badge(
+                              label: Text('${students.length}'),
+                              backgroundColor: isDark
+                                  ? AppColors.darkNeutral
+                                  : AppColors.lightNeutral,
+                              textColor: isDark
+                                  ? AppColors.darkBodyText
+                                  : AppColors.lightBodyText,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                if (isLoading)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.defaultPadding,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      child: PlaceholderWidgets.listPlaceholder(itemCount: 10),
+                    ),
+                  )
+                else if (state.error != null && students.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline_rounded,
+                              size: 48, color: AppColors.error),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Failed to load students',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.error!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (students.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.person_off_rounded,
+                            size: 36,
+                            color: textColorSecondary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'No students available'
+                                : 'No matches for "${state.searchQuery}"',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'Check back later for enrolled students'
+                                : '',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.defaultPadding,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final student = students[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _StudentCard(
+                            student: student,
+                            index: index,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                            onTap: () => _showStudentDetails(context, student),
+                          ),
+                        );
+                      }, childCount: students.length),
+                    ),
+                  ),
+
+                // Pagination
+                if (students.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppConstants.defaultPadding,
+                        8,
+                        AppConstants.defaultPadding,
+                        24,
+                      ),
+                      child: PaginatedWidget(
+                        isLoading: state.isLoading || state.isRefreshing,
+                        hasPrevious: state.currentPage > 0,
+                        hasNext: state.hasMore,
+                        onPrevious: () =>
+                            context.read<UserStudentsCubit>().previousPage(),
+                        onNext: () =>
+                            context.read<UserStudentsCubit>().nextPage(),
+                        onPageSelected: (page) =>
+                            context.read<UserStudentsCubit>().goToPage(page),
+                        onRefresh: () =>
+                            context.read<UserStudentsCubit>().refresh(),
+                        currentPage: state.currentPage,
+                        pageSize: 10,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           );
         },
       ),
@@ -200,11 +291,15 @@ class _EnrolledStudentsScreenState extends State<EnrolledStudentsScreen> {
 class _StudentCard extends StatelessWidget {
   final EnrolledStudent student;
   final int index;
+  final Color cardColor;
+  final Color borderColor;
   final VoidCallback onTap;
 
   const _StudentCard({
     required this.student,
     required this.index,
+    required this.cardColor,
+    required this.borderColor,
     required this.onTap,
   });
 
@@ -220,17 +315,17 @@ class _StudentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final color = AppColors.randomColors[index % AppColors.randomColors.length];
+    final textColorSecondary = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : AppColors.lightCard,
+          color: cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          ),
+          border: Border.all(color: borderColor),
         ),
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -238,11 +333,12 @@ class _StudentCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 26,
-                backgroundColor: color,
+                backgroundColor:
+                    theme.colorScheme.primary.withValues(alpha: 0.1),
                 child: Text(
                   _getInitials(student.name),
                   style: theme.textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
+                    color: theme.colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -262,18 +358,16 @@ class _StudentCard extends StatelessWidget {
                     Text(
                       'Level: ${student.level}',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: isDark
-                            ? AppColors.darkBodyTextSecondary
-                            : AppColors.lightBodyTextSecondary,
+                        color: textColorSecondary,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Enrolled: ${DateFormat('MMM d, yyyy').format(student.enrollmentDate)}',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: isDark
-                            ? AppColors.darkBodyTextSecondary
-                            : AppColors.lightBodyTextSecondary,
+                        color: textColorSecondary,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -281,9 +375,7 @@ class _StudentCard extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right_rounded,
-                color: isDark
-                    ? AppColors.darkBodyTextSecondary
-                    : AppColors.lightBodyTextSecondary,
+                color: textColorSecondary,
               ),
             ],
           ),
@@ -313,6 +405,8 @@ class _StudentDetailsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
 
     return Stack(
       children: [
@@ -325,11 +419,9 @@ class _StudentDetailsCard extends StatelessWidget {
           ),
           margin: const EdgeInsets.only(top: 40),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkCard : AppColors.lightCard,
+            color: cardColor,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-            ),
+            border: Border.all(color: borderColor),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -341,12 +433,28 @@ class _StudentDetailsCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _DetailRow(icon: Icons.school_rounded, label: 'Level', value: student.level),
+              _DetailRow(
+                icon: Icons.school_rounded,
+                label: 'Level',
+                value: student.level,
+              ),
               if (student.email.isNotEmpty)
-                _DetailRow(icon: Icons.email_rounded, label: 'Email', value: student.email),
-              _DetailRow(icon: Icons.person_rounded, label: 'Father', value: student.fatherName),
+                _DetailRow(
+                  icon: Icons.email_rounded,
+                  label: 'Email',
+                  value: student.email,
+                ),
+              _DetailRow(
+                icon: Icons.person_rounded,
+                label: 'Father',
+                value: student.fatherName,
+              ),
               if (student.contactNumber.isNotEmpty)
-                _DetailRow(icon: Icons.phone_rounded, label: 'Contact', value: student.contactNumber),
+                _DetailRow(
+                  icon: Icons.phone_rounded,
+                  label: 'Contact',
+                  value: student.contactNumber,
+                ),
               _DetailRow(
                 icon: Icons.calendar_today_rounded,
                 label: 'Enrolled',
@@ -367,7 +475,7 @@ class _StudentDetailsCard extends StatelessWidget {
           left: 0,
           right: 0,
           child: CircleAvatar(
-            backgroundColor: AppColors.primary,
+            backgroundColor: theme.colorScheme.primary,
             radius: 40,
             child: Text(
               _getInitials(student.name),
@@ -399,14 +507,19 @@ class _DetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final textColorSecondary = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon,
-              size: 18,
-              color: isDark ? AppColors.darkIcon : AppColors.primary),
+          Icon(
+            icon,
+            size: 18,
+            color: isDark ? AppColors.darkIcon : AppColors.primary,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: RichText(
@@ -424,9 +537,7 @@ class _DetailRow extends StatelessWidget {
                   TextSpan(
                     text: value,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: isDark
-                          ? AppColors.darkBodyTextSecondary
-                          : AppColors.lightBodyTextSecondary,
+                      color: textColorSecondary,
                     ),
                   ),
                 ],

@@ -22,10 +22,6 @@ class AdminDashboardScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundColor = isDark
-        ? AppColors.darkScaffoldBackground
-        : AppColors.lightScaffoldBackground;
-
     final List<Map<String, dynamic>> primaryActions = [
       {
         'title': 'Manage Notes',
@@ -80,6 +76,27 @@ class AdminDashboardScreen extends StatelessWidget {
         'gradient': AppGradients.terms,
         'routeName': AppRoutes.kEnrollStudentsManagementRoute,
         'fallbackIcon': Icons.how_to_reg_rounded,
+      },
+      {
+        'title': 'Shifts',
+        'lottieUrl': AppLotties.shift,
+        'gradient': AppGradients.courses,
+        'routeName': AppRoutes.kManageShiftsRoute,
+        'fallbackIcon': Icons.schedule_rounded,
+      },
+      {
+        'title': 'Attendance QR',
+        'lottieUrl': AppLotties.qrCode,
+        'gradient': AppGradients.admissions,
+        'routeName': AppRoutes.kQrAttendanceRoute,
+        'fallbackIcon': Icons.qr_code_rounded,
+      },
+      {
+        'title': 'Attendance',
+        'lottieUrl': AppLotties.attendance,
+        'gradient': AppGradients.notes,
+        'routeName': AppRoutes.kAdminAttendanceRecordsRoute,
+        'fallbackIcon': Icons.fact_check_rounded,
       },
     ];
 

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -21,6 +20,7 @@ import '../../../../services/auth/auth_service.dart';
 import '../../../widgets/announcement_strip.dart';
 import '../../../widgets/app_drawer.dart';
 import '../../../widgets/banner_slider.dart';
+import '../../../widgets/cached_image_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -129,6 +129,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           slivers: [
             SliverToBoxAdapter(child: _buildHeader(user, theme)),
+
+            // Admin Panel Access (only for admins)
+            if (_isAdminLoggedIn)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppConstants.defaultPadding,
+                    4,
+                    AppConstants.defaultPadding,
+                    8,
+                  ),
+                  child: _AdminAccessCard(),
+                ),
+              ),
 
             // Banner Slider
             SliverToBoxAdapter(
@@ -323,17 +337,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ? AppColors.darkNeutral
                     : AppColors.lightNeutral,
                 child: ClipOval(
-                  child: CachedNetworkImage(
+                  child: CachedImageWidget(
                     imageUrl: user?.photoURL ?? '',
                     width: 36,
                     height: 36,
                     fit: BoxFit.cover,
-                    placeholder: (_, _) =>
-                        const CircularProgressIndicator(strokeWidth: 2),
-                    errorWidget: (_, _, _) => Icon(
-                      Icons.person_rounded,
-                      color: isDark ? AppColors.darkIcon : AppColors.lightIcon,
-                    ),
                   ),
                 ),
               ),
@@ -350,60 +358,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (hour < 17) return 'Good Afternoon';
     return 'Good Evening';
   }
+}
 
-  Widget adminSwitchBanner(BuildContext context, ThemeData theme) {
+class _AdminAccessCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    if (!_isAdminLoggedIn) return const SizedBox.shrink();
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppConstants.defaultPadding,
-        0,
-        AppConstants.defaultPadding,
-        12,
+    final primaryTextColor = isDark
+        ? AppColors.darkBodyText
+        : AppColors.lightBodyText;
+    final secondaryTextColor = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
+    final cardBg = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+
+    return GestureDetector(
+      onTap: () => AppNavigation.pushReplacement(
+        context,
+        AppRoutes.kAdminDashboardRoute,
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: () => AppNavigation.pushReplacement(
-            context,
-            AppRoutes.kAdminDashboardRoute,
-          ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.darkCard : AppColors.lightCard,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor, width: 1),
+        ),
+        child: Row(
+          children: [
+            // Admin Icon Container
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.6,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  width: 0.8,
+                ),
+              ),
+              child: Icon(
+                Icons.admin_panel_settings_outlined,
+                color: primaryTextColor,
+                size: 16,
               ),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.admin_panel_settings_rounded,
-                  size: AppConstants.defaultIconSize - 4,
-                  color: AppColors.accent,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Switch to Admin Dashboard',
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
+            const SizedBox(width: 10),
+
+            // Title & Subtitle
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Admin Panel',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: primaryTextColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: isDark
-                      ? AppColors.darkBodyTextSecondary
-                      : AppColors.lightBodyTextSecondary,
-                ),
-              ],
+                  Text(
+                    'Manage students, shifts & attendance',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: secondaryTextColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+            const SizedBox(width: 8),
+
+            // Compact Action Arrow
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: borderColor, width: 1),
+              ),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                size: 13,
+                color: secondaryTextColor,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -535,17 +585,7 @@ class _FeaturedActionCard extends StatelessWidget {
                     child: SizedBox(
                       width: 72,
                       height: 72,
-                      child: Lottie.asset(
-                        service.lottie,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, _, _) => Icon(
-                          service.icon,
-                          size: 60,
-                          color: isDark
-                              ? AppColors.darkIcon
-                              : AppColors.lightIcon,
-                        ),
-                      ),
+                      child: Lottie.asset(service.lottie, fit: BoxFit.contain),
                     ),
                   ),
                 ),
@@ -646,15 +686,7 @@ class _ServiceTile extends StatelessWidget {
           children: [
             Expanded(
               child: Center(
-                child: Lottie.asset(
-                  service.lottie,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => Icon(
-                    service.icon,
-                    size: 28,
-                    color: isDark ? AppColors.darkIcon : AppColors.lightIcon,
-                  ),
-                ),
+                child: Lottie.asset(service.lottie, fit: BoxFit.contain),
               ),
             ),
             const SizedBox(height: 6),

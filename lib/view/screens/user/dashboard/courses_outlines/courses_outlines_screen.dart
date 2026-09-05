@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gep/core/constants/constants.dart';
@@ -39,6 +37,8 @@ class _CoursesOutlinesScreenState extends State<CoursesOutlinesScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textColorSecondary = isDark
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
@@ -50,126 +50,215 @@ class _CoursesOutlinesScreenState extends State<CoursesOutlinesScreen> {
           final courses = state.items;
           final isLoading = state.isLoading && courses.isEmpty;
 
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            slivers: [
-              // Search
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppConstants.defaultPadding,
-                    12,
-                    AppConstants.defaultPadding,
-                    12,
-                  ),
-                  child: TextFieldWidget(
-                    controller: _searchController,
-                    labelText: 'Search courses',
-                    hintText: 'Search courses…',
-                    prefixIcon: Icons.search_rounded,
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              context.read<UserCoursesCubit>().clearSearch();
-                            },
-                            child: Icon(Icons.close_rounded,
-                                size: 18, color: textColorSecondary),
-                          )
-                        : null,
-                    onChanged: (v) => context
-                        .read<UserCoursesCubit>()
-                        .setSearchQuery(v),
-                  ),
-                ),
+          return RefreshIndicator(
+            onRefresh: () async =>
+                context.read<UserCoursesCubit>().refresh(),
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
               ),
-
-              if (isLoading)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.defaultPadding,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: PlaceholderWidgets.listPlaceholder(),
-                  ),
-                )
-              else if (state.error != null && courses.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error_outline_rounded,
-                            size: 48, color: AppColors.error),
-                        const SizedBox(height: 12),
-                        Text('Failed to load courses',
-                            style: theme.textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                )
-              else if (courses.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Text(
-                      state.searchQuery.isEmpty
-                          ? 'No courses found'
-                          : 'No matches for "${state.searchQuery}"',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.defaultPadding,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _CourseCard(
-                          course: courses[index],
-                          index: index,
-                        ),
-                      );
-                    }, childCount: courses.length),
-                  ),
-                ),
-
-              // Pagination
-              if (courses.isNotEmpty)
+              slivers: [
+                // Search
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(
                       AppConstants.defaultPadding,
-                      8,
+                      12,
                       AppConstants.defaultPadding,
-                      24,
+                      12,
                     ),
-                    child: PaginatedWidget(
-                      isLoading: state.isLoading || state.isRefreshing,
-                      hasPrevious: state.currentPage > 0,
-                      hasNext: state.hasMore,
-                      onPrevious: () =>
-                          context.read<UserCoursesCubit>().previousPage(),
-                      onNext: () =>
-                          context.read<UserCoursesCubit>().nextPage(),
-                      onPageSelected: (page) =>
-                          context.read<UserCoursesCubit>().goToPage(page),
-                      onRefresh: () =>
-                          context.read<UserCoursesCubit>().refresh(),
-                      currentPage: state.currentPage,
-                      pageSize: 10,
+                    child: TextFieldWidget(
+                      controller: _searchController,
+                      labelText: 'Search courses',
+                      hintText: 'Search courses…',
+                      prefixIcon: Icons.search_rounded,
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon:
+                                  const Icon(Icons.close_rounded, size: 18),
+                              color: textColorSecondary,
+                              onPressed: () {
+                                _searchController.clear();
+                                context
+                                    .read<UserCoursesCubit>()
+                                    .clearSearch();
+                              },
+                            )
+                          : null,
+                      onChanged: (v) => context
+                          .read<UserCoursesCubit>()
+                          .setSearchQuery(v),
                     ),
                   ),
                 ),
-            ],
+
+                // Header Label & Badge
+                if (!isLoading)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppConstants.defaultPadding,
+                        0,
+                        AppConstants.defaultPadding,
+                        12,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.school_rounded,
+                                size: 16,
+                                color: textColorSecondary,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                state.searchQuery.isEmpty
+                                    ? 'AVAILABLE COURSES'
+                                    : 'SEARCH RESULTS',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.1,
+                                  color: textColorSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (courses.isNotEmpty)
+                            Badge(
+                              label: Text('${courses.length}'),
+                              backgroundColor: isDark
+                                  ? AppColors.darkNeutral
+                                  : AppColors.lightNeutral,
+                              textColor: isDark
+                                  ? AppColors.darkBodyText
+                                  : AppColors.lightBodyText,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                if (isLoading)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.defaultPadding,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      child: PlaceholderWidgets.listPlaceholder(),
+                    ),
+                  )
+                else if (state.error != null && courses.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline_rounded,
+                              size: 48, color: AppColors.error),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Failed to load courses',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.error!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (courses.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.menu_book_rounded,
+                            size: 36,
+                            color: textColorSecondary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'No courses found'
+                                : 'No matches for "${state.searchQuery}"',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'Check back later for new courses'
+                                : '',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.defaultPadding,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _CourseCard(
+                            course: courses[index],
+                            index: index,
+                            cardColor: cardColor,
+                            borderColor: borderColor,
+                          ),
+                        );
+                      }, childCount: courses.length),
+                    ),
+                  ),
+
+                // Pagination
+                if (courses.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppConstants.defaultPadding,
+                        8,
+                        AppConstants.defaultPadding,
+                        24,
+                      ),
+                      child: PaginatedWidget(
+                        isLoading: state.isLoading || state.isRefreshing,
+                        hasPrevious: state.currentPage > 0,
+                        hasNext: state.hasMore,
+                        onPrevious: () =>
+                            context.read<UserCoursesCubit>().previousPage(),
+                        onNext: () =>
+                            context.read<UserCoursesCubit>().nextPage(),
+                        onPageSelected: (page) =>
+                            context.read<UserCoursesCubit>().goToPage(page),
+                        onRefresh: () =>
+                            context.read<UserCoursesCubit>().refresh(),
+                        currentPage: state.currentPage,
+                        pageSize: 10,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           );
         },
       ),
@@ -180,38 +269,29 @@ class _CoursesOutlinesScreenState extends State<CoursesOutlinesScreen> {
 class _CourseCard extends StatelessWidget {
   final Course course;
   final int index;
+  final Color cardColor;
+  final Color borderColor;
 
-  const _CourseCard({required this.course, required this.index});
-
-  LinearGradient _gradient() {
-    final random = Random();
-    final baseColor =
-        AppColors.randomColors[random.nextInt(AppColors.randomColors.length)];
-    return LinearGradient(
-      colors: [
-        baseColor.withValues(alpha: 0.7),
-        baseColor.withValues(alpha: 0.9),
-      ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
-  }
+  const _CourseCard({
+    required this.course,
+    required this.index,
+    required this.cardColor,
+    required this.borderColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColorSecondary = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark
-            ? AppColors.darkCard
-            : AppColors.lightCard,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.brightness == Brightness.dark
-              ? AppColors.darkBorder
-              : AppColors.lightBorder,
-        ),
+        border: Border.all(color: borderColor),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -226,21 +306,21 @@ class _CourseCard extends StatelessWidget {
           subtitle: Text(
             '${course.weeks.length} weeks',
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.brightness == Brightness.dark
-                  ? AppColors.darkBodyTextSecondary
-                  : AppColors.lightBodyTextSecondary,
+              color: textColorSecondary,
+              fontWeight: FontWeight.w500,
             ),
           ),
           leading: Container(
-            padding: const EdgeInsets.all(10),
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              gradient: _gradient(),
+              color: theme.colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.auto_stories_rounded,
               size: 20,
-              color: Colors.white,
+              color: theme.colorScheme.primary,
             ),
           ),
           children: [

@@ -88,41 +88,46 @@ class AdminListTile extends StatelessWidget {
       );
     }
 
-    return ListTile(
+    return Material(
+      color: cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         side: BorderSide(color: borderColor),
       ),
-      tileColor: cardColor,
-      contentPadding: contentPadding,
-      leading: effectiveLeading,
-      title: Text(
-        title,
-        style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          fontSize: 15,
+      child: ListTile(
+        contentPadding: contentPadding,
+        leading: effectiveLeading,
+        title: Text(
+          title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+        subtitle: subtitle != null
+            ? Text(
+                subtitle!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: textColorSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              )
+            : null,
+        trailing: trailingActions != null && trailingActions!.isNotEmpty
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: trailingActions!,
+              )
+            : null,
+        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
       ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: textColorSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            )
-          : null,
-      trailing: trailingActions != null && trailingActions!.isNotEmpty
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: trailingActions!,
-            )
-          : null,
-      onTap: onTap,
     );
   }
 }

@@ -98,6 +98,36 @@ class AppDrawer extends StatelessWidget {
         ),
       );
       tiles.add(const SizedBox(height: 16));
+      tiles.add(const _SectionHeader(label: 'Attendance'));
+      tiles.add(
+        _DrawerTile(
+          icon: Icons.fact_check_outlined,
+          label: 'My Attendance',
+          index: index++,
+          onTap: () {
+            Navigator.pop(context);
+            AppNavigation.push(
+              context,
+              AppRoutes.kStudentAttendanceRoute,
+            );
+          },
+        ),
+      );
+      tiles.add(
+        _DrawerTile(
+          icon: Icons.qr_code_scanner_rounded,
+          label: 'Scan QR',
+          index: index++,
+          onTap: () {
+            Navigator.pop(context);
+            AppNavigation.push(
+              context,
+              AppRoutes.kScanAttendanceRoute,
+            );
+          },
+        ),
+      );
+      tiles.add(const SizedBox(height: 16));
       tiles.add(const _SectionHeader(label: 'Legal'));
       tiles.add(
         _DrawerTile(

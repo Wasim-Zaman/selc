@@ -9,7 +9,6 @@ import 'package:gep/utils/snackbars.dart';
 import 'package:gep/view/widgets/admin_list_tile.dart';
 import 'package:gep/view/widgets/app_button.dart';
 import 'package:gep/view/widgets/app_dialog.dart';
-import 'package:gep/view/widgets/app_scaffold.dart';
 import 'package:gep/view/widgets/paginated_widget.dart';
 import 'package:gep/view/widgets/placeholder_widget.dart';
 import 'package:gep/view/widgets/text_field_widget.dart';
@@ -58,248 +57,277 @@ class _StudentsListTabState extends State<StudentsListTab> {
         final students = state.items;
         final isLoading = state.isLoading && students.isEmpty;
 
-        return AppScaffold(
-          body: RefreshIndicator(
-            onRefresh: () async =>
-                context.read<EnrolledStudentsAdminCubit>().refresh(),
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        return Stack(
+          children: [
+            Column(
               children: [
-                // Search Bar
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: TextFieldWidget(
-                    controller: _searchController,
-                    labelText: 'Search students',
-                    hintText: 'Search students…',
-                    prefixIcon: Icons.search_rounded,
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.close_rounded, size: 18),
-                            color: textColorSecondary,
-                            onPressed: () {
-                              _searchController.clear();
-                              context
-                                  .read<EnrolledStudentsAdminCubit>()
-                                  .clearSearch();
-                            },
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async =>
+                        context.read<EnrolledStudentsAdminCubit>().refresh(),
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding:
+                          const EdgeInsets.all(AppConstants.defaultPadding),
+                      children: [
+                        // Search Bar
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: TextFieldWidget(
+                            controller: _searchController,
+                            labelText: 'Search students',
+                            hintText: 'Search students…',
+                            prefixIcon: Icons.search_rounded,
+                            suffixIcon: _searchController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.close_rounded,
+                                        size: 18),
+                                    color: textColorSecondary,
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      context
+                                          .read<EnrolledStudentsAdminCubit>()
+                                          .clearSearch();
+                                    },
+                                  )
+                                : null,
+                            onChanged: (v) => context
+                                .read<EnrolledStudentsAdminCubit>()
+                                .setSearchQuery(v),
+                          ),
+                        ),
+
+                        // Header Label & Badge
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 12, left: 4, right: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.people_rounded,
+                                    size: 16,
+                                    color: textColorSecondary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    state.searchQuery.isEmpty
+                                        ? 'ENROLLED STUDENTS'
+                                        : 'SEARCH RESULTS',
+                                    style:
+                                        theme.textTheme.labelSmall?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 1.1,
+                                      color: textColorSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (!isLoading && students.isNotEmpty)
+                                Badge(
+                                  label: Text('${students.length}'),
+                                  backgroundColor: isDark
+                                      ? AppColors.darkNeutral
+                                      : AppColors.lightNeutral,
+                                  textColor: isDark
+                                      ? AppColors.darkBodyText
+                                      : AppColors.lightBodyText,
+                                ),
+                            ],
+                          ),
+                        ),
+
+                        // Body Content States
+                        if (isLoading)
+                          PlaceholderWidgets.listPlaceholder()
+                        else if (state.error != null && students.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 48),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline_rounded,
+                                    size: 48,
+                                    color: AppColors.error,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Failed to load students',
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    state.error!,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: textColorSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           )
-                        : null,
-                    onChanged: (v) => context
-                        .read<EnrolledStudentsAdminCubit>()
-                        .setSearchQuery(v),
+                        else if (students.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 48),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.person_off_rounded,
+                                    size: 36,
+                                    color: textColorSecondary,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    state.searchQuery.isEmpty
+                                        ? 'No Students Found'
+                                        : 'No matches for "${state.searchQuery}"',
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    state.searchQuery.isEmpty
+                                        ? 'Tap the + button below to add your first student'
+                                        : '',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: textColorSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  if (state.searchQuery.isEmpty)
+                                    AppButton(
+                                      onPressed: () => _addStudent(context),
+                                      label: 'Add New Student',
+                                      expanded: false,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: students.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: 8),
+                            itemBuilder: (context, index) {
+                              final student = students[index];
+                              return AdminListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: theme.colorScheme.primary
+                                      .withValues(alpha: 0.1),
+                                  child: Text(
+                                    student.name.isNotEmpty
+                                        ? student.name[0]
+                                        : '?',
+                                    style: TextStyle(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                title: student.name,
+                                subtitle: student.level,
+                                trailingActions: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit_outlined,
+                                        size: 20),
+                                    color: theme.colorScheme.primary,
+                                    onPressed: () =>
+                                        _editStudent(context, student),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_outline_rounded,
+                                      size: 20,
+                                    ),
+                                    color: AppColors.error
+                                        .withValues(alpha: 0.85),
+                                    onPressed: () =>
+                                        _confirmDelete(student),
+                                  ),
+                                ],
+                                onTap: () =>
+                                    _showStudentDetails(context, student),
+                              );
+                            },
+                          ),
+                        const SizedBox(height: 80),
+                      ],
+                    ),
                   ),
                 ),
-
-                // Header Label & Badge
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12, left: 4, right: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.people_rounded,
-                            size: 16,
-                            color: textColorSecondary,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            state.searchQuery.isEmpty
-                                ? 'ENROLLED STUDENTS'
-                                : 'SEARCH RESULTS',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.1,
-                              color: textColorSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (!isLoading && students.isNotEmpty)
-                        Badge(
-                          label: Text('${students.length}'),
-                          backgroundColor: isDark
-                              ? AppColors.darkNeutral
-                              : AppColors.lightNeutral,
-                          textColor: isDark
-                              ? AppColors.darkBodyText
-                              : AppColors.lightBodyText,
-                        ),
-                    ],
-                  ),
-                ),
-
-                // Body Content States
-                if (isLoading)
-                  PlaceholderWidgets.listPlaceholder()
-                else if (state.error != null && students.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 48),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline_rounded,
-                            size: 48,
-                            color: AppColors.error,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Failed to load students',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            state.error!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: textColorSecondary,
-                            ),
-                          ),
-                        ],
+                if (students.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.defaultPadding,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      border: Border(top: BorderSide(color: borderColor)),
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: PaginatedWidget(
+                        isLoading: state.isLoading || state.isRefreshing,
+                        hasPrevious: state.currentPage > 0,
+                        hasNext: state.hasMore,
+                        onPrevious: () => context
+                            .read<EnrolledStudentsAdminCubit>()
+                            .previousPage(),
+                        onNext: () => context
+                            .read<EnrolledStudentsAdminCubit>()
+                            .nextPage(),
+                        onPageSelected: (page) => context
+                            .read<EnrolledStudentsAdminCubit>()
+                            .goToPage(page),
+                        onRefresh: () => context
+                            .read<EnrolledStudentsAdminCubit>()
+                            .refresh(),
+                        currentPage: state.currentPage,
+                        pageSize: 10,
                       ),
                     ),
-                  )
-                else if (students.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 48),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.person_off_rounded,
-                            size: 36,
-                            color: textColorSecondary,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            state.searchQuery.isEmpty
-                                ? 'No Students Found'
-                                : 'No matches for "${state.searchQuery}"',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            state.searchQuery.isEmpty
-                                ? 'Tap the + button below to add your first student'
-                                : '',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: textColorSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          if (state.searchQuery.isEmpty)
-                            AppButton(
-                              onPressed: () => _addStudent(context),
-                              label: 'Add New Student',
-                              expanded: false,
-                            ),
-                        ],
-                      ),
-                    ),
-                  )
-                else
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: students.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      final student = students[index];
-                      return AdminListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: theme.colorScheme.primary
-                              .withValues(alpha: 0.1),
-                          child: Text(
-                            student.name.isNotEmpty ? student.name[0] : '?',
-                            style: TextStyle(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        title: student.name,
-                        subtitle: student.level,
-                        trailingActions: [
-                          IconButton(
-                            icon: const Icon(Icons.edit_outlined, size: 20),
-                            color: theme.colorScheme.primary,
-                            onPressed: () => _editStudent(context, student),
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline_rounded,
-                              size: 20,
-                            ),
-                            color: AppColors.error.withValues(alpha: 0.85),
-                            onPressed: () => _confirmDelete(student),
-                          ),
-                        ],
-                        onTap: () => _showStudentDetails(context, student),
-                      );
-                    },
                   ),
-                const SizedBox(height: 80),
               ],
             ),
-          ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _addStudent(context),
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('Add Student'),
-          ),
-          bottomNavigationBar: students.isNotEmpty
-              ? Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.defaultPadding,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cardColor,
-                    border: Border(top: BorderSide(color: borderColor)),
-                  ),
-                  child: SafeArea(
-                    top: false,
-                    child: PaginatedWidget(
-                      isLoading: state.isLoading || state.isRefreshing,
-                      hasPrevious: state.currentPage > 0,
-                      hasNext: state.hasMore,
-                      onPrevious: () => context
-                          .read<EnrolledStudentsAdminCubit>()
-                          .previousPage(),
-                      onNext: () => context
-                          .read<EnrolledStudentsAdminCubit>()
-                          .nextPage(),
-                      onPageSelected: (page) => context
-                          .read<EnrolledStudentsAdminCubit>()
-                          .goToPage(page),
-                      onRefresh: () => context
-                          .read<EnrolledStudentsAdminCubit>()
-                          .refresh(),
-                      currentPage: state.currentPage,
-                      pageSize: 10,
-                    ),
-                  ),
-                )
-              : null,
+            Positioned(
+              bottom: students.isNotEmpty ? 88 : 24,
+              right: AppConstants.defaultPadding,
+              child: FloatingActionButton.extended(
+                onPressed: () => _addStudent(context),
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Add Student'),
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
   void _editStudent(BuildContext context, EnrolledStudent student) async {
+    final cubit = context.read<EnrolledStudentsAdminCubit>();
     final result = await AppNavigation.pushForResult<bool>(
       context,
       AppRoutes.kEditStudentRoute,
-      extra: {'student': student},
+      extra: {
+        'student': student,
+        'service': cubit.service,
+      },
     );
 
     if (!context.mounted) return;
@@ -309,13 +337,16 @@ class _StudentsListTabState extends State<StudentsListTab> {
   }
 
   void _showStudentDetails(BuildContext context, EnrolledStudent student) {
-    AppNavigation.push(context, AppRoutes.kStudentDetailsRoute, extra: student);
+    AppNavigation.push(context, AppRoutes.kStudentDetailsRoute,
+        extra: student);
   }
 
   void _addStudent(BuildContext context) async {
+    final cubit = context.read<EnrolledStudentsAdminCubit>();
     final result = await AppNavigation.pushForResult<bool>(
       context,
       AppRoutes.kAddStudentRoute,
+      extra: cubit.service,
     );
 
     if (!context.mounted) return;

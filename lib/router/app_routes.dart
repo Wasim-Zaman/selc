@@ -103,4 +103,20 @@ class AppRoutes {
 
   static const String kAdminAdmissionsRoute = "admin-admissions";
   static const String kAdminAdmissionsRoutePath = "/admin/admissions";
+
+  // Attendance module routes
+  static const String kManageShiftsRoute = "manage-shifts";
+  static const String kManageShiftsRoutePath = "/admin/manage-shifts";
+
+  static const String kQrAttendanceRoute = "qr-attendance";
+  static const String kQrAttendanceRoutePath = "/admin/qr-attendance";
+
+  static const String kAdminAttendanceRecordsRoute = "admin-attendance-records";
+  static const String kAdminAttendanceRecordsRoutePath = "/admin/attendance-records";
+
+  static const String kScanAttendanceRoute = "scan-attendance";
+  static const String kScanAttendanceRoutePath = "/scan-attendance";
+
+  static const String kStudentAttendanceRoute = "student-attendance";
+  static const String kStudentAttendanceRoutePath = "/student-attendance";
 }

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
@@ -40,6 +38,8 @@ class _NotesCategoriesScreenState extends State<NotesCategoriesScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final textColorSecondary = isDark
         ? AppColors.darkBodyTextSecondary
         : AppColors.lightBodyTextSecondary;
@@ -51,124 +51,213 @@ class _NotesCategoriesScreenState extends State<NotesCategoriesScreen> {
           final categories = state.items;
           final isLoading = state.isLoading && categories.isEmpty;
 
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            slivers: [
-              // Search
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppConstants.defaultPadding,
-                    12,
-                    AppConstants.defaultPadding,
-                    12,
-                  ),
-                  child: TextFieldWidget(
-                    controller: _searchController,
-                    labelText: 'Search categories',
-                    hintText: 'Search categories…',
-                    prefixIcon: Icons.search_rounded,
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              context.read<NotesCategoriesCubit>().clearSearch();
-                            },
-                            child: Icon(Icons.close_rounded,
-                                size: 18, color: textColorSecondary),
-                          )
-                        : null,
-                    onChanged: (v) => context
-                        .read<NotesCategoriesCubit>()
-                        .setSearchQuery(v),
-                  ),
-                ),
+          return RefreshIndicator(
+            onRefresh: () async =>
+                context.read<NotesCategoriesCubit>().refresh(),
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
               ),
-
-              if (isLoading)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.defaultPadding,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: PlaceholderWidgets.listPlaceholder(),
-                  ),
-                )
-              else if (state.error != null && categories.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error_outline_rounded,
-                            size: 48, color: AppColors.error),
-                        const SizedBox(height: 12),
-                        Text('Failed to load categories',
-                            style: theme.textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                )
-              else if (categories.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Text(
-                      state.searchQuery.isEmpty
-                          ? 'No categories found'
-                          : 'No matches for "${state.searchQuery}"',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.defaultPadding,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final category = categories[index];
-                      return _CategoryCard(
-                        category: category,
-                        index: index,
-                      );
-                    }, childCount: categories.length),
-                  ),
-                ),
-
-              // Pagination
-              if (categories.isNotEmpty)
+              slivers: [
+                // Search
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(
                       AppConstants.defaultPadding,
-                      8,
+                      12,
                       AppConstants.defaultPadding,
-                      24,
+                      12,
                     ),
-                    child: PaginatedWidget(
-                      isLoading: state.isLoading || state.isRefreshing,
-                      hasPrevious: state.currentPage > 0,
-                      hasNext: state.hasMore,
-                      onPrevious: () =>
-                          context.read<NotesCategoriesCubit>().previousPage(),
-                      onNext: () =>
-                          context.read<NotesCategoriesCubit>().nextPage(),
-                      onPageSelected: (page) =>
-                          context.read<NotesCategoriesCubit>().goToPage(page),
-                      onRefresh: () =>
-                          context.read<NotesCategoriesCubit>().refresh(),
-                      currentPage: state.currentPage,
-                      pageSize: 15,
+                    child: TextFieldWidget(
+                      controller: _searchController,
+                      labelText: 'Search categories',
+                      hintText: 'Search categories…',
+                      prefixIcon: Icons.search_rounded,
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon:
+                                  const Icon(Icons.close_rounded, size: 18),
+                              color: textColorSecondary,
+                              onPressed: () {
+                                _searchController.clear();
+                                context
+                                    .read<NotesCategoriesCubit>()
+                                    .clearSearch();
+                              },
+                            )
+                          : null,
+                      onChanged: (v) => context
+                          .read<NotesCategoriesCubit>()
+                          .setSearchQuery(v),
                     ),
                   ),
                 ),
-            ],
+
+                // Header Label & Badge
+                if (!isLoading)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppConstants.defaultPadding,
+                        0,
+                        AppConstants.defaultPadding,
+                        12,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.folder_copy_rounded,
+                                size: 16,
+                                color: textColorSecondary,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                state.searchQuery.isEmpty
+                                    ? 'ALL CATEGORIES'
+                                    : 'SEARCH RESULTS',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.1,
+                                  color: textColorSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (categories.isNotEmpty)
+                            Badge(
+                              label: Text('${categories.length}'),
+                              backgroundColor: isDark
+                                  ? AppColors.darkNeutral
+                                  : AppColors.lightNeutral,
+                              textColor: isDark
+                                  ? AppColors.darkBodyText
+                                  : AppColors.lightBodyText,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                if (isLoading)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.defaultPadding,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      child: PlaceholderWidgets.listPlaceholder(),
+                    ),
+                  )
+                else if (state.error != null && categories.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline_rounded,
+                              size: 48, color: AppColors.error),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Failed to load categories',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.error!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (categories.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.folder_off_rounded,
+                            size: 36,
+                            color: textColorSecondary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'No categories found'
+                                : 'No matches for "${state.searchQuery}"',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.searchQuery.isEmpty
+                                ? 'Check back later for new notes'
+                                : '',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: textColorSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.defaultPadding,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final category = categories[index];
+                        return _CategoryCard(
+                          category: category,
+                          index: index,
+                          cardColor: cardColor,
+                          borderColor: borderColor,
+                        );
+                      }, childCount: categories.length),
+                    ),
+                  ),
+
+                // Pagination
+                if (categories.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppConstants.defaultPadding,
+                        8,
+                        AppConstants.defaultPadding,
+                        24,
+                      ),
+                      child: PaginatedWidget(
+                        isLoading: state.isLoading || state.isRefreshing,
+                        hasPrevious: state.currentPage > 0,
+                        hasNext: state.hasMore,
+                        onPrevious: () =>
+                            context.read<NotesCategoriesCubit>().previousPage(),
+                        onNext: () =>
+                            context.read<NotesCategoriesCubit>().nextPage(),
+                        onPageSelected: (page) =>
+                            context.read<NotesCategoriesCubit>().goToPage(page),
+                        onRefresh: () =>
+                            context.read<NotesCategoriesCubit>().refresh(),
+                        currentPage: state.currentPage,
+                        pageSize: 15,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           );
         },
       ),
@@ -179,75 +268,68 @@ class _NotesCategoriesScreenState extends State<NotesCategoriesScreen> {
 class _CategoryCard extends StatelessWidget {
   final String category;
   final int index;
+  final Color cardColor;
+  final Color borderColor;
 
-  const _CategoryCard({required this.category, required this.index});
-
-  LinearGradient _gradient() {
-    final random = Random();
-    const colors = AppColors.randomColors;
-    final baseColor = colors[random.nextInt(colors.length)];
-    return LinearGradient(
-      colors: [
-        baseColor.withValues(alpha: 0.7),
-        baseColor.withValues(alpha: 0.9),
-        baseColor,
-      ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
-  }
+  const _CategoryCard({
+    required this.category,
+    required this.index,
+    required this.cardColor,
+    required this.borderColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: GestureDetector(
-        onTap: () => AppNavigation.push(
-          context,
-          AppRoutes.kNotesRoute,
-          extra: category,
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColorSecondary = isDark
+        ? AppColors.darkBodyTextSecondary
+        : AppColors.lightBodyTextSecondary;
+
+    return GestureDetector(
+      onTap: () => AppNavigation.push(
+        context,
+        AppRoutes.kNotesRoute,
+        extra: category,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: borderColor),
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: _gradient(),
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.folder_rounded,
-                      size: 22,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      category,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 14,
-                    color: Colors.white70,
-                  ),
-                ],
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.folder_rounded,
+                  size: 22,
+                  color: theme.colorScheme.primary,
+                ),
               ),
-            ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  category,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: textColorSecondary,
+              ),
+            ],
           ),
         ),
       ),
